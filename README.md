@@ -76,7 +76,7 @@ The first generation downloads the voice (~330 MB), Whisper (~140 MB), and, with
 
 ## Production
 
-`deploy/` holds the Docker Compose file (studio; captions use the server's existing llama.cpp container), the Apache vhost, and the server deploy script. Deployed at https://word.wellspringstudiollc.com behind the studio login; `/site/` (homepage, privacy, terms) is public.
+`deploy/` holds the Docker Compose file (studio; captions use the server's existing llama.cpp container), the Apache vhost, and the server deploy script. Deployed at https://word.wellspringstudiollc.com with no login; `/site/` (homepage, privacy, terms) is public.
 
 ## Credits
 
