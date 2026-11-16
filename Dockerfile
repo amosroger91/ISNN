@@ -26,6 +26,7 @@ COPY assets ./assets
 COPY docs ./docs
 COPY server ./server
 COPY shared ./shared
+COPY scripts/sports-cron.mjs ./scripts/sports-cron.mjs
 VOLUME ["/data", "/models"]
 EXPOSE 4319
 CMD ["node", "server/index.mjs"]

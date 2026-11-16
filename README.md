@@ -1,5 +1,22 @@
 # Daily Verse Studio · The Word
 
+## Overtime Desk
+
+Open [Overtime Desk](http://127.0.0.1:4319/sports) after `npm run dev`. This sports studio uses the same React/Express app and local Kokoro narration and FFmpeg pipeline as Daily Verse Studio. The practice rundown supports topic edits, chat commands and a preview render without a research model or YouTube account.
+
+- **Midnight Central.** The desk reads recent publisher feeds, builds a sourced rundown, checks the draft against its sources and renders a 1080p episode with captions and original broadcast graphics.
+- **Between midnight and air.** Isaac can add, include or bench a story, inspect its evidence, or change the angle and add a take directly or through chat. Live edits queue a new render. For a factual topic outside the feeds, add a source URL and a supporting excerpt. The script attributes Isaac's commentary separately from the reporting.
+- **8 a.m. Central.** Cron submits the finished, current revision to YouTube. The first attempt starts at 8 a.m. and retries may occur through 8:59 a.m. while the app is running. YouTube controls processing time. If the current revision is missing or fails its checks, the desk holds the upload. Once an upload starts, that edition is locked. An uncertain upload calls for checking YouTube Studio.
+
+### Schedule and accounts
+
+1. Configure `SPORTS_LLM_URL`, `SPORTS_LLM_MODEL` and, for a hosted model, `SPORTS_LLM_API_KEY` in the app environment. Use a model capable of reliably following structured editorial instructions. To choose your own sports coverage, set `SPORTS_FEEDS` to a JSON array of up to eight `{ "publisher", "url" }` objects. Set `SPORTS_TIMEZONE` to change the IANA time zone.
+2. Set `SPORTS_DESK_PASSWORD` for access outside the app host, and use the desk over HTTPS on your configured `PUBLIC_URL`. Isaac signs in as `isaac` by default. Keep one app instance writing to the same persistent `DATA_DIR`. Editions live in `DATA_DIR/sports`.
+3. Enable YouTube Data API v3 and obtain an offline OAuth refresh token for the channel with the `https://www.googleapis.com/auth/youtube.upload` scope. In Google's OAuth Playground, register the Playground redirect URI on your web OAuth client and use **Use your own OAuth credentials** to authorize the channel and exchange the authorization code. Set `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET` and `YOUTUBE_REFRESH_TOKEN`. Set `SPORTS_PUBLISH_ENABLED=true` to start uploads, and choose `YOUTUBE_PRIVACY_STATUS` (`public` by default, or `unlisted` or `private`). [Google OAuth Playground](https://developers.google.com/oauthplayground/), [YouTube upload reference](https://developers.google.com/youtube/data/reference/rest/v3/videos/insert).
+4. Install the entry in [deploy/sports.crontab](deploy/sports.crontab) with `crontab -e` on the Compose host. It calls the app each minute, and the app uses `SPORTS_TIMEZONE` for midnight and the 8 a.m. upload window regardless of the host cron time zone. For a bare Node install, use `* * * * * cd /absolute/path/to/word-daily && /absolute/path/to/node scripts/sports-cron.mjs` in the host crontab.
+
+## Daily Verse Studio
+
 Videos are voice only, so music can be added in TikTok's editor.
 
 One click turns today's verse into a polished 1080 × 1920 video in The Word's style: the verse is read aloud by a natural voice, every word lights up gold as it is spoken, over calm nature B-roll, with The Word's logo at the start and end and an AI-written caption ready to post or send to TikTok drafts.

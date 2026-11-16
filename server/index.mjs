@@ -20,7 +20,7 @@ if (process.argv.includes("--dev")) {
   );
 }
 const server = app.listen(port, host, () =>
-  console.log(`SoundCloud Finds is ready at http://${host}:${port}`),
+  console.log(`The Word Daily is ready at http://${host}:${port} (Overtime Desk at /sports)`),
 );
 async function shutdown() {
   await jobs.stop();

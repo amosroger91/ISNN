@@ -1,0 +1,3 @@
+# Install with crontab -e on the Compose host, under a user that can run Docker.
+# The app starts at 00:00 and 08:00 SPORTS_TIMEZONE and restricts retries to the same morning.
+* * * * * cd /opt/word-daily && /usr/bin/docker compose exec -T word-daily node scripts/sports-cron.mjs

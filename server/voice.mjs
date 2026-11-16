@@ -57,37 +57,44 @@ function soften(samples) {
 // Narrates "<reference>. <verse>" and records where each spoken chunk sits,
 // so word timings can be anchored to known boundaries.
 export async function narrate(verse, voice, file, report = () => {}, signal, { speed = SPEED, pause = PAUSE_BETWEEN_CHUNKS } = {}) {
-  if (!VOICES[voice]) voice = DEFAULT_VOICE;
-  const tts = await loadVoice(report);
   const parts = [
     { kind: "reference", text: spokenReference(verse.ref), pause: PAUSE_AFTER_REFERENCE },
     ...speechChunks(verse.text).map((text) => ({ kind: "verse", text, pause })),
   ];
+  return narrateParts(parts, voice, file, report, signal, { speed, prepareText: forSpeech });
+}
+
+export async function narrateParts(parts, voice, file, report = () => {}, signal, { speed = SPEED, prepareText = (text) => text } = {}) {
+  if (!Object.hasOwn(VOICES, voice)) voice = DEFAULT_VOICE;
+  const tts = await loadVoice(report);
   const lead = Math.round(RATE * 0.15);
   const pieces = [new Float32Array(lead)];
   const segments = [];
   let cursor = lead;
-  for (const [index, part] of parts.entries()) {
-    signal?.throwIfAborted();
-    report(`Recording the narration (${index + 1} of ${parts.length})…`);
-    const audio = await tts.generate(forSpeech(part.text), { voice, speed });
-    const samples = soften(Float32Array.from(audio.audio));
-    segments.push({ kind: part.kind, text: part.text, start: cursor / RATE, end: (cursor + samples.length) / RATE });
-    pieces.push(samples, new Float32Array(Math.round(RATE * (index === parts.length - 1 ? 0.3 : part.pause))));
-    cursor += samples.length + pieces.at(-1).length;
+  try {
+    for (const [index, part] of parts.entries()) {
+      signal?.throwIfAborted();
+      report(`Recording the narration (${index + 1} of ${parts.length})…`);
+      const audio = await tts.generate(prepareText(part.text), { voice, speed });
+      const samples = soften(Float32Array.from(audio.audio));
+      segments.push({ kind: part.kind, text: part.text, start: cursor / RATE, end: (cursor + samples.length) / RATE });
+      const silence = new Float32Array(Math.round(RATE * (index === parts.length - 1 ? 0.3 : part.pause ?? PAUSE_BETWEEN_CHUNKS)));
+      pieces.push(samples, silence);
+      cursor += samples.length + silence.length;
+    }
+    const total = new Float32Array(cursor);
+    let offset = 0;
+    for (const piece of pieces) {
+      total.set(piece, offset);
+      offset += piece.length;
+    }
+    await writeFile(file, wav(total, RATE));
+    return { file, voice, rate: RATE, duration: total.length / RATE, segments };
+  } finally {
+    // Keep memory free for rendering, even if narration was cancelled.
+    engine = null;
+    await tts.model?.dispose?.();
   }
-  const total = new Float32Array(cursor);
-  let offset = 0;
-  for (const piece of pieces) {
-    total.set(piece, offset);
-    offset += piece.length;
-  }
-  await writeFile(file, wav(total, RATE));
-  // Free the voice model before rendering; the worker exits after each job anyway.
-  const loaded = await engine.catch(() => null);
-  engine = null;
-  await loaded?.model?.dispose?.();
-  return { file, voice, rate: RATE, duration: total.length / RATE, segments };
 }
 
 // 16-bit mono PCM WAV.

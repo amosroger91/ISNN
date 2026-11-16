@@ -10,6 +10,8 @@ import { VOICES, DEFAULT_VOICE } from "./voice.mjs";
 import { lookupVerse, TRANSLATIONS } from "./bible.mjs";
 import { STYLES } from "../shared/styles.mjs";
 import { authorizationUrl, completeAuthorization, disconnect, tiktokStatus } from "./tiktok.mjs";
+import { SportsDesk } from "./sports/desk.mjs";
+import { mountSports } from "./sports/routes.mjs";
 
 export const videoSchema = z.object({
   style: z.enum(Object.keys(STYLES)).default("classic"),
@@ -22,7 +24,7 @@ export const videoSchema = z.object({
   variation: z.number().int().min(0).max(9999).default(0),
 });
 
-export async function createApp({ jobs = new Jobs() } = {}) {
+export async function createApp({ jobs = new Jobs(), sports = new SportsDesk() } = {}) {
   await jobs.init();
   const app = express();
   app.disable("x-powered-by");
@@ -38,6 +40,7 @@ export async function createApp({ jobs = new Jobs() } = {}) {
     next();
   });
   app.use(express.json({ limit: "64kb" }));
+  mountSports(app, sports);
   // Public homepage, privacy policy, and terms.
   app.use("/site", express.static(path.join(root, "docs")));
 

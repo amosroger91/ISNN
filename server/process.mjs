@@ -4,6 +4,7 @@ export function run(
   file,
   args,
   {
+    cwd,
     signal,
     timeout = 180000,
     maxBytes = 20 * 1024 * 1024,
@@ -12,6 +13,7 @@ export function run(
 ) {
   return new Promise((resolve, reject) => {
     const child = spawn(file, args, {
+      cwd,
       windowsHide: true,
       shell: false,
       stdio: ["ignore", "pipe", "pipe"],
