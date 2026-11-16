@@ -6,6 +6,6 @@ try {
   const response = await fetch(url, { method: "POST", signal: AbortSignal.timeout(10_000) });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
 } catch (error) {
-  console.error(`Overtime Desk cron could not reach ${url}: ${error.message}`);
+  console.error(`Wellspring Media Sports cron could not reach ${url}: ${error.message}`);
   process.exitCode = 1;
 }

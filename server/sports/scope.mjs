@@ -8,6 +8,7 @@ export const LEAGUES = {
   NBA: { sport: "basketball", family: "NBA" },
   WNBA: { sport: "basketball", family: "WNBA" },
   NCAAB: { sport: "basketball", family: "NCAA", label: "NCAA basketball" },
+  NCAAW: { sport: "basketball", family: "NCAA", label: "NCAA women's basketball" },
   NFL: { sport: "football", family: "NFL" },
   NCAAF: { sport: "football", family: "NCAA", label: "NCAA football" },
   MLB: { sport: "baseball", family: "MLB" },

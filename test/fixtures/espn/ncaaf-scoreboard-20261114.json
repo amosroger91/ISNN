@@ -1,0 +1,433 @@
+{
+ "leagues": [
+  {
+   "id": "23",
+   "name": "NCAA - Football",
+   "abbreviation": "NCAAF",
+   "slug": "college-football",
+   "season": {
+    "year": 2026,
+    "startDate": "2026-02-01T08:00Z",
+    "endDate": "2027-01-28T07:59Z",
+    "displayName": "2026",
+    "type": {
+     "id": "2",
+     "type": 2,
+     "name": "Regular Season",
+     "abbreviation": "reg"
+    }
+   }
+  }
+ ],
+ "events": [
+  {
+   "id": "401856885",
+   "date": "2026-11-15T00:30Z",
+   "name": "Texas Longhorns at LSU Tigers",
+   "shortName": "TEX @ LSU",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "links": [
+    {
+     "rel": [
+      "summary",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/college-football/game/_/gameId/401856885/texas-lsu"
+    },
+    {
+     "rel": [
+      "boxscore",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/college-football/boxscore/_/gameId/401856885"
+    },
+    {
+     "rel": [
+      "highlights",
+      "desktop"
+     ],
+     "href": "https://www.espn.com/college-football/video?gameId=401856885"
+    },
+    {
+     "rel": [
+      "pbp",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/college-football/playbyplay/_/gameId/401856885"
+    },
+    {
+     "rel": [
+      "recap",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/college-football/recap?gameId=401856885"
+    }
+   ],
+   "competitions": [
+    {
+     "id": "401856885",
+     "date": "2026-11-15T00:30Z",
+     "neutralSite": false,
+     "venue": {
+      "fullName": "Tiger Stadium (LA)",
+      "address": {
+       "city": "Baton Rouge",
+       "state": "LA",
+       "country": "USA"
+      }
+     },
+     "status": {
+      "clock": 0,
+      "displayClock": "0:00",
+      "period": 4,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "competitors": [
+      {
+       "id": "99",
+       "homeAway": "home",
+       "winner": false,
+       "score": "21",
+       "linescores": [
+        {
+         "value": 7,
+         "period": 1
+        },
+        {
+         "value": 7,
+         "period": 2
+        },
+        {
+         "value": 7,
+         "period": 3
+        },
+        {
+         "value": 0,
+         "period": 4
+        }
+       ],
+       "records": [
+        {
+         "name": "overall",
+         "type": "total",
+         "summary": "6-4"
+        }
+       ],
+       "leaders": [],
+       "team": {
+        "id": "99",
+        "location": "LSU",
+        "name": "Tigers",
+        "abbreviation": "LSU",
+        "displayName": "LSU Tigers",
+        "shortDisplayName": "LSU",
+        "color": "461d76",
+        "alternateColor": "fdd023",
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/99.png"
+       }
+      },
+      {
+       "id": "251",
+       "homeAway": "away",
+       "winner": true,
+       "score": "22",
+       "linescores": [
+        {
+         "value": 7,
+         "period": 1
+        },
+        {
+         "value": 3,
+         "period": 2
+        },
+        {
+         "value": 3,
+         "period": 3
+        },
+        {
+         "value": 9,
+         "period": 4
+        }
+       ],
+       "records": [
+        {
+         "name": "overall",
+         "type": "total",
+         "summary": "8-2"
+        }
+       ],
+       "leaders": [],
+       "team": {
+        "id": "251",
+        "location": "Texas",
+        "name": "Longhorns",
+        "abbreviation": "TEX",
+        "displayName": "Texas Longhorns",
+        "shortDisplayName": "Texas",
+        "color": "af5c37",
+        "alternateColor": "ffffff",
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/251.png"
+       }
+      }
+     ],
+     "highlights": [
+      {
+       "id": 50487259,
+       "source": "espn",
+       "headline": "Arch Manning, Texas stun LSU 22-21",
+       "description": "Arch Manning, Texas stun LSU 22-21",
+       "duration": 65,
+       "originalPublishDate": "2026-11-15T04:30:15Z",
+       "timeRestrictions": {
+        "embargoDate": "2026-11-15T04:30:14Z",
+        "expirationDate": "2038-01-01T04:59:59Z"
+       },
+       "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/2026/1114/818b2f176aa043818730c100bb6efbcb1437/818b2f176aa043818730c100bb6efbcb1437.jpg",
+       "links": {
+        "web": {
+         "href": "https://www.espn.com/video/clip/_/id/50487259"
+        },
+        "mobile": {
+         "progressiveDownload": {
+          "href": "https://watch.auth.api.espn.com/video/auth/brightcove/example/asset"
+         }
+        }
+       }
+      }
+     ],
+     "headlines": [
+      {
+       "type": "Recap",
+       "shortLinkText": "Arch Manning leads No. 8 Texas to a late score and a dramatic 22-21 win over No. 24 LSU"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "401870796",
+   "date": "2026-11-14T20:00Z",
+   "name": "New Mexico State Aggies at Missouri State Bears",
+   "shortName": "NMSU @ MOST",
+   "season": {
+    "year": 2026,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "links": [
+    {
+     "rel": [
+      "summary",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/college-football/game/_/gameId/401870796/new-mexico-st-missouri-st"
+    },
+    {
+     "rel": [
+      "boxscore",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/college-football/boxscore/_/gameId/401870796"
+    },
+    {
+     "rel": [
+      "highlights",
+      "desktop"
+     ],
+     "href": "https://www.espn.com/college-football/video?gameId=401870796"
+    },
+    {
+     "rel": [
+      "pbp",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/college-football/playbyplay/_/gameId/401870796"
+    },
+    {
+     "rel": [
+      "recap",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/college-football/recap?gameId=401870796"
+    }
+   ],
+   "competitions": [
+    {
+     "id": "401870796",
+     "date": "2026-11-14T20:00Z",
+     "neutralSite": false,
+     "venue": {
+      "fullName": "Robert W. Plaster Stadium",
+      "address": {
+       "city": "Springfield",
+       "state": "MO",
+       "country": "USA"
+      }
+     },
+     "status": {
+      "clock": 0,
+      "displayClock": "0:00",
+      "period": 5,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final/OT",
+       "shortDetail": "Final/OT",
+       "altDetail": "OT"
+      }
+     },
+     "competitors": [
+      {
+       "id": "2623",
+       "homeAway": "home",
+       "winner": true,
+       "score": "27",
+       "linescores": [
+        {
+         "value": 0,
+         "period": 1
+        },
+        {
+         "value": 14,
+         "period": 2
+        },
+        {
+         "value": 0,
+         "period": 3
+        },
+        {
+         "value": 7,
+         "period": 4
+        },
+        {
+         "value": 6,
+         "period": 5
+        }
+       ],
+       "records": [
+        {
+         "name": "overall",
+         "type": "total",
+         "summary": "4-6"
+        }
+       ],
+       "leaders": [],
+       "team": {
+        "id": "2623",
+        "location": "Missouri State",
+        "name": "Bears",
+        "abbreviation": "MOST",
+        "displayName": "Missouri State Bears",
+        "shortDisplayName": "Missouri St",
+        "color": "5e0009",
+        "alternateColor": "ffffff",
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/2623.png"
+       }
+      },
+      {
+       "id": "166",
+       "homeAway": "away",
+       "winner": false,
+       "score": "21",
+       "linescores": [
+        {
+         "value": 0,
+         "period": 1
+        },
+        {
+         "value": 7,
+         "period": 2
+        },
+        {
+         "value": 7,
+         "period": 3
+        },
+        {
+         "value": 7,
+         "period": 4
+        },
+        {
+         "value": 0,
+         "period": 5
+        }
+       ],
+       "records": [
+        {
+         "name": "overall",
+         "type": "total",
+         "summary": "3-7"
+        }
+       ],
+       "leaders": [],
+       "team": {
+        "id": "166",
+        "location": "New Mexico State",
+        "name": "Aggies",
+        "abbreviation": "NMSU",
+        "displayName": "New Mexico State Aggies",
+        "shortDisplayName": "New Mexico St",
+        "color": "7e141b",
+        "alternateColor": "231f20",
+        "logo": "https://a.espncdn.com/i/teamlogos/ncaa/500/166.png"
+       }
+      }
+     ],
+     "highlights": [
+      {
+       "id": 50484606,
+       "source": "espn",
+       "headline": "New Mexico State Aggies vs. Missouri State Bears: Full Highlights",
+       "description": "New Mexico State Aggies vs. Missouri State Bears: Full Highlights",
+       "duration": 76,
+       "originalPublishDate": "2026-11-14T23:45:35Z",
+       "timeRestrictions": {
+        "embargoDate": "2026-11-14T23:45:33Z",
+        "expirationDate": "2038-01-01T04:59:59Z"
+       },
+       "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1114/f0669082-55d8-483d-81dd-57f106912a38/f0669082-55d8-483d-81dd-57f106912a38.jpg",
+       "links": {
+        "web": {
+         "href": "https://www.espn.com/video/clip/_/id/50484606"
+        },
+        "mobile": {
+         "progressiveDownload": {
+          "href": "https://watch.auth.api.espn.com/video/auth/brightcove/example/asset"
+         }
+        }
+       }
+      }
+     ],
+     "headlines": [
+      {
+       "type": "Recap",
+       "shortLinkText": "Joel Boamah's pick-6 in OT lifts Missouri State over New Mexico State 27-21"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { editTopics, researchEdition, writeAnchorScript, writeEpisode } from "../server/sports/research.mjs";
+import { draftIsaacTake, editTopics, researchEdition, writeAnchorScript, writeEpisode } from "../server/sports/research.mjs";
 
 const now = new Date("2026-11-16T06:00:00Z");
 const date = "2026-11-16";
@@ -16,12 +16,21 @@ const topic = {
   title: "Sparks hold on",
   summary: "An editor note that says the game was in another stadium.",
   selected: true,
-  take: "I would keep Vega in the closing lineup.",
+  take: "closing lineup: Vega",
+  takeScript: "I would keep Vega in the closing lineup.",
   sources: [source],
 };
 const modelResponse = (body) => Response.json({ choices: [{ message: { content: JSON.stringify(body) } }] });
 
 function settings(t) {
+  for (const key of ["SPORTS_LLM_API", "SPORTS_LLM_FALLBACK_MODEL", "SPORTS_LLM_API_KEY"]) {
+    const previous = process.env[key];
+    delete process.env[key];
+    t.after(() => {
+      if (previous === undefined) delete process.env[key];
+      else process.env[key] = previous;
+    });
+  }
   for (const [key, value] of Object.entries({
     SPORTS_LLM_URL: "https://model.example/v1",
     SPORTS_FEEDS: JSON.stringify([{ publisher: "League report", url: "https://league.example/feed" }]),
@@ -116,6 +125,7 @@ test("the anchor pass writes spoken copy from the claims and is audited before i
       const input = JSON.parse(body.messages[1].content);
       if (calls.length === 1) {
         assert.equal(input.stories[0].claims[0].value[0], 112);
+        assert.match(body.messages[0].content, /Wellspring Media sports anchor Isaac Doss/u);
         assert.match(body.messages[0].content, /never add a fact/u);
         return modelResponse({ segments: [{ id: story.id, narration: "Our lead story this morning: the Gulls held off the Stags 112 to 104 at home." }] });
       }
@@ -127,7 +137,7 @@ test("the anchor pass writes spoken copy from the claims and is audited before i
   assert.match(result[0].narration, /^Our lead story/u);
   await assert.rejects(writeAnchorScript({ date, segments: [story] }, { fetchImpl: async () => modelResponse({ segments: [{ id: "other", narration: "Some copy for another story entirely." }] }) }), /did not cover every story/u);
   await assert.rejects(writeAnchorScript({ date, segments: [story] }, { fetchImpl: async (_url, request) => {
-    return JSON.parse(request.body).messages[0].content.startsWith("You are the anchor")
+    return JSON.parse(request.body).messages[0].content.startsWith("You are writing morning sports recap copy")
       ? modelResponse({ segments: [{ id: story.id, narration: "The Gulls won their fifth straight behind Quill." }] })
       : modelResponse({ approved: false, issues: ["The winning streak is not in the evidence."] });
   } }), /winning streak/u);
@@ -161,6 +171,39 @@ test("a local Ollama model is asked through its native API with thinking off and
   }), /invalid response/u);
 });
 
+test("a researched story is tagged from its feed and only with clubs named in the article", async (t) => {
+  settings(t);
+  process.env.SPORTS_FEEDS = JSON.stringify([{ publisher: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/nba", league: "NBA", sport: "basketball" }]);
+  const topics = await researchEdition(date, {
+    now,
+    fetchImpl: async (_url, request) => {
+      if (request.method !== "POST") return new Response(rss());
+      const data = JSON.parse(JSON.parse(request.body).messages[1].content);
+      if (data.evidence) return modelResponse({ topics: [{ title: "Sparks win", summary: "The Sparks won 81–77.", sourceIds: [1], teams: ["Sparks", "Celtics"] }] });
+      return modelResponse(issueCheck);
+    },
+  });
+  assert.equal(topics[0].sport, "basketball");
+  assert.equal(topics[0].league, "NBA");
+  assert.deepEqual(topics[0].teams, ["Sparks"]);
+});
+
+test("a failed audit keeps the cited article wording instead of dropping the rundown", async (t) => {
+  settings(t);
+  let modelCalls = 0;
+  const topics = await researchEdition(date, {
+    now,
+    fetchImpl: async (_url, request) => {
+      if (request.method !== "POST") return new Response(rss());
+      if (++modelCalls === 1) return modelResponse({ topics: [{ title: "Sparks win", summary: "The Sparks won 81–77.", sourceIds: ["1"] }] });
+      return modelResponse({ approved: false, issues: [`The score is not in the source. ${"x".repeat(400)}`] });
+    },
+  });
+  assert.equal(modelCalls, 2);
+  assert.equal(topics[0].title, "Sparks win at home");
+  assert.equal(topics[0].summary, "Vega & the Sparks won 81–77.");
+});
+
 test("research stops for invented citations or when sources are unavailable", async (t) => {
   settings(t);
   await assert.rejects(researchEdition(date, {
@@ -175,7 +218,22 @@ test("research stops for invented citations or when sources are unavailable", as
   }), /No recent, usable sports articles.*League report returned HTTP 503/);
 });
 
-test("broadcast treats editor notes as framing and preserves Isaac's attributed take", async (t) => {
+test("drafts an on-air take from notes and rejects unsupported numbers", async (t) => {
+  settings(t);
+  const generated = await draftIsaacTake(topic, {
+    fetchImpl: async (_url, request) => {
+      const input = JSON.parse(JSON.parse(request.body).messages[1].content);
+      assert.equal(input.notes, topic.take);
+      return modelResponse({ script: "Keep Vega on for the closing stretch. That gives the offense another option when the defense tightens up." });
+    },
+  });
+  assert.match(generated, /another option/);
+  await assert.rejects(draftIsaacTake(topic, {
+    fetchImpl: async () => modelResponse({ script: "Vega averaged 37 points in those lineups." }),
+  }), /absent from its cited sources/);
+});
+
+test("broadcast treats editor notes as framing and preserves Isaac's attributed take script", async (t) => {
   settings(t);
   let modelCalls = 0;
   const draft = await writeEpisode({ date, topics: [topic] }, {
@@ -197,10 +255,10 @@ test("broadcast treats editor notes as framing and preserves Isaac's attributed 
   });
   assert.equal(modelCalls, 2);
   assert.deepEqual(draft.segments[0].sources, [source]);
-  await assert.rejects(writeEpisode({ date, topics: [{ ...topic, take: "", sources: [{ ...source, excerpt: "" }] }] }, {
+  await assert.rejects(writeEpisode({ date, topics: [{ ...topic, takeScript: "", sources: [{ ...source, excerpt: "" }] }] }, {
     now,
     fetchImpl: async (_url, request) => request.method === "POST" ? modelResponse({ matches: [] }) : new Response(rss()),
-  }), /needs reported evidence or an explicit editorial take/);
+  }), /needs reported evidence or a saved take script/);
   await assert.rejects(writeEpisode({ date, topics: [{ ...topic, sources: [] }] }, {
     fetchImpl: async () => modelResponse({ approved: false, issues: ["Unsupported factual assertion."] }),
   }), /Unsupported factual assertion/);
@@ -211,7 +269,7 @@ test("new factual topics can gain coverage from configured feeds without visitin
   let modelCalls = 0;
   const draft = await writeEpisode({
     date,
-    topics: [{ ...topic, summary: "Focus on Vega’s scoring.", take: "", sources: [{ ...source, excerpt: "" }] }],
+    topics: [{ ...topic, summary: "Focus on Vega’s scoring.", takeScript: "", sources: [{ ...source, excerpt: "" }] }],
   }, {
     now,
     fetchImpl: async (url, request) => {
@@ -238,13 +296,71 @@ test("new factual topics can gain coverage from configured feeds without visitin
   assert.equal(modelCalls, 3);
   assert.equal(draft.topicSources[0].id, topic.id);
   assert.deepEqual(draft.topicSources[0].sources, draft.segments[0].sources);
-  await assert.rejects(writeEpisode({ date, topics: [topic] }, {
-    fetchImpl: async () => modelResponse({
-      title: "Sparks win",
-      description: "The Sparks won at home.",
-      segments: [{ number: 1, headline: "Sparks win", narration: "The Sparks won 91–87.", sourceIds: [1] }],
-    }),
-  }), /number absent from its cited sources/);
+  const grounded = await writeEpisode({ date, topics: [topic] }, {
+    fetchImpl: async (_url, request) => {
+      const system = JSON.parse(request.body).messages[0].content;
+      if (system.startsWith("You are a sports copy editor")) return modelResponse(issueCheck);
+      return modelResponse({
+        title: "Sparks win",
+        description: "The Sparks won at home.",
+        segments: [{ number: 1, headline: "Sparks win", narration: "The Sparks won 91–87.", sourceIds: [1] }],
+      });
+    },
+  });
+  assert.match(grounded.segments[0].narration, /81–77/);
+  assert.doesNotMatch(grounded.segments[0].narration, /91/);
+  const kept = await writeEpisode({ date, topics: [topic] }, {
+    fetchImpl: async (_url, request) => {
+      const system = JSON.parse(request.body).messages[0].content;
+      if (system.startsWith("You are a sports copy editor")) return modelResponse({ approved: false, issues: ["The score is not in the source."] });
+      return modelResponse({
+        title: "Sparks win",
+        description: "The Sparks won at home.",
+        segments: [{ number: 1, headline: "Sparks win", narration: "The Sparks won 81–77.", sourceIds: [1] }],
+      });
+    },
+  });
+  assert.match(kept.segments[0].narration, /81–77/);
+});
+
+test("a timed-out broadcast check is retried, and a sourced script still airs if the checker stays down", async (t) => {
+  settings(t);
+  const script = {
+    title: "Sparks win",
+    description: "The Sparks won at home.",
+    segments: [{ number: 1, headline: "Sparks win", narration: "The Sparks won 81–77.", sourceIds: [1] }],
+  };
+  const timeout = () => Object.assign(new Error("The operation was aborted due to timeout"), { name: "TimeoutError" });
+  let checks = 0;
+  const retried = await writeEpisode({ date, topics: [topic] }, {
+    retryDelayMs: 0,
+    fetchImpl: async (_url, request) => {
+      const body = JSON.parse(request.body);
+      const system = body.messages[0].content;
+      if (system.startsWith("You are a sports copy editor")) {
+        assert.equal(body.max_tokens, 800);
+        if (++checks === 1) throw timeout();
+        return modelResponse(issueCheck);
+      }
+      return modelResponse(script);
+    },
+  });
+  assert.equal(checks, 2);
+  assert.match(retried.segments[0].narration, /81–77/);
+  let exhausted = 0;
+  const keptAnyway = await writeEpisode({ date, topics: [topic] }, {
+    retryDelayMs: 0,
+    fetchImpl: async (_url, request) => {
+      const system = JSON.parse(request.body).messages[0].content;
+      if (system.startsWith("You are a sports copy editor")) {
+        exhausted += 1;
+        throw timeout();
+      }
+      return modelResponse(script);
+    },
+  });
+  assert.equal(exhausted, 3);
+  assert.match(keptAnyway.segments[0].narration, /81–77/);
 });
 
 test("editor chat cannot attach fabricated source links or edit unknown topics", async (t) => {

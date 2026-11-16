@@ -107,6 +107,13 @@ function videoDescription(episode) {
     }
   }
   let credits = `${chapterText(episode)}\n\nNarration uses a synthetic voice.`;
+  if (episode.footageCredits?.length) {
+    credits += "\n\nFootage credits";
+    for (const clip of episode.footageCredits) {
+      const line = metadataText(`${clip.title} — ${clip.creator} (${clip.license}, excerpt, muted)\n${clip.url}\n${clip.licenseUrl}`);
+      if (Buffer.byteLength(`${credits}\n${line}`) <= 4400) credits += `\n${line}`;
+    }
+  }
   if (lines.size) {
     credits += "\n\nReporting sources";
     for (const line of lines.values()) {

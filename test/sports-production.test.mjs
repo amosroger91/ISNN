@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { root } from "../server/config.mjs";
+import { createCanvas, loadImage } from "../server/canvas.mjs";
+import { ffmpegPath, root } from "../server/config.mjs";
 import { probe } from "../server/media.mjs";
-import { LOUDNESS, SHORT, cues, renderEpisode, srtFile } from "../server/sports/produce.mjs";
+import { run } from "../server/process.mjs";
+import { LOUDNESS, SHORT, cues, narrationParts, renderEpisode, srtFile } from "../server/sports/produce.mjs";
 import { listFixtures, loadFixture, placeholderNarrate, wordCount } from "../server/sports/fixtures.mjs";
 import { uploadEpisode } from "../server/sports/youtube.mjs";
 import { wav } from "../server/voice.mjs";
@@ -38,6 +40,22 @@ const episode = {
     ], paths: [[2, 1]] },
   }],
 };
+
+test("keeps narration words intact and leaves longer pauses for paragraph and chapter breaks", () => {
+  const lead = "Here's the play. The defense stayed patient.";
+  const firstClause = "The defense dropped all the way back into coverage,";
+  const longSentence = `${firstClause} while the quarterback worked through every option near the sideline and waited for a receiver to come all the way back across the field.`;
+  const segments = [{ narration: `${lead} ${longSentence}\n\nWatch the linebacker.` }, { narration: "Now to the next game." }];
+  const parts = narrationParts({ segments });
+  assert.equal(parts[0].text, lead);
+  assert.equal(parts[0].pause, 0.15);
+  assert.equal(parts[1].text, firstClause);
+  assert.equal(parts[1].pause, 0.10);
+  assert.equal(parts.at(-3).pause, 0.24);
+  assert.equal(parts.at(-2).pause, 0.34);
+  assert.equal(parts.at(-1).kind, 1);
+  assert.equal(parts.filter(({ kind }) => kind === 0).map(({ text }) => text).join(" "), segments[0].narration.replace(/\s+/gu, " "));
+});
 
 async function temporary(t) {
   const data = path.join(root, "data");
@@ -74,6 +92,27 @@ test("renders the 1080p episode, one vertical Short per segment, captions and ma
   assert.equal(portrait.width, SHORT.width);
   assert.equal(portrait.height, SHORT.height);
   assert.ok(Math.abs(Number(short.format.duration) - (6 - 3.1)) < 0.15);
+  async function portraitPixels(file, time, x, y) {
+    const frame = path.join(directory, "portrait-check.png");
+    await run(ffmpegPath, ["-v", "error", "-y", "-ss", String(time), "-i", file,
+      "-vf", `crop=84:74:${x}:${y}`, "-frames:v", "1", "-update", "1", frame]);
+    const ctx = createCanvas(84, 74).getContext("2d");
+    ctx.drawImage(await loadImage(frame), 0, 0);
+    await rm(frame);
+    return ctx.getImageData(0, 0, 84, 74).data;
+  }
+  for (const [file, x, y, after] of [
+    ["episode.mp4", 570, 57, 4],
+    ["shorts/segment-02.mp4", 623, 86, 2.1],
+  ]) {
+    const video = path.join(directory, file);
+    const before = await portraitPixels(video, 0, x, y);
+    const intro = await portraitPixels(video, 0.6, x, y);
+    const later = await portraitPixels(video, after, x, y);
+    const diff = (pixels) => pixels.reduce((sum, value, i) => sum + Math.abs(value - before[i]), 0) / pixels.length;
+    assert.ok(diff(intro) > 10, `Opening photo should be visible in ${file}`);
+    assert.ok(diff(later) < 5, `Opening photo should be gone later in ${file}`);
+  }
   const timeline = JSON.parse(await readFile(path.join(directory, "timeline.json"), "utf8"));
   assert.equal(timeline.segments[1].start, 3.1);
   assert.equal(timeline.segments[1].short.file, "shorts/segment-02.mp4");
@@ -84,6 +123,8 @@ test("renders the 1080p episode, one vertical Short per segment, captions and ma
   assert.ok(qc.outputs.every((output) => output.checks.sync && output.checks.picture && output.checks.sound));
   assert.ok(qc.outputs.every((output) => Number.isFinite(output.loudness?.integrated)));
   const credits = JSON.parse(await readFile(path.join(directory, "credits.json"), "utf8"));
+  assert.equal(credits.music[0].asset, "assets/background-music.mp3");
+  assert.equal(credits.music[0].targetBelowNarrationLu, 27);
   assert.equal(credits.segments[0].sources[0].url, "https://example.org/league/game");
   assert.equal(credits.revisionId, "rev_test");
   assert.equal(credits.segments[0].claims[0].id, "clm_test");

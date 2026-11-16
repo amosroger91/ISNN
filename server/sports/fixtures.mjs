@@ -61,6 +61,7 @@ export const mediaAssetSchema = z.object({
   focalArea: z.string().optional(), credit: z.string().min(1), grantId: z.string().min(1), grantVersion: z.number().int().positive().default(1),
   sha256: z.string().regex(/^[a-f0-9]{64}$/u), status: z.enum(["available", "revoked", "quarantined"]).default("available"),
   sourceIn: z.string().optional(), sourceOut: z.string().optional(), eventClock: z.string().optional(), audio: z.boolean().default(false),
+  file: z.string().optional(),
 });
 export const rightsGrantSchema = z.object({
   id: z.string().min(1), version: z.number().int().positive().default(1), licensor: z.string().min(1), status: z.enum(["active", "revoked", "expired"]).default("active"),

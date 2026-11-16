@@ -1,0 +1,1247 @@
+{
+ "boxscore": {
+  "teams": [
+   {
+    "team": {
+     "id": "7",
+     "location": "Denver",
+     "name": "Nuggets",
+     "abbreviation": "DEN",
+     "displayName": "Denver Nuggets",
+     "shortDisplayName": "Nuggets",
+     "color": "0e2240",
+     "alternateColor": "fec524",
+     "logo": "https://a.espncdn.com/i/teamlogos/nba/500/den.png"
+    },
+    "homeAway": "away",
+    "statistics": [
+     {
+      "name": "fieldGoalsMade-fieldGoalsAttempted",
+      "displayValue": "42-80",
+      "label": "FG"
+     },
+     {
+      "name": "threePointFieldGoalsMade-threePointFieldGoalsAttempted",
+      "displayValue": "4-16",
+      "label": "3PT"
+     },
+     {
+      "name": "threePointFieldGoalPct",
+      "displayValue": "25",
+      "label": "Three Point %"
+     },
+     {
+      "name": "assists",
+      "displayValue": "29",
+      "label": "Assists"
+     },
+     {
+      "name": "turnovers",
+      "displayValue": "14",
+      "label": "Turnovers"
+     }
+    ]
+   },
+   {
+    "team": {
+     "id": "3",
+     "location": "New Orleans",
+     "name": "Pelicans",
+     "abbreviation": "NO",
+     "displayName": "New Orleans Pelicans",
+     "shortDisplayName": "Pelicans",
+     "color": "0a2240",
+     "alternateColor": "b4975a",
+     "logo": "https://a.espncdn.com/i/teamlogos/nba/500/no.png"
+    },
+    "homeAway": "home",
+    "statistics": [
+     {
+      "name": "fieldGoalsMade-fieldGoalsAttempted",
+      "displayValue": "37-89",
+      "label": "FG"
+     },
+     {
+      "name": "threePointFieldGoalsMade-threePointFieldGoalsAttempted",
+      "displayValue": "13-33",
+      "label": "3PT"
+     },
+     {
+      "name": "threePointFieldGoalPct",
+      "displayValue": "39",
+      "label": "Three Point %"
+     },
+     {
+      "name": "assists",
+      "displayValue": "25",
+      "label": "Assists"
+     },
+     {
+      "name": "turnovers",
+      "displayValue": "10",
+      "label": "Turnovers"
+     }
+    ]
+   }
+  ],
+  "players": [
+   {
+    "team": {
+     "id": "7",
+     "location": "Denver",
+     "name": "Nuggets",
+     "abbreviation": "DEN",
+     "displayName": "Denver Nuggets",
+     "shortDisplayName": "Nuggets",
+     "color": "0e2240",
+     "alternateColor": "fec524",
+     "logo": "https://a.espncdn.com/i/teamlogos/nba/500/den.png"
+    },
+    "statistics": [
+     {
+      "names": [
+       "MIN",
+       "PTS",
+       "FG",
+       "3PT",
+       "FT",
+       "REB",
+       "AST",
+       "TO",
+       "STL",
+       "BLK",
+       "OREB",
+       "DREB",
+       "PF",
+       "+/-"
+      ],
+      "labels": [
+       "MIN",
+       "PTS",
+       "FG",
+       "3PT",
+       "FT",
+       "REB",
+       "AST",
+       "TO",
+       "STL",
+       "BLK",
+       "OREB",
+       "DREB",
+       "PF",
+       "+/-"
+      ],
+      "athletes": [
+       {
+        "athlete": {
+         "id": "3064290",
+         "displayName": "Aaron Gordon",
+         "shortName": "A. Gordon",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nba/players/full/3064290.png"
+         },
+         "position": {
+          "abbreviation": "F"
+         },
+         "jersey": "32"
+        },
+        "starter": true,
+        "didNotPlay": false,
+        "stats": [
+         "33",
+         "11",
+         "4-6",
+         "1-1",
+         "2-5",
+         "5",
+         "1",
+         "0",
+         "1",
+         "1",
+         "0",
+         "5",
+         "3",
+         "+12"
+        ]
+       },
+       {
+        "athlete": {
+         "id": "3138196",
+         "displayName": "Cameron Johnson",
+         "shortName": "C. Johnson",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nba/players/full/3138196.png"
+         },
+         "position": {
+          "abbreviation": "F"
+         },
+         "jersey": "23"
+        },
+        "starter": true,
+        "didNotPlay": false,
+        "stats": [
+         "31",
+         "12",
+         "3-11",
+         "1-6",
+         "5-6",
+         "5",
+         "2",
+         "0",
+         "1",
+         "0",
+         "0",
+         "5",
+         "5",
+         "+5"
+        ]
+       },
+       {
+        "athlete": {
+         "id": "3112335",
+         "displayName": "Nikola Jokic",
+         "shortName": "N. Jokic",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nba/players/full/3112335.png"
+         },
+         "position": {
+          "abbreviation": "C"
+         },
+         "jersey": "15"
+        },
+        "starter": true,
+        "didNotPlay": false,
+        "stats": [
+         "37",
+         "26",
+         "9-14",
+         "1-1",
+         "7-7",
+         "8",
+         "10",
+         "4",
+         "3",
+         "0",
+         "1",
+         "7",
+         "1",
+         "-1"
+        ]
+       },
+       {
+        "athlete": {
+         "id": "3936299",
+         "displayName": "Jamal Murray",
+         "shortName": "J. Murray",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nba/players/full/3936299.png"
+         },
+         "position": {
+          "abbreviation": "G"
+         },
+         "jersey": "27"
+        },
+        "starter": true,
+        "didNotPlay": false,
+        "stats": [
+         "38",
+         "23",
+         "9-16",
+         "0-3",
+         "5-6",
+         "7",
+         "9",
+         "4",
+         "0",
+         "2",
+         "0",
+         "7",
+         "2",
+         "+16"
+        ]
+       },
+       {
+        "athlete": {
+         "id": "4431767",
+         "displayName": "Christian Braun",
+         "shortName": "C. Braun",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nba/players/full/4431767.png"
+         },
+         "position": {
+          "abbreviation": "G"
+         },
+         "jersey": "0"
+        },
+        "starter": true,
+        "didNotPlay": false,
+        "stats": [
+         "28",
+         "17",
+         "6-14",
+         "1-3",
+         "4-5",
+         "7",
+         "1",
+         "0",
+         "4",
+         "1",
+         "3",
+         "4",
+         "3",
+         "+12"
+        ]
+       },
+       {
+        "athlete": {
+         "id": "4277848",
+         "displayName": "Marvin Bagley III",
+         "shortName": "M. Bagley III",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nba/players/full/4277848.png"
+         },
+         "position": {
+          "abbreviation": "F"
+         },
+         "jersey": "3"
+        },
+        "starter": false,
+        "didNotPlay": false,
+        "stats": [
+         "13",
+         "7",
+         "3-5",
+         "0-0",
+         "1-2",
+         "7",
+         "0",
+         "1",
+         "0",
+         "1",
+         "3",
+         "4",
+         "4",
+         "+10"
+        ]
+       }
+      ],
+      "totals": [
+       "",
+       "116",
+       "42-80",
+       "4-16",
+       "28-37",
+       "47",
+       "29",
+       "14",
+       "9",
+       "5",
+       "8",
+       "39",
+       "24",
+       ""
+      ]
+     }
+    ]
+   },
+   {
+    "team": {
+     "id": "3",
+     "location": "New Orleans",
+     "name": "Pelicans",
+     "abbreviation": "NO",
+     "displayName": "New Orleans Pelicans",
+     "shortDisplayName": "Pelicans",
+     "color": "0a2240",
+     "alternateColor": "b4975a",
+     "logo": "https://a.espncdn.com/i/teamlogos/nba/500/no.png"
+    },
+    "statistics": [
+     {
+      "names": [
+       "MIN",
+       "PTS",
+       "FG",
+       "3PT",
+       "FT",
+       "REB",
+       "AST",
+       "TO",
+       "STL",
+       "BLK",
+       "OREB",
+       "DREB",
+       "PF",
+       "+/-"
+      ],
+      "labels": [
+       "MIN",
+       "PTS",
+       "FG",
+       "3PT",
+       "FT",
+       "REB",
+       "AST",
+       "TO",
+       "STL",
+       "BLK",
+       "OREB",
+       "DREB",
+       "PF",
+       "+/-"
+      ],
+      "athletes": [
+       {
+        "athlete": {
+         "id": "4277813",
+         "displayName": "Herbert Jones",
+         "shortName": "H. Jones",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nba/players/full/4277813.png"
+         },
+         "position": {
+          "abbreviation": "F"
+         },
+         "jersey": "2"
+        },
+        "starter": true,
+        "didNotPlay": false,
+        "stats": [
+         "27",
+         "10",
+         "3-8",
+         "2-5",
+         "2-3",
+         "2",
+         "1",
+         "2",
+         "0",
+         "0",
+         "0",
+         "2",
+         "5",
+         "-11"
+        ]
+       },
+       {
+        "athlete": {
+         "id": "4395628",
+         "displayName": "Zion Williamson",
+         "shortName": "Z. Williamson",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nba/players/full/4395628.png"
+         },
+         "position": {
+          "abbreviation": "F"
+         },
+         "jersey": "1"
+        },
+        "starter": true,
+        "didNotPlay": false,
+        "stats": [
+         "31",
+         "24",
+         "9-16",
+         "2-4",
+         "4-8",
+         "6",
+         "2",
+         "2",
+         "0",
+         "2",
+         "2",
+         "4",
+         "3",
+         "-10"
+        ]
+       },
+       {
+        "athlete": {
+         "id": "4397136",
+         "displayName": "Saddiq Bey",
+         "shortName": "S. Bey",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nba/players/full/4397136.png"
+         },
+         "position": {
+          "abbreviation": "F"
+         },
+         "jersey": "41"
+        },
+        "starter": true,
+        "didNotPlay": false,
+        "stats": [
+         "41",
+         "16",
+         "4-15",
+         "2-7",
+         "6-6",
+         "6",
+         "4",
+         "0",
+         "1",
+         "0",
+         "1",
+         "5",
+         "2",
+         "-4"
+        ]
+       },
+       {
+        "athlete": {
+         "id": "5061589",
+         "displayName": "Yves Missi",
+         "shortName": "Y. Missi",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nba/players/full/5061589.png"
+         },
+         "position": {
+          "abbreviation": "C"
+         },
+         "jersey": "21"
+        },
+        "starter": true,
+        "didNotPlay": false,
+        "stats": [
+         "22",
+         "3",
+         "1-4",
+         "0-0",
+         "1-4",
+         "8",
+         "1",
+         "1",
+         "0",
+         "4",
+         "3",
+         "5",
+         "4",
+         "-11"
+        ]
+       },
+       {
+        "athlete": {
+         "id": "5144091",
+         "displayName": "Jeremiah Fears",
+         "shortName": "J. Fears",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nba/players/full/5144091.png"
+         },
+         "position": {
+          "abbreviation": "G"
+         },
+         "jersey": "0"
+        },
+        "starter": true,
+        "didNotPlay": false,
+        "stats": [
+         "33",
+         "13",
+         "6-15",
+         "1-3",
+         "0-1",
+         "4",
+         "7",
+         "2",
+         "2",
+         "0",
+         "0",
+         "4",
+         "5",
+         "-6"
+        ]
+       },
+       {
+        "athlete": {
+         "id": "4997538",
+         "displayName": "Karlo Matkovic",
+         "shortName": "K. Matkovic",
+         "headshot": {
+          "href": "https://a.espncdn.com/i/headshots/nba/players/full/4997538.png"
+         },
+         "position": {
+          "abbreviation": "F"
+         },
+         "jersey": "17"
+        },
+        "starter": false,
+        "didNotPlay": false,
+        "stats": [
+         "14",
+         "5",
+         "2-3",
+         "1-2",
+         "0-0",
+         "3",
+         "1",
+         "0",
+         "0",
+         "1",
+         "2",
+         "1",
+         "1",
+         "-3"
+        ]
+       }
+      ],
+      "totals": [
+       "",
+       "108",
+       "37-89",
+       "13-33",
+       "21-33",
+       "38",
+       "25",
+       "10",
+       "6",
+       "8",
+       "12",
+       "26",
+       "26",
+       ""
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "leaders": [
+  {
+   "team": {
+    "id": "3",
+    "abbreviation": "NO",
+    "displayName": "New Orleans Pelicans",
+    "logo": "https://a.espncdn.com/i/teamlogos/nba/500/no.png"
+   },
+   "leaders": [
+    {
+     "name": "points",
+     "displayName": "Points",
+     "leaders": [
+      {
+       "displayValue": "24",
+       "value": 24,
+       "athlete": {
+        "id": "4395628",
+        "displayName": "Zion Williamson",
+        "shortName": "Z. Williamson",
+        "headshot": {
+         "href": "https://a.espncdn.com/i/headshots/nba/players/full/4395628.png"
+        },
+        "position": {
+         "abbreviation": "F"
+        },
+        "jersey": "1"
+       }
+      }
+     ]
+    },
+    {
+     "name": "assists",
+     "displayName": "Assists",
+     "leaders": [
+      {
+       "displayValue": "7",
+       "value": 7,
+       "athlete": {
+        "id": "5144091",
+        "displayName": "Jeremiah Fears",
+        "shortName": "J. Fears",
+        "headshot": {
+         "href": "https://a.espncdn.com/i/headshots/nba/players/full/5144091.png"
+        },
+        "position": {
+         "abbreviation": "G"
+        },
+        "jersey": "0"
+       }
+      }
+     ]
+    },
+    {
+     "name": "rebounds",
+     "displayName": "Rebounds",
+     "leaders": [
+      {
+       "displayValue": "8",
+       "value": 8,
+       "athlete": {
+        "id": "5061589",
+        "displayName": "Yves Missi",
+        "shortName": "Y. Missi",
+        "headshot": {
+         "href": "https://a.espncdn.com/i/headshots/nba/players/full/5061589.png"
+        },
+        "position": {
+         "abbreviation": "C"
+        },
+        "jersey": "21"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "team": {
+    "id": "7",
+    "abbreviation": "DEN",
+    "displayName": "Denver Nuggets",
+    "logo": "https://a.espncdn.com/i/teamlogos/nba/500/den.png"
+   },
+   "leaders": [
+    {
+     "name": "points",
+     "displayName": "Points",
+     "leaders": [
+      {
+       "displayValue": "26",
+       "value": 26,
+       "athlete": {
+        "id": "3112335",
+        "displayName": "Nikola Jokic",
+        "shortName": "N. Jokic",
+        "headshot": {
+         "href": "https://a.espncdn.com/i/headshots/nba/players/full/3112335.png"
+        },
+        "position": {
+         "abbreviation": "C"
+        },
+        "jersey": "15"
+       }
+      }
+     ]
+    },
+    {
+     "name": "assists",
+     "displayName": "Assists",
+     "leaders": [
+      {
+       "displayValue": "10",
+       "value": 10,
+       "athlete": {
+        "id": "3112335",
+        "displayName": "Nikola Jokic",
+        "shortName": "N. Jokic",
+        "headshot": {
+         "href": "https://a.espncdn.com/i/headshots/nba/players/full/3112335.png"
+        },
+        "position": {
+         "abbreviation": "C"
+        },
+        "jersey": "15"
+       }
+      }
+     ]
+    },
+    {
+     "name": "rebounds",
+     "displayName": "Rebounds",
+     "leaders": [
+      {
+       "displayValue": "8",
+       "value": 8,
+       "athlete": {
+        "id": "3112335",
+        "displayName": "Nikola Jokic",
+        "shortName": "N. Jokic",
+        "headshot": {
+         "href": "https://a.espncdn.com/i/headshots/nba/players/full/3112335.png"
+        },
+        "position": {
+         "abbreviation": "C"
+        },
+        "jersey": "15"
+       }
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "header": {
+  "id": "401909980",
+  "season": {
+   "year": 2027,
+   "current": true,
+   "type": 2
+  },
+  "league": {
+   "id": "46",
+   "name": "National Basketball Association",
+   "abbreviation": "NBA",
+   "slug": "nba"
+  },
+  "competitions": [
+   {
+    "id": "401909980",
+    "date": "2026-11-15T00:00Z",
+    "status": {
+     "type": {
+      "id": "3",
+      "name": "STATUS_FINAL",
+      "state": "post",
+      "completed": true,
+      "description": "Final",
+      "detail": "Final",
+      "shortDetail": "Final"
+     }
+    },
+    "competitors": [
+     {
+      "id": "3",
+      "homeAway": "home",
+      "winner": false,
+      "score": "108",
+      "team": {
+       "id": "3",
+       "location": "New Orleans",
+       "name": "Pelicans",
+       "abbreviation": "NO",
+       "displayName": "New Orleans Pelicans",
+       "color": "0a2240",
+       "alternateColor": "b4975a"
+      },
+      "record": [
+       {
+        "type": "total",
+        "summary": "4-10"
+       }
+      ]
+     },
+     {
+      "id": "7",
+      "homeAway": "away",
+      "winner": true,
+      "score": "116",
+      "team": {
+       "id": "7",
+       "location": "Denver",
+       "name": "Nuggets",
+       "abbreviation": "DEN",
+       "displayName": "Denver Nuggets",
+       "color": "0e2240",
+       "alternateColor": "fec524"
+      },
+      "record": [
+       {
+        "type": "total",
+        "summary": "7-4"
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ "plays": [
+  {
+   "id": "401909980693",
+   "text": "Zion Williamson makes free throw 1 of 1",
+   "awayScore": 109,
+   "homeScore": 101,
+   "period": {
+    "number": 4,
+    "displayValue": "4th Quarter"
+   },
+   "clock": {
+    "displayValue": "1:56"
+   },
+   "scoringPlay": true,
+   "scoreValue": 1,
+   "team": {
+    "id": "3"
+   },
+   "participants": [
+    {
+     "athlete": {
+      "id": "4395628"
+     }
+    }
+   ]
+  },
+  {
+   "id": "401909980710",
+   "text": "Nikola Jokic makes free throw 1 of 2",
+   "awayScore": 110,
+   "homeScore": 101,
+   "period": {
+    "number": 4,
+    "displayValue": "4th Quarter"
+   },
+   "clock": {
+    "displayValue": "58.9"
+   },
+   "scoringPlay": true,
+   "scoreValue": 1,
+   "team": {
+    "id": "7"
+   },
+   "participants": [
+    {
+     "athlete": {
+      "id": "3112335"
+     }
+    }
+   ]
+  },
+  {
+   "id": "401909980715",
+   "text": "Nikola Jokic makes free throw 2 of 2",
+   "awayScore": 111,
+   "homeScore": 101,
+   "period": {
+    "number": 4,
+    "displayValue": "4th Quarter"
+   },
+   "clock": {
+    "displayValue": "58.9"
+   },
+   "scoringPlay": true,
+   "scoreValue": 1,
+   "team": {
+    "id": "7"
+   },
+   "participants": [
+    {
+     "athlete": {
+      "id": "3112335"
+     }
+    }
+   ]
+  },
+  {
+   "id": "401909980718",
+   "text": "Christian Braun makes 3-foot running dunk (Jamal Murray assists)",
+   "awayScore": 113,
+   "homeScore": 101,
+   "period": {
+    "number": 4,
+    "displayValue": "4th Quarter"
+   },
+   "clock": {
+    "displayValue": "39.5"
+   },
+   "scoringPlay": true,
+   "scoreValue": 2,
+   "team": {
+    "id": "7"
+   },
+   "participants": [
+    {
+     "athlete": {
+      "id": "4431767"
+     }
+    },
+    {
+     "athlete": {
+      "id": "3936299"
+     }
+    }
+   ]
+  },
+  {
+   "id": "401909980720",
+   "text": "Jeremiah Fears makes driving layup",
+   "awayScore": 113,
+   "homeScore": 103,
+   "period": {
+    "number": 4,
+    "displayValue": "4th Quarter"
+   },
+   "clock": {
+    "displayValue": "33.5"
+   },
+   "scoringPlay": true,
+   "scoreValue": 2,
+   "team": {
+    "id": "3"
+   },
+   "participants": [
+    {
+     "athlete": {
+      "id": "5144091"
+     }
+    }
+   ]
+  },
+  {
+   "id": "401909980723",
+   "text": "Cameron Johnson makes free throw 1 of 2",
+   "awayScore": 114,
+   "homeScore": 103,
+   "period": {
+    "number": 4,
+    "displayValue": "4th Quarter"
+   },
+   "clock": {
+    "displayValue": "25.3"
+   },
+   "scoringPlay": true,
+   "scoreValue": 1,
+   "team": {
+    "id": "7"
+   },
+   "participants": [
+    {
+     "athlete": {
+      "id": "3138196"
+     }
+    }
+   ]
+  },
+  {
+   "id": "401909980726",
+   "text": "Herbert Jones makes running layup",
+   "awayScore": 114,
+   "homeScore": 105,
+   "period": {
+    "number": 4,
+    "displayValue": "4th Quarter"
+   },
+   "clock": {
+    "displayValue": "19.6"
+   },
+   "scoringPlay": true,
+   "scoreValue": 2,
+   "team": {
+    "id": "3"
+   },
+   "participants": [
+    {
+     "athlete": {
+      "id": "4277813"
+     }
+    }
+   ]
+  },
+  {
+   "id": "401909980733",
+   "text": "Jamal Murray makes free throw 1 of 2",
+   "awayScore": 115,
+   "homeScore": 105,
+   "period": {
+    "number": 4,
+    "displayValue": "4th Quarter"
+   },
+   "clock": {
+    "displayValue": "15.0"
+   },
+   "scoringPlay": true,
+   "scoreValue": 1,
+   "team": {
+    "id": "7"
+   },
+   "participants": [
+    {
+     "athlete": {
+      "id": "3936299"
+     }
+    }
+   ]
+  },
+  {
+   "id": "401909980734",
+   "text": "Jamal Murray makes free throw 2 of 2",
+   "awayScore": 116,
+   "homeScore": 105,
+   "period": {
+    "number": 4,
+    "displayValue": "4th Quarter"
+   },
+   "clock": {
+    "displayValue": "15.0"
+   },
+   "scoringPlay": true,
+   "scoreValue": 1,
+   "team": {
+    "id": "7"
+   },
+   "participants": [
+    {
+     "athlete": {
+      "id": "3936299"
+     }
+    }
+   ]
+  },
+  {
+   "id": "401909980737",
+   "text": "Jordan Poole makes free throw 1 of 3",
+   "awayScore": 116,
+   "homeScore": 106,
+   "period": {
+    "number": 4,
+    "displayValue": "4th Quarter"
+   },
+   "clock": {
+    "displayValue": "8.4"
+   },
+   "scoringPlay": true,
+   "scoreValue": 1,
+   "team": {
+    "id": "3"
+   },
+   "participants": [
+    {
+     "athlete": {
+      "id": "4277956"
+     }
+    }
+   ]
+  },
+  {
+   "id": "401909980738",
+   "text": "Jordan Poole makes free throw 2 of 3",
+   "awayScore": 116,
+   "homeScore": 107,
+   "period": {
+    "number": 4,
+    "displayValue": "4th Quarter"
+   },
+   "clock": {
+    "displayValue": "8.4"
+   },
+   "scoringPlay": true,
+   "scoreValue": 1,
+   "team": {
+    "id": "3"
+   },
+   "participants": [
+    {
+     "athlete": {
+      "id": "4277956"
+     }
+    }
+   ]
+  },
+  {
+   "id": "401909980739",
+   "text": "Jordan Poole makes free throw 3 of 3",
+   "awayScore": 116,
+   "homeScore": 108,
+   "period": {
+    "number": 4,
+    "displayValue": "4th Quarter"
+   },
+   "clock": {
+    "displayValue": "8.4"
+   },
+   "scoringPlay": true,
+   "scoreValue": 1,
+   "team": {
+    "id": "3"
+   },
+   "participants": [
+    {
+     "athlete": {
+      "id": "4277956"
+     }
+    }
+   ]
+  }
+ ],
+ "videos": [
+  {
+   "id": 50484994,
+   "source": "espn",
+   "headline": "Aaron Gordon gets the basket plus the foul",
+   "description": "Aaron Gordon gets the basket plus the foul",
+   "duration": 15,
+   "originalPublishDate": "2026-11-15T00:25:01Z",
+   "timeRestrictions": {
+    "embargoDate": "2026-11-15T00:24:53Z",
+    "expirationDate": "2027-07-31T04:00:00Z"
+   },
+   "geoRestrictions": {
+    "type": "whitelist",
+    "countries": [
+     "UK",
+     "US",
+     "MX"
+    ]
+   },
+   "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1115/776d9a04-4088-49e2-89d8-655bce663dc6/776d9a04-4088-49e2-89d8-655bce663dc6.jpg",
+   "links": {
+    "web": {
+     "href": "https://www.espn.com/video/clip/_/id/50484994"
+    },
+    "mobile": {
+     "progressiveDownload": {
+      "href": "https://watch.auth.api.espn.com/video/auth/brightcove/example/asset"
+     }
+    }
+   }
+  },
+  {
+   "id": 50485065,
+   "source": "espn",
+   "headline": "Trevon Brazile connects on alley-oop jam",
+   "description": "Trevon Brazile connects on alley-oop jam",
+   "duration": 19,
+   "originalPublishDate": "2026-11-15T00:30:23Z",
+   "timeRestrictions": {
+    "embargoDate": "2026-11-15T00:30:12Z",
+    "expirationDate": "2027-07-31T04:00:00Z"
+   },
+   "geoRestrictions": {
+    "type": "whitelist",
+    "countries": [
+     "UK",
+     "US",
+     "MX"
+    ]
+   },
+   "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1115/407c2403-03e4-40b1-891d-60b741953bf9/407c2403-03e4-40b1-891d-60b741953bf9.jpg",
+   "links": {
+    "web": {
+     "href": "https://www.espn.com/video/clip/_/id/50485065"
+    },
+    "mobile": {
+     "progressiveDownload": {
+      "href": "https://watch.auth.api.espn.com/video/auth/brightcove/example/asset"
+     }
+    }
+   }
+  }
+ ],
+ "gameInfo": {
+  "venue": {
+   "fullName": "Smoothie King Center",
+   "address": {
+    "city": "New Orleans",
+    "state": "LA"
+   }
+  },
+  "attendance": 15721
+ },
+ "odds": [
+  {
+   "provider": {
+    "name": "example"
+   },
+   "details": "DEN -3.5",
+   "overUnder": 230.5
+  }
+ ],
+ "pickcenter": [
+  {
+   "provider": {
+    "name": "example"
+   },
+   "details": "DEN -3.5"
+  }
+ ],
+ "againstTheSpread": [
+  {
+   "team": {
+    "id": "7"
+   },
+   "records": [
+    {
+     "summary": "6-5"
+    }
+   ]
+  }
+ ]
+}

@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { Router } from "express";
 import { z } from "zod";
 import { deskError } from "./desk.mjs";
+import { commonsFileTitle } from "./footage.mjs";
 
 const date = z.iso.date();
 const requestDate = z.object({ date: date.optional() });
@@ -10,6 +11,7 @@ const claimId = z.string().regex(/^clm_[a-f0-9]{20}$/);
 const title = z.string().trim().min(3).max(160);
 const summary = z.string().trim().max(1200);
 const take = z.string().trim().max(1800);
+const clipUrl = z.union([z.literal(""), z.string().trim().max(1200).refine(commonsFileTitle, "Use a Wikimedia Commons File page for the exact clip.")]);
 const url = z.url({ protocol: /^https?$/ }).max(1200).refine((value) => {
   const parsed = URL.parse(value);
   return parsed && !parsed.username && !parsed.password;
@@ -21,10 +23,12 @@ const teams = z.array(z.string().trim().min(2).max(60)).max(6);
 const tagging = { sport: sport.optional(), league: league.optional(), teams: teams.optional() };
 const topicFields = z.object({ title, summary, take, selected: z.boolean() });
 const patchTopic = requestDate.extend(topicFields.partial().shape).extend({
+  clipUrl: clipUrl.optional(),
+  takeScript: z.string().trim().max(1200).optional(), draftTake: z.boolean().optional(),
   headline: z.string().trim().min(3).max(140).optional(), narration: z.string().trim().min(20).max(750).optional(),
   storyId: z.string().trim().min(3).max(120).nullable().optional(), aliases: aliases.optional(), ...tagging,
 });
-const addTopic = requestDate.extend({ title, summary: summary.optional(), take: take.optional(), url: url.optional(), excerpt: z.string().trim().max(1000).optional(), ...tagging });
+const addTopic = requestDate.extend({ title, summary: summary.optional(), take: take.optional(), clipUrl: clipUrl.optional(), url: url.optional(), excerpt: z.string().trim().max(1000).optional(), ...tagging });
 const chatInput = requestDate.extend({ message: z.string().trim().min(1).max(2400), topicId: topicId.optional() });
 const chatEdits = z.array(topicFields.partial().extend({ id: topicId.optional(), url: url.optional() })).max(12).refine(
   (edits) => edits.every((edit) => edit.id || edit.title), "A new topic needs a title.",
@@ -41,6 +45,10 @@ const correctionInput = requestDate.extend({
   reason,
 });
 const resolutionInput = requestDate.extend({ disposition: z.enum(["supported", "withheld"]), reason });
+const clipId = z.string().regex(/^[\w.-]{1,80}$/u);
+const clipReview = requestDate.extend({
+  decision: z.enum(["approved", "rejected"]), in: z.number().min(0).max(3600).optional(), out: z.number().min(0).max(3600).optional(),
+}).refine(({ in: start, out: end }) => start === undefined || end === undefined || end > start, "The out point must come after the in point.");
 
 function directLoopback(req) {
   return ["localhost", "127.0.0.1", "[::1]"].includes(req.hostname) &&
@@ -64,7 +72,7 @@ function deskAccess(req, res, next) {
   const authorization = /^Basic ([A-Za-z0-9+/=]+)$/i.exec(req.get("authorization") || "");
   const expected = `${process.env.SPORTS_DESK_USER || "isaac"}:${password}`;
   if (authorization && matches(Buffer.from(authorization[1], "base64").toString("utf8"), expected)) return next();
-  res.set("WWW-Authenticate", 'Basic realm="Overtime Desk", charset="UTF-8"');
+  res.set("WWW-Authenticate", 'Basic realm="Wellspring Media Sports", charset="UTF-8"');
   return res.status(401).json({ error: "Sign in to the sports desk." });
 }
 
@@ -104,6 +112,10 @@ export function mountSports(app, desk) {
     const { date, ...topic } = addTopic.parse(req.body);
     if (topic.excerpt && !topic.url) throw deskError(400, "Add the source link for this excerpt.");
     res.status(201).json(await desk.changeTopic(null, topic, date));
+  });
+  router.post("/topics/:id/clips/:clipId", async (req, res) => {
+    const { date, ...review } = clipReview.parse(req.body);
+    res.json(await desk.reviewClip(topicId.parse(req.params.id), clipId.parse(req.params.clipId), review, date));
   });
   router.post("/topics/:id/trend", async (req, res) => {
     const { date, aliases: list } = trendInput.parse(req.body || {});

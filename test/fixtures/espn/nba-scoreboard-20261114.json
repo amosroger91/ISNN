@@ -1,0 +1,718 @@
+{
+ "leagues": [
+  {
+   "id": "46",
+   "name": "National Basketball Association",
+   "abbreviation": "NBA",
+   "slug": "nba",
+   "season": {
+    "year": 2027,
+    "startDate": "2026-09-30T07:00Z",
+    "endDate": "2027-06-26T06:59Z",
+    "displayName": "2026-27",
+    "type": {
+     "id": "2",
+     "type": 2,
+     "name": "Regular Season",
+     "abbreviation": "reg"
+    }
+   }
+  }
+ ],
+ "events": [
+  {
+   "id": "401909980",
+   "date": "2026-11-15T00:00Z",
+   "name": "Denver Nuggets at New Orleans Pelicans",
+   "shortName": "DEN @ NO",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "links": [
+    {
+     "rel": [
+      "summary",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/nba/game/_/gameId/401909980/nuggets-pelicans"
+    },
+    {
+     "rel": [
+      "boxscore",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/nba/boxscore/_/gameId/401909980"
+    },
+    {
+     "rel": [
+      "highlights",
+      "desktop"
+     ],
+     "href": "https://www.espn.com/nba/video?gameId=401909980"
+    },
+    {
+     "rel": [
+      "pbp",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/nba/playbyplay/_/gameId/401909980"
+    },
+    {
+     "rel": [
+      "recap",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/nba/recap?gameId=401909980"
+    }
+   ],
+   "competitions": [
+    {
+     "id": "401909980",
+     "date": "2026-11-15T00:00Z",
+     "neutralSite": false,
+     "venue": {
+      "fullName": "Smoothie King Center",
+      "address": {
+       "city": "New Orleans",
+       "state": "LA"
+      }
+     },
+     "status": {
+      "clock": 0,
+      "displayClock": "0.0",
+      "period": 4,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "competitors": [
+      {
+       "id": "3",
+       "homeAway": "home",
+       "winner": false,
+       "score": "108",
+       "linescores": [
+        {
+         "value": 23,
+         "period": 1
+        },
+        {
+         "value": 28,
+         "period": 2
+        },
+        {
+         "value": 31,
+         "period": 3
+        },
+        {
+         "value": 26,
+         "period": 4
+        }
+       ],
+       "records": [
+        {
+         "name": "overall",
+         "type": "total",
+         "summary": "4-10"
+        }
+       ],
+       "leaders": [
+        {
+         "name": "points",
+         "displayName": "Points",
+         "leaders": [
+          {
+           "displayValue": "24",
+           "value": 24,
+           "athlete": {
+            "id": "4395628",
+            "displayName": "Zion Williamson",
+            "shortName": "Z. Williamson",
+            "headshot": {},
+            "position": {
+             "abbreviation": "F"
+            },
+            "jersey": "1"
+           },
+           "team": {
+            "id": "3"
+           }
+          }
+         ]
+        },
+        {
+         "name": "rebounds",
+         "displayName": "Rebounds",
+         "leaders": [
+          {
+           "displayValue": "8",
+           "value": 8,
+           "athlete": {
+            "id": "5061589",
+            "displayName": "Yves Missi",
+            "shortName": "Y. Missi",
+            "headshot": {},
+            "position": {
+             "abbreviation": "C"
+            },
+            "jersey": "21"
+           },
+           "team": {
+            "id": "3"
+           }
+          }
+         ]
+        },
+        {
+         "name": "assists",
+         "displayName": "Assists",
+         "leaders": [
+          {
+           "displayValue": "7",
+           "value": 7,
+           "athlete": {
+            "id": "5144091",
+            "displayName": "Jeremiah Fears",
+            "shortName": "J. Fears",
+            "headshot": {},
+            "position": {
+             "abbreviation": "G"
+            },
+            "jersey": "0"
+           },
+           "team": {
+            "id": "3"
+           }
+          }
+         ]
+        }
+       ],
+       "team": {
+        "id": "3",
+        "location": "New Orleans",
+        "name": "Pelicans",
+        "abbreviation": "NO",
+        "displayName": "New Orleans Pelicans",
+        "shortDisplayName": "Pelicans",
+        "color": "0a2240",
+        "alternateColor": "b4975a",
+        "logo": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/no.png"
+       }
+      },
+      {
+       "id": "7",
+       "homeAway": "away",
+       "winner": true,
+       "score": "116",
+       "linescores": [
+        {
+         "value": 29,
+         "period": 1
+        },
+        {
+         "value": 27,
+         "period": 2
+        },
+        {
+         "value": 30,
+         "period": 3
+        },
+        {
+         "value": 30,
+         "period": 4
+        }
+       ],
+       "records": [
+        {
+         "name": "overall",
+         "type": "total",
+         "summary": "7-4"
+        }
+       ],
+       "leaders": [
+        {
+         "name": "points",
+         "displayName": "Points",
+         "leaders": [
+          {
+           "displayValue": "26",
+           "value": 26,
+           "athlete": {
+            "id": "3112335",
+            "displayName": "Nikola Jokic",
+            "shortName": "N. Jokic",
+            "headshot": {},
+            "position": {
+             "abbreviation": "C"
+            },
+            "jersey": "15"
+           },
+           "team": {
+            "id": "7"
+           }
+          }
+         ]
+        },
+        {
+         "name": "rebounds",
+         "displayName": "Rebounds",
+         "leaders": [
+          {
+           "displayValue": "8",
+           "value": 8,
+           "athlete": {
+            "id": "3112335",
+            "displayName": "Nikola Jokic",
+            "shortName": "N. Jokic",
+            "headshot": {},
+            "position": {
+             "abbreviation": "C"
+            },
+            "jersey": "15"
+           },
+           "team": {
+            "id": "7"
+           }
+          }
+         ]
+        },
+        {
+         "name": "assists",
+         "displayName": "Assists",
+         "leaders": [
+          {
+           "displayValue": "10",
+           "value": 10,
+           "athlete": {
+            "id": "3112335",
+            "displayName": "Nikola Jokic",
+            "shortName": "N. Jokic",
+            "headshot": {},
+            "position": {
+             "abbreviation": "C"
+            },
+            "jersey": "15"
+           },
+           "team": {
+            "id": "7"
+           }
+          }
+         ]
+        }
+       ],
+       "team": {
+        "id": "7",
+        "location": "Denver",
+        "name": "Nuggets",
+        "abbreviation": "DEN",
+        "displayName": "Denver Nuggets",
+        "shortDisplayName": "Nuggets",
+        "color": "0e2240",
+        "alternateColor": "fec524",
+        "logo": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/den.png"
+       }
+      }
+     ],
+     "highlights": [
+      {
+       "id": 50486124,
+       "source": "espn",
+       "headline": "Denver Nuggets vs. New Orleans Pelicans: Game Highlights",
+       "description": "Denver Nuggets vs. New Orleans Pelicans: Game Highlights",
+       "duration": 73,
+       "originalPublishDate": "2026-11-15T02:42:36Z",
+       "timeRestrictions": {
+        "embargoDate": "2026-11-15T02:42:28Z",
+        "expirationDate": "2027-07-31T04:00:00Z"
+       },
+       "geoRestrictions": {
+        "type": "whitelist",
+        "countries": [
+         "UK",
+         "US",
+         "MX"
+        ]
+       },
+       "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1115/ab914744-01c6-4795-8aeb-1c2ee0d42f49/ab914744-01c6-4795-8aeb-1c2ee0d42f49.jpg",
+       "links": {
+        "web": {
+         "href": "https://www.espn.com/video/clip/_/id/50486124"
+        },
+        "mobile": {
+         "progressiveDownload": {
+          "href": "https://watch.auth.api.espn.com/video/auth/brightcove/example/asset"
+         }
+        }
+       }
+      }
+     ],
+     "headlines": [
+      {
+       "type": "Recap",
+       "shortLinkText": "Jokic, Murray help Nuggets hand Pelicans a sixth straight loss"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "401909984",
+   "date": "2026-11-15T01:00Z",
+   "name": "Chicago Bulls at Minnesota Timberwolves",
+   "shortName": "CHI @ MIN",
+   "season": {
+    "year": 2027,
+    "type": 2,
+    "slug": "regular-season"
+   },
+   "links": [
+    {
+     "rel": [
+      "summary",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/nba/game/_/gameId/401909984/bulls-timberwolves"
+    },
+    {
+     "rel": [
+      "boxscore",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/nba/boxscore/_/gameId/401909984"
+    },
+    {
+     "rel": [
+      "highlights",
+      "desktop"
+     ],
+     "href": "https://www.espn.com/nba/video?gameId=401909984"
+    },
+    {
+     "rel": [
+      "pbp",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/nba/playbyplay/_/gameId/401909984"
+    },
+    {
+     "rel": [
+      "recap",
+      "desktop",
+      "event"
+     ],
+     "href": "https://www.espn.com/nba/recap?gameId=401909984"
+    }
+   ],
+   "competitions": [
+    {
+     "id": "401909984",
+     "date": "2026-11-15T01:00Z",
+     "neutralSite": false,
+     "venue": {
+      "fullName": "Target Center",
+      "address": {
+       "city": "Minneapolis",
+       "state": "MN"
+      }
+     },
+     "status": {
+      "clock": 720,
+      "displayClock": "12:00",
+      "period": 4,
+      "type": {
+       "id": "3",
+       "name": "STATUS_FINAL",
+       "state": "post",
+       "completed": true,
+       "description": "Final",
+       "detail": "Final",
+       "shortDetail": "Final"
+      }
+     },
+     "competitors": [
+      {
+       "id": "16",
+       "homeAway": "home",
+       "winner": false,
+       "score": "106",
+       "linescores": [
+        {
+         "value": 17,
+         "period": 1
+        },
+        {
+         "value": 28,
+         "period": 2
+        },
+        {
+         "value": 35,
+         "period": 3
+        },
+        {
+         "value": 26,
+         "period": 4
+        }
+       ],
+       "records": [
+        {
+         "name": "overall",
+         "type": "total",
+         "summary": "9-4"
+        }
+       ],
+       "leaders": [
+        {
+         "name": "points",
+         "displayName": "Points",
+         "leaders": [
+          {
+           "displayValue": "24",
+           "value": 24,
+           "athlete": {
+            "id": "4397002",
+            "displayName": "Ayo Dosunmu",
+            "shortName": "A. Dosunmu",
+            "headshot": {},
+            "position": {
+             "abbreviation": "G"
+            },
+            "jersey": "13"
+           },
+           "team": {
+            "id": "16"
+           }
+          }
+         ]
+        },
+        {
+         "name": "rebounds",
+         "displayName": "Rebounds",
+         "leaders": [
+          {
+           "displayValue": "10",
+           "value": 10,
+           "athlete": {
+            "id": "3032976",
+            "displayName": "Rudy Gobert",
+            "shortName": "R. Gobert",
+            "headshot": {},
+            "position": {
+             "abbreviation": "C"
+            },
+            "jersey": "27"
+           },
+           "team": {
+            "id": "16"
+           }
+          }
+         ]
+        },
+        {
+         "name": "assists",
+         "displayName": "Assists",
+         "leaders": [
+          {
+           "displayValue": "6",
+           "value": 6,
+           "athlete": {
+            "id": "4432816",
+            "displayName": "LaMelo Ball",
+            "shortName": "L. Ball",
+            "headshot": {},
+            "position": {
+             "abbreviation": "G"
+            },
+            "jersey": "1"
+           },
+           "team": {
+            "id": "16"
+           }
+          }
+         ]
+        }
+       ],
+       "team": {
+        "id": "16",
+        "location": "Minnesota",
+        "name": "Timberwolves",
+        "abbreviation": "MIN",
+        "displayName": "Minnesota Timberwolves",
+        "shortDisplayName": "Timberwolves",
+        "color": "266092",
+        "alternateColor": "79bc43",
+        "logo": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/min.png"
+       }
+      },
+      {
+       "id": "4",
+       "homeAway": "away",
+       "winner": true,
+       "score": "117",
+       "linescores": [
+        {
+         "value": 29,
+         "period": 1
+        },
+        {
+         "value": 29,
+         "period": 2
+        },
+        {
+         "value": 30,
+         "period": 3
+        },
+        {
+         "value": 29,
+         "period": 4
+        }
+       ],
+       "records": [
+        {
+         "name": "overall",
+         "type": "total",
+         "summary": "3-9"
+        }
+       ],
+       "leaders": [
+        {
+         "name": "points",
+         "displayName": "Points",
+         "leaders": [
+          {
+           "displayValue": "24",
+           "value": 24,
+           "athlete": {
+            "id": "2595516",
+            "displayName": "Norman Powell",
+            "shortName": "N. Powell",
+            "headshot": {},
+            "position": {
+             "abbreviation": "G"
+            },
+            "jersey": "24"
+           },
+           "team": {
+            "id": "4"
+           }
+          }
+         ]
+        },
+        {
+         "name": "rebounds",
+         "displayName": "Rebounds",
+         "leaders": [
+          {
+           "displayValue": "9",
+           "value": 9,
+           "athlete": {
+            "id": "4711294",
+            "displayName": "Matas Buzelis",
+            "shortName": "M. Buzelis",
+            "headshot": {},
+            "position": {
+             "abbreviation": "F"
+            },
+            "jersey": "14"
+           },
+           "team": {
+            "id": "4"
+           }
+          }
+         ]
+        },
+        {
+         "name": "assists",
+         "displayName": "Assists",
+         "leaders": [
+          {
+           "displayValue": "5",
+           "value": 5,
+           "athlete": {
+            "id": "4871145",
+            "displayName": "Josh Giddey",
+            "shortName": "J. Giddey",
+            "headshot": {},
+            "position": {
+             "abbreviation": "G"
+            },
+            "jersey": "3"
+           },
+           "team": {
+            "id": "4"
+           }
+          }
+         ]
+        }
+       ],
+       "team": {
+        "id": "4",
+        "location": "Chicago",
+        "name": "Bulls",
+        "abbreviation": "CHI",
+        "displayName": "Chicago Bulls",
+        "shortDisplayName": "Bulls",
+        "color": "ce1141",
+        "alternateColor": "000000",
+        "logo": "https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/chi.png"
+       }
+      }
+     ],
+     "highlights": [
+      {
+       "id": 50486860,
+       "source": "espn",
+       "headline": "Chicago Bulls vs. Minnesota Timberwolves: Game Highlights",
+       "description": "Chicago Bulls vs. Minnesota Timberwolves: Game Highlights",
+       "duration": 74,
+       "originalPublishDate": "2026-11-15T03:42:10Z",
+       "timeRestrictions": {
+        "embargoDate": "2026-11-15T03:42:01Z",
+        "expirationDate": "2027-07-31T04:00:00Z"
+       },
+       "geoRestrictions": {
+        "type": "whitelist",
+        "countries": [
+         "UK",
+         "US",
+         "MX"
+        ]
+       },
+       "thumbnail": "https://espnmedia-cdn.akamaized.net/espn/media/common/wsc/2026/1115/641116c4-a34a-44af-8033-5b70be541558/641116c4-a34a-44af-8033-5b70be541558.jpg",
+       "links": {
+        "web": {
+         "href": "https://www.espn.com/video/clip/_/id/50486860"
+        },
+        "mobile": {
+         "progressiveDownload": {
+          "href": "https://watch.auth.api.espn.com/video/auth/brightcove/example/asset"
+         }
+        }
+       }
+      }
+     ],
+     "headlines": [
+      {
+       "type": "Recap",
+       "shortLinkText": "Bulls overcome travel delay and injuries to beat the Timberwolves 117-106"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

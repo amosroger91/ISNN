@@ -1,16 +1,19 @@
 import { fork } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { access, mkdir } from "node:fs/promises";
+import { access, mkdir, mkdtemp, rm } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { dataDir } from "../config.mjs";
 import { readJson, saveJson } from "../storage.mjs";
+import { AssetCache } from "./assets.mjs";
 import { FixtureEvidenceAdapter, scanSlate } from "./evidence.mjs";
+import { EspnEvidenceAdapter } from "./espn/adapter.mjs";
 import { EvidenceLedger, LedgerError, fingerprint, numbersIn } from "./ledger.mjs";
-import { editTopics, researchConfigured, researchEdition, writeAnchorScript, writeEpisode } from "./research.mjs";
-import { planShots } from "./rights.mjs";
+import { draftIsaacTake, editTopics, researchConfigured, researchEdition, writeAnchorScript, writeEpisode } from "./research.mjs";
+import { platesFor } from "./marks.mjs";
+import { canUse, planShots } from "./rights.mjs";
 import { coverageScope, inScope } from "./scope.mjs";
-import { sampleEpisode, sampleTopics, scriptedSegment } from "./sample.mjs";
+import { opinionSegment, sampleEpisode, sampleTopics, scriptedSegment, takeNarration } from "./sample.mjs";
 import { GoogleTrendingNowAdapter, collectObservations, scoreTrend, trendSegment } from "./trend.mjs";
 import { uploadEpisode, youtubeConfigured } from "./youtube.mjs";
 
@@ -68,6 +71,7 @@ function createEdition(date, sample = false) {
     date, sample, status: "waiting", revision: 0, topics: sample ? sampleTopics() : [], messages: [],
     render: null, publication: { status: "pending" }, updatedAt: null,
     slate: [], corrections: [], trendDesk: { coreTopicId: null, lockedAt: null, checks: [] }, verification: null,
+    scanFailures: 0, lastScanAttempt: null,
   };
 }
 
@@ -84,11 +88,30 @@ function message(role, content, at) {
   return { id: randomUUID(), role, content, at };
 }
 
-function newTopic({ title, summary = "", take = "", selected = true, url, excerpt = "", sport = null, league = null, teams = [] }) {
+function topicsScripted(edition) {
+  const selected = edition.topics.filter((topic) => topic.selected);
+  return selected.length > 0 && selected.every((topic) => topic.script?.narration || takeNarration(topic));
+}
+
+function newTopic({ title, summary = "", take = "", selected = true, clipUrl = "", url, excerpt = "", sport = null, league = null, teams = [] }) {
   return {
-    id: randomUUID(), title, summary, take, selected, sport, league, teams,
+    id: randomUUID(), title, summary, take, selected, sport, league, teams, ...(clipUrl && { clipUrl }),
     sources: url ? [{ title: "Source supplied by Isaac", publisher: new URL(url).hostname, url, excerpt }] : [],
   };
+}
+
+// Discovered highlight references: a public page, duration and restrictions.
+// Isaac's decisions survive a rescan; a suggested range is 8 seconds and the
+// hard cap is 15. No media is ever fetched for these.
+const CLIP_SUGGESTED = 8;
+const CLIP_CAP = 15;
+function mergeClips(existing = [], discovered = []) {
+  const kept = new Map(existing.map((clip) => [clip.id, clip]));
+  return discovered.slice(0, 8).map((clip) => {
+    const prior = kept.get(clip.id);
+    const out = Math.min(CLIP_SUGGESTED, clip.duration || CLIP_SUGGESTED);
+    return { ...clip, decision: prior?.decision || null, in: prior?.in ?? 0, out: prior?.out ?? out, reviewedAt: prior?.reviewedAt || null, reviewedBy: prior?.reviewedBy || null };
+  });
 }
 
 // What counts as an editorial change: everything about a topic except the
@@ -181,12 +204,13 @@ export class SportsDesk {
     research = researchEdition,
     write = writeEpisode,
     anchor = writeAnchorScript,
+    draftTake = draftIsaacTake,
     chat = editTopics,
     render = isolatedRender,
     upload = uploadEpisode,
     canResearch = researchConfigured,
     canUpload = youtubeConfigured,
-    evidence = new FixtureEvidenceAdapter(),
+    evidence,
     trend = [new GoogleTrendingNowAdapter()],
     catalog = null,
     scope = coverageScope(),
@@ -194,18 +218,19 @@ export class SportsDesk {
   } = {}) {
     this.directory = directory;
     this.scope = scope;
+    this.evidence = evidence || (process.env.SPORTS_EVIDENCE === "espn" ? new EspnEvidenceAdapter({ timezone, assets: new AssetCache() }) : new FixtureEvidenceAdapter());
     this.settings = {
       timezone, publishEnabled, privacy, channel, territory, researchConfigured: canResearch(), youtubeConfigured: canUpload(),
-      evidenceProvider: evidence?.name || null, trendProviders: trend.map((adapter) => adapter.name), scope,
+      evidenceProvider: this.evidence?.name || null, trendProviders: trend.map((adapter) => adapter.name), scope,
     };
     this.now = now;
     this.research = research;
     this.write = write;
     this.anchor = anchor;
+    this.generateTake = draftTake;
     this.ask = chat;
     this.render = render;
     this.upload = upload;
-    this.evidence = evidence;
     this.trendAdapters = trend;
     this.catalog = catalog;
     this.rebuildDelay = rebuildDelay;
@@ -258,7 +283,7 @@ export class SportsDesk {
       if (error.code !== "ENOENT") throw error;
       return null;
     });
-    const sample = !this.settings.researchConfigured;
+    const sample = !this.settings.researchConfigured && this.evidence?.name !== "espn";
     const edition = (await read(false)) || (sample && await read(true)) || createEdition(date, sample);
     for (const [key, value] of Object.entries(createEdition(date, sample))) if (edition[key] === undefined) edition[key] = value;
     if (this.work?.date !== date) {
@@ -307,7 +332,8 @@ export class SportsDesk {
     const work = { date: edition.date, task };
     this.work = work;
     work.done = Promise.resolve().then(callback).catch(async (error) => {
-      console.error(`[sports ${task} ${work.date}] ${error.message}`);
+      const cause = error.cause?.message ? ` (${error.cause.name || "cause"}: ${error.cause.message})` : "";
+      console.error(`[sports ${task} ${work.date}] ${error.message}${cause}`);
       await this.serialized(async () => {
         const latest = await this.load(work.date);
         if (task === "publish") {
@@ -412,10 +438,13 @@ export class SportsDesk {
   // only feed-sourced and take-only topics go to the model writer.
   async writeLive(snapshot) {
     const selected = snapshot.topics.filter((topic) => topic.selected);
+    if (!this.settings.researchConfigured) {
+      return { title: `Wellspring Media Sports | ${snapshot.date}`, description: "The overnight recap.", segments: selected.map((topic) => topic.script ? scriptedSegment(topic) : opinionSegment(topic)) };
+    }
     const unscripted = selected.filter((topic) => !topic.script);
     const written = unscripted.length
       ? await this.write({ ...snapshot, topics: unscripted })
-      : { title: `Overtime Desk | ${snapshot.date}`, description: "The overnight recap with every number bound to its evidence.", segments: [] };
+      : { title: `Wellspring Media Sports | ${snapshot.date}`, description: "The overnight recap with every number bound to its evidence.", segments: [] };
     const byTopic = new Map(unscripted.map((topic, index) => [topic.id, written.segments[index]]));
     const segments = selected.map((topic) => topic.script ? scriptedSegment(topic) : byTopic.get(topic.id) && { ...byTopic.get(topic.id), topicId: topic.id }).filter(Boolean);
     return { ...written, segments: await this.voiceScripted(snapshot, segments) };
@@ -432,7 +461,7 @@ export class SportsDesk {
     const ledger = await this.ledgerFor(snapshot);
     const cache = snapshot.anchorCache || {};
     const position = (index) => index === 0 ? "lead story" : index === segments.length - 1 ? "last story" : `story ${index + 1} of ${segments.length}`;
-    const keyed = scripted.map((item) => ({ ...item, key: fingerprint({ draft: item.topic.script.narration, claims: item.topic.claimIds, position: position(item.index), take: item.topic.take?.trim() || null }) }));
+    const keyed = scripted.map((item) => ({ ...item, key: fingerprint({ draft: item.topic.script.narration, claims: item.topic.claimIds, position: position(item.index) }) }));
     const pending = keyed.filter(({ key }) => !cache[key]);
     const voiced = new Map();
     let outcome = { status: "cached", issues: [] };
@@ -441,7 +470,7 @@ export class SportsDesk {
         this.work.progress = { percent: 3, message: "Writing the anchor script…" };
         const written = await this.anchor({ date: snapshot.date, segments: pending.map(({ segment, index, topic }) => ({
           id: segment.id || topic.eventId, position: position(index), headline: topic.script.headline, draft: topic.script.narration,
-          sport: topic.sport, league: topic.league, teams: topic.teams, take: topic.take?.trim() || null,
+          sport: topic.sport, league: topic.league, teams: topic.teams,
           claims: ledger.publicClaims(topic.claimIds).filter(({ disposition }) => disposition === "supported").map(({ text, value, unit, subject, period, clock }) => ({ text, value, unit, subject, period, clock })),
         })) });
         for (const { id, narration } of written) voiced.set(id, narration);
@@ -468,7 +497,7 @@ export class SportsDesk {
       }
       const body = narration || topic.script.narration;
       segment.draft = topic.script.narration;
-      segment.narration = [body, topic.take?.trim() && `Isaac’s take. ${topic.take.trim()}`].filter(Boolean).join("\n\n");
+      segment.narration = [body, takeNarration(topic)].filter(Boolean).join("\n\n");
       anchor.push({ id, headline: topic.script.headline, status, narration: body });
     }
     snapshot.anchorCache = Object.fromEntries(Object.entries(cache).slice(-60));
@@ -481,29 +510,45 @@ export class SportsDesk {
     const { topicSources = [], ...draft } = snapshot.sample ? sampleEpisode(snapshot) : await this.writeLive(snapshot);
     const selected = snapshot.topics.filter((topic) => topic.selected);
     const episode = {
-      ...draft, date: snapshot.date, airAt: this.airTimeFor(snapshot.date), channel: this.settings.channel, territory: this.settings.territory,
+      ...draft, title: draft.title?.replace(/Overtime Desk/giu, "Wellspring Media Sports") || "Wellspring Media Sports", date: snapshot.date, airAt: this.airTimeFor(snapshot.date), channel: this.settings.channel, territory: this.settings.territory,
+      footageSearch: !snapshot.sample && process.env.SPORTS_CLIP_DISCOVERY !== "off",
       segments: draft.segments.map((segment, index) => {
         const topic = snapshot.topics.find((candidate) => candidate.id === segment.topicId) || selected[index];
-        return { ...segment, topicId: topic?.id || null, eventId: segment.eventId ?? topic?.eventId ?? null, id: segment.id || topic?.eventId || undefined };
+        return {
+          ...segment, topicId: topic?.id || null, eventId: segment.eventId ?? topic?.eventId ?? null, id: segment.id || topic?.eventId || undefined,
+          ...(topic && { footage: { clipUrl: topic.clipUrl, sport: topic.sport, teams: topic.teams, people: topic.entities, gameDate: topic.gameDate, topicTitle: topic.title } }),
+        };
       }),
     };
     const trend = trendSegment(this.trendAngles(snapshot));
     if (trend) episode.segments.push(trend);
     this.work.progress = { percent: 4, message: "Checking every number against the evidence ledger…" };
-    const { revision } = await this.bindEvidence(snapshot, episode);
+    const { revision, ledger } = await this.bindEvidence(snapshot, episode);
+    const plates = await platesFor(selected, { gameFor: (id) => ledger.latestEvent(id) });
     const catalog = await this.catalogFor(snapshot);
     episode.rights = { channel: this.settings.channel, territory: this.settings.territory, airAt: episode.airAt, catalog };
     episode.segments = episode.segments.map((segment) => ({
       ...segment, claimIds: segment.claims.map(({ id }) => id),
+      ...(plates.has(segment.topicId) && { plate: plates.get(segment.topicId) }),
       shots: segment.eventId ? planShots(segment, { catalog, channel: this.settings.channel, territory: this.settings.territory, airAt: episode.airAt, revision: snapshot.revision }) : null,
     }));
-    const directory = path.join(this.directoryFor(snapshot), String(snapshot.revision));
-    await mkdir(directory, { recursive: true });
-    const metadata = await this.render(episode, directory, (progress) => { this.work.progress = progress; });
-    await access(path.join(directory, "episode.mp4"));
+    const revisionDirectory = path.join(this.directoryFor(snapshot), String(snapshot.revision));
+    await mkdir(revisionDirectory, { recursive: true });
+    // Windows may hold the old MP4 open while a player streams it.
+    const directory = await mkdtemp(path.join(revisionDirectory, "cut-"));
+    const build = path.basename(directory);
+    let metadata;
+    try {
+      metadata = await this.render(episode, directory, (progress) => { this.work.progress = progress; });
+      await access(path.join(directory, "episode.mp4"));
+    } catch (error) {
+      await rm(directory, { recursive: true, force: true }).catch(() => {});
+      throw error;
+    }
     await this.serialized(async () => {
       const current = await this.load(snapshot.date);
       if (snapshot.revision !== current.revision) {
+        await rm(directory, { recursive: true, force: true }).catch(() => {});
         current.status = "waiting";
         await this.save(current);
         this.rebuildDate = current.date;
@@ -517,9 +562,9 @@ export class SportsDesk {
       if (snapshot.anchorCache) current.anchorCache = snapshot.anchorCache;
       current.render = {
         title: episode.title, duration: metadata.duration, revisionId: revision.id, anchor: snapshot.anchor || null,
-        episode: { ...episode, chapters: metadata.chapters, duration: metadata.duration }, revision: snapshot.revision,
-        createdAt: this.now().toISOString(), url: base, qc: metadata.qc || null, shots: metadata.shots || null,
-        shorts: (metadata.shorts || []).map((short) => ({ ...short, url: `${base}/short/${short.segment}` })),
+        episode: { ...episode, chapters: metadata.chapters, duration: metadata.duration, footageCredits: metadata.footageCredits || [] }, revision: snapshot.revision,
+        createdAt: this.now().toISOString(), build, url: `${base}?cut=${build}`, qc: metadata.qc || null, shots: metadata.shots || null,
+        shorts: (metadata.shorts || []).map((short) => ({ ...short, url: `${base}/short/${short.segment}?cut=${build}` })),
       };
       current.verification = {
         revisionId: revision.id, revision: snapshot.revision, ok: true, at: revision.lockedAt,
@@ -533,7 +578,7 @@ export class SportsDesk {
   async queueBuild(edition) {
     this.ensureEditable(edition);
     if (!edition.topics.some(({ selected }) => selected)) throw deskError(409, "Include at least one topic before building an episode.");
-    if (!edition.sample && !this.settings.researchConfigured) throw deskError(409, "Set a sports research model to write the script.");
+    if (!edition.sample && !this.settings.researchConfigured && !topicsScripted(edition)) throw deskError(409, "Set a sports research model to write the script.");
     await this.markBuilding(edition);
     this.launch(edition, "build", () => this.produce(edition));
   }
@@ -547,7 +592,8 @@ export class SportsDesk {
         this.rebuildDate = null;
         if (this.clock().date !== date) return;
         const edition = await this.load(date);
-        if (edition.sample || !this.settings.researchConfigured || !edition.topics.some(({ selected }) => selected)) return;
+        if (edition.sample || !edition.topics.some(({ selected }) => selected)) return;
+        if (!this.settings.researchConfigured && !topicsScripted(edition)) return;
         if (edition.render?.revision !== edition.revision) await this.queueBuild(edition);
       }).catch((error) => { if (error.status !== 409) console.error(error); });
     }, this.rebuildDelay).unref();
@@ -576,16 +622,27 @@ export class SportsDesk {
     return this.response(edition);
   }
 
-  changeTopic(topicId, changes, expectedDate) {
-    return this.serialized(async () => {
+  async fillTakeScript(topic) {
+    try {
+      topic.takeScript = await this.generateTake(topic);
+    } catch (error) {
+      throw deskError(422, `The take wasn’t saved. ${error.message}`);
+    }
+  }
+
+  async changeTopic(topicId, changes, expectedDate) {
+    const result = await this.serialized(async () => {
       const edition = await this.readCurrent(expectedDate);
       this.ensureEditable(edition);
       const before = topicsDigest(edition.topics);
       if (changes.league && !inScope(changes.league, this.scope)) throw deskError(409, `Coverage is limited to ${this.scope.label}.`);
+      const { headline, narration, draftTake, ...rest } = changes;
+      let topic;
+      let previousTake;
       if (topicId) {
-        const topic = edition.topics.find(({ id }) => id === topicId);
+        topic = edition.topics.find(({ id }) => id === topicId);
         if (!topic) throw deskError(404, "Topic not found.");
-        const { headline, narration, ...rest } = changes;
+        previousTake = topic.take || "";
         if (headline !== undefined || narration !== undefined) {
           if (!topic.script) throw deskError(409, "Only a story scanned from evidence carries an editable script.");
           topic.script = { ...topic.script, ...(headline !== undefined && { headline }), ...(narration !== undefined && { narration }) };
@@ -593,8 +650,31 @@ export class SportsDesk {
         Object.assign(topic, rest);
       } else {
         if (edition.topics.length >= maxTopics) throw deskError(409, `An edition can hold ${maxTopics} topics.`);
-        edition.topics.push(newTopic(changes));
+        topic = newTopic(rest);
+        previousTake = "";
+        edition.topics.push(topic);
       }
+      const notesChanged = previousTake !== (topic.take || "");
+      if (draftTake && !topic.take?.trim()) throw deskError(400, "Add take notes before drafting.");
+      if (draftTake && !this.settings.researchConfigured) throw deskError(409, "Connect a model to draft the take script.");
+      if (topic.take?.trim() && this.settings.researchConfigured && (notesChanged || draftTake)) {
+        return { topic, date: edition.date, revision: edition.revision };
+      }
+      if (notesChanged) topic.takeScript = "";
+      return { view: await this.saveEdits(edition, before) };
+    });
+    if (result.view) return result.view;
+    await this.fillTakeScript(result.topic);
+    return this.serialized(async () => {
+      const edition = await this.readCurrent(result.date);
+      this.ensureEditable(edition);
+      if (edition.revision !== result.revision) throw deskError(409, "The rundown changed while the take was drafting. Save again.");
+      const before = topicsDigest(edition.topics);
+      if (topicId) {
+        const index = edition.topics.findIndex(({ id }) => id === topicId);
+        if (index < 0) throw deskError(404, "Topic not found.");
+        edition.topics[index] = { ...result.topic, trend: edition.topics[index].trend };
+      } else edition.topics.push(result.topic);
       return this.saveEdits(edition, before);
     });
   }
@@ -608,6 +688,15 @@ export class SportsDesk {
     });
     const answer = snapshot.sample ? previewChat(content, topicId) : await this.ask(snapshot, content, topicId);
     const edits = validateEdits(answer.edits);
+    const takeScripts = new Map();
+    for (const [index, { id, url, ...changes }] of edits.entries()) {
+      const original = snapshot.topics.find((topic) => topic.id === id);
+      if (changes.take === undefined || changes.take === (original?.take || "")) continue;
+      const topic = original ? { ...original, ...changes } : newTopic({ ...changes, url });
+      topic.takeScript = "";
+      if (topic.take.trim() && this.settings.researchConfigured) await this.fillTakeScript(topic);
+      takeScripts.set(index, topic.takeScript);
+    }
     return this.serialized(async () => {
       const edition = await this.readCurrent(snapshot.date);
       this.ensureEditable(edition);
@@ -615,14 +704,15 @@ export class SportsDesk {
         throw deskError(409, "The rundown changed while the editor was replying. Send the message again.");
       }
       const before = topicsDigest(edition.topics);
-      for (const { id, url, ...changes } of edits) {
+      for (const [index, { id, url, ...changes }] of edits.entries()) {
+        const takeScript = takeScripts.has(index) ? { takeScript: takeScripts.get(index) } : {};
         if (id) {
           const topic = edition.topics.find((topic) => topic.id === id);
           if (!topic) throw deskError(409, "The editor returned a topic that is no longer in the rundown.");
-          Object.assign(topic, changes);
+          Object.assign(topic, changes, takeScript);
         } else {
           if (edition.topics.length >= maxTopics) throw deskError(409, `An edition can hold ${maxTopics} topics.`);
-          edition.topics.push(newTopic({ ...changes, url }));
+          edition.topics.push({ ...newTopic({ ...changes, url }), ...takeScript });
         }
       }
       const at = this.now().toISOString();
@@ -636,12 +726,23 @@ export class SportsDesk {
   scanSlate(expectedDate, { asOf } = {}) {
     return this.serialized(async () => {
       const edition = await this.readCurrent(expectedDate);
-      this.ensureEditable(edition);
-      if (!this.evidence) throw deskError(409, "No evidence adapter is configured.");
+      return this.applyScan(edition, { asOf });
+    });
+  }
+
+  // Already inside the desk queue. tick calls this directly so a scan cannot
+  // wait on the same queue it is running in.
+  async applyScan(edition, { asOf } = {}) {
+    this.ensureEditable(edition);
+    if (!this.evidence) throw deskError(409, "No evidence adapter is configured.");
+    return this.writeScan(edition, { asOf });
+  }
+
+  async writeScan(edition, { asOf } = {}) {
       const ledger = await this.ledgerFor(edition);
       const at = asOf || this.now().toISOString();
       const known = new Set(edition.corrections.map(({ id }) => id));
-      const results = await scanSlate(ledger, this.evidence, { date: edition.date, asOf: at, retrievedAt: this.now().toISOString() });
+      const results = await scanSlate(ledger, this.evidence, { date: edition.date, asOf: at, retrievedAt: this.now().toISOString(), timezone: this.settings.timezone });
       await ledger.save();
       const before = topicsDigest(edition.topics);
       // Games outside the coverage scope stay visible in the slate but are never pitched.
@@ -664,13 +765,14 @@ export class SportsDesk {
         let topic = edition.topics.find((candidate) => candidate.eventId === result.gameId);
         if (!topic) {
           if (edition.topics.length >= maxTopics) break;
-          topic = { ...newTopic({ title: result.story.headline, summary: `${result.title}, ${result.competition}.` }), selected: result.coverage === "covered", eventId: result.gameId, storyId: result.gameId };
+          topic = { ...newTopic({ title: result.story.headline, summary: `${result.title}, ${result.competition}.` }), selected: result.coverage === "covered" && result.included !== false, eventId: result.gameId, storyId: result.gameId };
           edition.topics.push(topic);
         }
         topic.title = result.story.headline;
         topic.sport = result.sport;
         topic.league = result.league;
         topic.teams = [result.away.name, result.home.name];
+      if (result.startTime) topic.gameDate = localClock(new Date(result.startTime), this.settings.timezone).date;
         topic.script = { headline: result.story.headline, narration: result.story.narration, diagram: result.story.diagram };
         topic.claimIds = result.story.claimIds;
         topic.coverage = result.coverage;
@@ -678,6 +780,7 @@ export class SportsDesk {
         topic.entities = result.entities;
         topic.aliases ||= [...new Set([result.home.name, result.away.name, `${result.home.short} ${result.away.short}`])];
         topic.media = result.media;
+        topic.clips = mergeClips(topic.clips, result.discovery);
         topic.sources = [...new Map([...topic.sources, ...result.snapshots.map((snapshot) => ({ publisher: snapshot.provider, title: snapshot.title || snapshot.type, url: snapshot.sourceUrl }))]
           .filter(({ url }) => url).map((source) => [source.url, source])).values()].slice(0, 6);
       }
@@ -690,8 +793,45 @@ export class SportsDesk {
         }
       }
       for (const correction of ledger.corrections.filter(({ id }) => !known.has(id))) this.applyCorrection(edition, correction, ledger);
+      edition.scanFailures = 0;
+      return this.saveEdits(edition, before);
+  }
+
+  // Isaac's review of a discovered clip: approve or reject, and the source
+  // range he wants. The decision is a record; nothing is fetched.
+  reviewClip(topicId, clipId, { decision, in: start, out: end }, expectedDate) {
+    return this.serialized(async () => {
+      const edition = await this.readCurrent(expectedDate);
+      this.ensureEditable(edition);
+      const topic = edition.topics.find(({ id }) => id === topicId);
+      if (!topic) throw deskError(404, "Topic not found.");
+      const clip = (topic.clips || []).find((item) => item.id === clipId);
+      if (!clip) throw deskError(404, "Clip not found on this story.");
+      const before = topicsDigest(edition.topics);
+      const from = Math.max(0, start ?? clip.in ?? 0);
+      let to = end ?? clip.out ?? Math.min(from + CLIP_SUGGESTED, clip.duration ?? from + CLIP_SUGGESTED);
+      if (clip.duration) to = Math.min(to, clip.duration);
+      if (to - from < 1) throw deskError(400, "A clip range needs at least one second.");
+      if (to - from > CLIP_CAP) throw deskError(400, `A clip range is capped at ${CLIP_CAP} seconds.`);
+      Object.assign(clip, { decision, in: Number(from.toFixed(2)), out: Number(to.toFixed(2)), reviewedAt: this.now().toISOString(), reviewedBy: "isaac" });
       return this.saveEdits(edition, before);
     });
+  }
+
+  // Overnight ESPN scans use the same 15-minute gap as research. A failure is
+  // logged and does not abort the tick. Three failures stop the retries.
+  async scanIfDue(edition) {
+    const awaiting = (edition.slate || []).some((row) => row.coverage === "awaiting verification");
+    if ((edition.lastScan && !awaiting) || (edition.scanFailures || 0) >= 3) return;
+    if (edition.lastScanAttempt && this.now().getTime() - Date.parse(edition.lastScanAttempt) < overnightRetry) return;
+    edition.lastScanAttempt = this.now().toISOString();
+    try {
+      await this.applyScan(edition);
+    } catch (error) {
+      edition.scanFailures = (edition.scanFailures || 0) + 1;
+      console.log(JSON.stringify({ scan: { date: edition.date, provider: this.evidence?.name, error: error.message } }));
+      await this.save(edition);
+    }
   }
 
   // A superseded claim: the topics that cite it move to the replacement, the
@@ -838,7 +978,7 @@ export class SportsDesk {
   async publish(edition) {
     if (!this.settings.publishEnabled || edition.sample || edition.publication.status === "published") return;
     const pub = edition.publication;
-    const file = path.join(this.directoryFor(edition), String(edition.revision), "episode.mp4");
+    const file = path.join(this.renderDirectoryFor(edition), "episode.mp4");
     const ready = edition.status === "ready" && edition.render?.revision === edition.revision;
     const videoExists = ready && await access(file).then(() => true, () => false);
     if (!this.settings.youtubeConfigured || !videoExists) {
@@ -851,6 +991,23 @@ export class SportsDesk {
     }
     if (pub.status === "uncertain" || (pub.attempts || 0) >= 4 ||
         (pub.lastAttempt && this.now().getTime() - Date.parse(pub.lastAttempt) < uploadRetry)) return;
+    const localClips = (edition.render.shots || []).filter((entry) => entry?.episode?.footageKind === "exact" && !entry.episode.credit);
+    if (localClips.length) {
+      const catalog = await this.catalogFor(edition);
+      const cleared = localClips.every(({ segment, episode }) => {
+        const publishedShot = edition.render.episode.segments[segment - 1]?.shots?.episode;
+        const asset = catalog.assets.find(({ id }) => id === episode.use);
+        const grant = catalog.grants.find(({ id }) => id === publishedShot?.grantId);
+        return asset && asset.sha256 === publishedShot?.assetSha256 && grant && (grant.version || 1) === publishedShot?.grantVersion &&
+          grant.components.includes("video") && grant.alterations?.overlays !== false &&
+          canUse(asset, grant, "episode", this.settings.channel, this.settings.territory, this.now().toISOString()).ok;
+      });
+      if (!cleared) {
+        edition.publication = { ...pub, status: "held", error: "Game footage clearance changed after rendering. Rebuild the episode before publishing." };
+        await this.save(edition);
+        return;
+      }
+    }
     edition.publication = { ...pub, status: "uploading", error: null, attempts: (pub.attempts || 0) + 1, lastAttempt: this.now().toISOString() };
     await this.save(edition);
     this.launch(edition, "publish", async () => {
@@ -876,7 +1033,13 @@ export class SportsDesk {
       if (this.work || hour > 8) return;
       const edition = await this.load(date);
       if (hour === 8) return this.publish(edition);
-      if (edition.sample || !this.settings.researchConfigured) return;
+      if (this.evidence?.name === "espn" && hour < 8 && !publicationLocked(edition)) await this.scanIfDue(edition);
+      if (edition.sample) return;
+      if (!this.settings.researchConfigured) {
+        if (topicsScripted(edition) && edition.render?.revision !== edition.revision && (edition.buildAttempts || 0) < 3 &&
+            (!edition.lastBuildAttempt || this.now().getTime() - Date.parse(edition.lastBuildAttempt) >= overnightRetry)) return this.queueBuild(edition);
+        return;
+      }
       const canRetry = (attempts, at) => (attempts || 0) < 3 && (!at || this.now().getTime() - Date.parse(at) >= overnightRetry);
       if (!edition.researchedAt && canRetry(edition.researchAttempts, edition.lastResearchAttempt)) return this.queueResearch(edition);
       if (edition.researchedAt && edition.topics.some(({ selected }) => selected) && edition.render?.revision !== edition.revision &&
@@ -884,11 +1047,15 @@ export class SportsDesk {
     });
   }
 
+  renderDirectoryFor(edition) {
+    return path.join(this.directoryFor(edition), String(edition.render?.revision ?? edition.revision), edition.render?.build || "");
+  }
+
   videoPath(date, revision, segment) {
     return this.serialized(async () => {
       const edition = await this.load(date);
       if (edition.render?.revision !== revision) throw deskError(404, "Sports preview not found.");
-      const directory = path.join(this.directoryFor(edition), String(revision));
+      const directory = this.renderDirectoryFor(edition);
       if (segment === undefined) return path.join(directory, "episode.mp4");
       const short = (edition.render.shorts || []).find((short) => short.segment === segment);
       if (!short) throw deskError(404, "Short not found.");

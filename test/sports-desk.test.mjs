@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import request from "supertest";
 import { createApp } from "../server/app.mjs";
@@ -26,6 +26,7 @@ async function fixture(t, overrides = {}) {
     directory, timezone: "America/Chicago", publishEnabled: true,
     canResearch: () => true, canUpload: () => true, now: () => time, rebuildDelay: 60_000,
     research: async () => [topic],
+    draftTake: async () => "Keeping a defender deep gives the unit room to react before committing.",
     write: async ({ topics }) => ({ title: topics[0].title, description: "Episode", segments: [{ headline: topics[0].title, narration: "Example script with 2 late goals.", sources: topics[0].sources }] }),
     trend: [],
     render: async (_episode, output) => {
@@ -38,6 +39,33 @@ async function fixture(t, overrides = {}) {
   t.after(() => clearTimeout(desk.rebuildTimer));
   return { desk, clock, options };
 }
+
+test("saving take notes drafts the on-air script and manual edits survive without another model call", async (t) => {
+  let calls = 0;
+  const { desk } = await fixture(t, {
+    draftTake: async (story) => {
+      calls++;
+      assert.equal(story.take, "more patience at the back");
+      return "The defense should keep its shape until the attack shows where the danger is.";
+    },
+  });
+  const { edition } = await desk.changeTopic(null, { title: "The final drive", take: "more patience at the back" }, date);
+  const [story] = edition.topics;
+  assert.equal(story.take, "more patience at the back");
+  assert.match(story.takeScript, /keep its shape/);
+  const edited = await desk.changeTopic(story.id, { takeScript: "Stay compact and make the attack commit first." }, date);
+  assert.equal(edited.edition.topics[0].takeScript, "Stay compact and make the attack commit first.");
+  assert.equal(calls, 1);
+  const cleared = await desk.changeTopic(story.id, { take: "" }, date);
+  assert.equal(cleared.edition.topics[0].takeScript, "");
+});
+
+test("a failed take draft preserves the prior notes and script", async (t) => {
+  const { desk } = await fixture(t, { draftTake: async () => { throw new Error("Model offline."); } });
+  const { edition } = await desk.changeTopic(null, { title: "The final drive" }, date);
+  await assert.rejects(desk.changeTopic(edition.topics[0].id, { take: "play the bench" }, date), /take wasn’t saved/i);
+  assert.equal((await desk.view()).edition.topics[0].take, "");
+});
 
 test("uses Central dates and hours on both sides of daylight saving changes", () => {
   assert.deepEqual(localClock(new Date("2026-03-08T06:00:00Z"), "America/Chicago"), { date: "2026-03-08", hour: 0 });
@@ -69,6 +97,27 @@ test("files one midnight edition and holds an older render after an editorial ch
   await desk.tick();
   assert.equal(uploaded, 1);
   assert.equal((await desk.view()).edition.publication.status, "published");
+});
+
+test("a fresh cut of the same editorial revision leaves an open preview intact", async (t) => {
+  let cut = 0;
+  const { desk } = await fixture(t, {
+    render: async (_episode, output) => {
+      await writeFile(path.join(output, "episode.mp4"), String(++cut));
+      return { duration: 25 };
+    },
+  });
+  await desk.tick();
+  await desk.work.done;
+  const first = (await desk.view()).edition.render;
+  const previous = await desk.videoPath(date, first.revision);
+  await desk.run("build", date);
+  await desk.work.done;
+  const latest = (await desk.view()).edition.render;
+  assert.equal(latest.revision, first.revision);
+  assert.notEqual(latest.url, first.url);
+  assert.equal(await readFile(previous, "utf8"), "1");
+  assert.equal(await readFile(await desk.videoPath(date, latest.revision), "utf8"), "2");
 });
 
 test("an edit during encoding invalidates that output and automatically builds the new revision", { timeout: 3000 }, async (t) => {

@@ -5,6 +5,7 @@ import {
   Plus, Radio, RefreshCw, ScanSearch, Send, ShieldCheck, SquarePlay, Target, TrendingUp, X,
 } from "lucide-react";
 import "./style.css";
+import wellspringLogo from "../../assets/wellspring-media-logo.png";
 
 const endpoint = "/api/sports";
 const inProgress = (edition) => ["researching", "building"].includes(edition?.status)
@@ -97,7 +98,7 @@ function EditionHeader({ edition, settings }) {
       <div className="od-edition-copy">
         <div className="od-edition-date"><CalendarDays size={14} />{editionDate(edition?.date)}</div>
         <h1 id="od-title">The Rundown</h1>
-        <p>ISNN’s daily multi-sport recap</p>
+        <p>Daily multi-sport recap with Isaac Doss</p>
       </div>
       <div className="od-schedule" aria-label="Daily production schedule">
         <ScheduleItem icon={Moon} label="Overnight research" time={`12:00 AM ${zone}`}
@@ -137,9 +138,9 @@ function SportTags({ topic }) {
   );
 }
 
-function TopicForm({ topic, scope, pending, onSave, onClose }) {
+function TopicForm({ topic, scope, modelConfigured, pending, onSave, onClose }) {
   const [fields, setFields] = useState({
-    title: topic?.title || "", summary: topic?.summary || "", take: topic?.take || "", url: "", excerpt: "",
+    title: topic?.title || "", summary: topic?.summary || "", take: topic?.take || "", takeScript: topic?.takeScript || "", url: "", excerpt: "", clipUrl: topic?.clipUrl || "",
     sport: topic?.sport || "", league: topic?.league || "", teams: (topic?.teams || []).join(", "),
   });
   const field = (key) => ({
@@ -147,6 +148,8 @@ function TopicForm({ topic, scope, pending, onSave, onClose }) {
   });
   const { sports, leaguesFor } = scopeChoices(scope);
   const leagues = leaguesFor(fields.sport);
+  const notesChanged = fields.take.trim() !== (topic?.take || "");
+  const draftsOnSave = modelConfigured && notesChanged && Boolean(fields.take.trim());
   return (
     <form className="od-topic-form" onSubmit={async (event) => {
       event.preventDefault();
@@ -157,7 +160,15 @@ function TopicForm({ topic, scope, pending, onSave, onClose }) {
       values.teams = [...new Set(fields.teams.split(",").map((team) => team.trim()).filter((team) => team.length >= 2))].slice(0, 6);
       if (!topic && fields.url.trim()) values.url = fields.url.trim();
       if (!topic && fields.url.trim() && fields.excerpt.trim()) values.excerpt = fields.excerpt.trim();
-      if (await onSave(values)) onClose();
+      if (fields.clipUrl.trim() !== (topic?.clipUrl || "")) values.clipUrl = fields.clipUrl.trim();
+      if (topic && !notesChanged && fields.takeScript.trim() !== (topic.takeScript || "")) values.takeScript = fields.takeScript.trim();
+      if (event.nativeEvent.submitter?.value === "draft-take") values.draftTake = true;
+      const saved = await onSave(values);
+      if (!saved) return;
+      const updated = topic && saved.edition.topics.find(({ id }) => id === topic.id);
+      if (updated && (draftsOnSave || values.draftTake || notesChanged && !modelConfigured)) {
+        setFields((old) => ({ ...old, take: updated.take, takeScript: updated.takeScript || "" }));
+      } else if (topic || !values.take) onClose();
     }}>
       <div className="od-form-row">
         <label>Sport
@@ -177,14 +188,26 @@ function TopicForm({ topic, scope, pending, onSave, onClose }) {
       <label>Teams covered<input maxLength={300} placeholder="Comma separated; leave empty for a general topic" {...field("teams")} /></label>
       <label>Headline<input required minLength={3} maxLength={160} {...field("title")} /></label>
       <label>Story notes<textarea rows={3} maxLength={1200} {...field("summary")} /></label>
-      <label>Isaac’s take<textarea rows={3} maxLength={1800} {...field("take")} /></label>
+      <label>Isaac’s take notes<textarea rows={3} maxLength={1800} placeholder="A rough angle, what you noticed, or what to watch next" {...field("take")} /></label>
+      {draftsOnSave && <p className="od-form-hint">Save to draft an on-air script from these notes.</p>}
+      {topic && (topic.take || topic.takeScript) && (
+        <label>On-air take script
+          <textarea rows={5} maxLength={1200} disabled={pending || notesChanged} placeholder={modelConfigured ? "Draft a script from the saved notes" : "Write what should be spoken on air"} {...field("takeScript")} />
+        </label>
+      )}
       {!topic && <label>Source URL (optional)<input type="url" maxLength={1200} placeholder="https://" {...field("url")} /></label>}
       {!topic && fields.url.trim() && <label>Source excerpt<textarea rows={2} maxLength={1000} {...field("excerpt")} /></label>}
+      <label>Exact game clip (optional)
+        <input type="url" maxLength={1200} placeholder="Wikimedia Commons File page" {...field("clipUrl")} />
+      </label>
       <div className="od-form-actions">
         <button type="button" className="od-button od-button-quiet" onClick={onClose}>Cancel</button>
+        {modelConfigured && topic?.take && !notesChanged && (
+          <button type="submit" value="draft-take" className="od-button" disabled={pending}>{topic.takeScript ? "Redraft take script" : "Draft take script"}</button>
+        )}
         <button type="submit" className="od-button od-button-accent" disabled={pending}>
           {pending && <LoaderCircle className="od-spin" size={14} />}
-          {topic ? "Save changes" : "Add topic"}
+          {draftsOnSave ? "Save and draft" : topic ? "Save changes" : "Add topic"}
         </button>
       </div>
     </form>
@@ -278,6 +301,49 @@ function ResolveForm({ pending, onSubmit }) {
 
 // The claims behind a story: evidence locators, dispositions, and Isaac's
 // controls to correct a claim or rule on a conflict.
+// Highlight clips discovered on the story's event: a public page, a length and
+// the restrictions ESPN published. Isaac approves a source range or rejects
+// the clip. Nothing here downloads; a granted file is a separate operator step.
+function Clips({ topic, locked, pending, onReview }) {
+  const [ranges, setRanges] = useState({});
+  const list = topic.clips || [];
+  if (!list.length) return null;
+  const range = (clip) => ranges[clip.id] || { in: clip.in ?? 0, out: clip.out ?? Math.min(8, clip.duration || 8) };
+  const setRange = (clip, key, value) => setRanges((old) => ({ ...old, [clip.id]: { ...range(clip), [key]: Number(value) } }));
+  return (
+    <details className="od-sources od-clips">
+      <summary><Film size={14} /> {list.length} {list.length === 1 ? "clip reference" : "clip references"} <ChevronDown size={13} /></summary>
+      <ul>
+        {list.map((clip) => {
+          const href = externalUrl(clip.page);
+          const current = range(clip);
+          return (
+            <li key={clip.id} className={`od-clip${clip.decision ? ` is-${clip.decision}` : ""}`}>
+              <strong>{clip.headline}</strong>
+              <small>
+                {clip.duration ? `${Math.round(clip.duration)} s` : "length unknown"} · {clip.source}
+                {clip.embargo && Date.parse(clip.embargo) > Date.now() ? ` · embargoed until ${new Date(clip.embargo).toLocaleString()}` : ""}
+                {clip.expiration ? ` · expires ${new Date(clip.expiration).toLocaleDateString()}` : ""}
+                {href && <> · <a href={href} target="_blank" rel="noreferrer">public page <ArrowUpRight size={12} /></a></>}
+                {clip.decision && <> · <em>{clip.decision}{clip.decision === "approved" ? ` ${clip.in}–${clip.out} s` : ""}</em></>}
+              </small>
+              {!locked && (
+                <div className="od-clip-review">
+                  <label>In<input type="number" min={0} step={0.5} max={clip.duration || 3600} value={current.in} onChange={(event) => setRange(clip, "in", event.target.value)} /></label>
+                  <label>Out<input type="number" min={0} step={0.5} max={clip.duration || 3600} value={current.out} onChange={(event) => setRange(clip, "out", event.target.value)} /></label>
+                  <button type="button" className="od-button od-button-accent" disabled={pending} onClick={() => onReview(clip.id, { decision: "approved", ...current })}>Approve range</button>
+                  <button type="button" className="od-button od-button-quiet" disabled={pending} onClick={() => onReview(clip.id, { decision: "rejected" })}>Reject</button>
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+      <p className="od-clips-note">References only. A clip reaches the cut when an operator drops a granted file for this event into the footage folder.</p>
+    </details>
+  );
+}
+
 function Claims({ topic, claims, locked, pending, onCorrect, onResolve }) {
   const [correcting, setCorrecting] = useState(null);
   const list = (topic.claimIds || []).map((id) => claims?.[id]).filter(Boolean);
@@ -307,7 +373,7 @@ function Claims({ topic, claims, locked, pending, onCorrect, onResolve }) {
   );
 }
 
-function TopicCard({ topic, claims, scope, editing, pending, locked, sample, isCore, onEdit, onClose, onSave, onChat, onTrend, onCore, onCorrect, onResolve }) {
+function TopicCard({ topic, claims, scope, modelConfigured, editing, pending, locked, isCore, onEdit, onClose, onSave, onChat, onTrend, onCore, onCorrect, onResolve, onClip }) {
   return (
     <article className={`od-topic${topic.selected ? " is-included" : ""}${isCore ? " is-core" : ""}`}>
       <div className="od-topic-main">
@@ -323,14 +389,16 @@ function TopicCard({ topic, claims, scope, editing, pending, locked, sample, isC
         {topic.eventId && <p className="od-topic-meta">{topic.eventId}{topic.coverage ? ` · ${topic.coverage}` : ""}</p>}
         {topic.summary && <p className="od-topic-summary">{topic.summary}</p>}
         {topic.script && <p className="od-topic-script">{topic.script.narration}</p>}
-        {topic.take && <div className="od-take"><span>{sample ? "Editorial take" : "Isaac’s take"}</span><p>{topic.take}</p></div>}
+        {!editing && topic.takeScript && <div className="od-take"><span>On-air take script</span><p>{topic.takeScript}</p></div>}
+        {!editing && topic.take && !topic.takeScript && <div className="od-take"><span>Take notes · Script needed</span><p>{topic.take}</p></div>}
         <TrendCard trend={topic.trend} />
-        {editing && !locked && <TopicForm topic={topic} scope={scope} pending={pending} onSave={onSave} onClose={onClose} />}
+        {editing && !locked && <TopicForm topic={topic} scope={scope} modelConfigured={modelConfigured} pending={pending} onSave={onSave} onClose={onClose} />}
       </div>
       <div className="od-topic-tools">
         <div className="od-topic-evidence">
           <Sources sources={topic.sources || []} />
           <Claims topic={topic} claims={claims} locked={locked} pending={pending} onCorrect={onCorrect} onResolve={onResolve} />
+          <Clips topic={topic} locked={locked} pending={pending} onReview={onClip} />
         </div>
         {!locked && <div className="od-topic-actions">
           <button type="button" className="od-button od-button-quiet" disabled={pending} onClick={onTrend} title="Score attention on this story">
@@ -420,7 +488,7 @@ function Chat({ edition, settings, topic, clearTopic, draft, setDraft, input, pe
             <div className="od-chat-avatar"><Activity size={14} /></div>
             <div className="od-chat-content">
               <div className="od-chat-byline">
-                <strong>Overtime Desk</strong>
+                <strong>Wellspring Media Sports</strong>
                 {edition?.researchedAt && <time dateTime={edition.researchedAt}>{deskTime(edition.researchedAt, settings?.timezone)}</time>}
               </div>
               {lineup.length === 0 ? <p>The lineup will appear here after overnight research.</p> : (
@@ -444,7 +512,7 @@ function Chat({ edition, settings, topic, clearTopic, draft, setDraft, input, pe
               <div className="od-chat-avatar" aria-hidden="true">{fromIsaac ? "I" : <Activity size={14} />}</div>
               <div className="od-chat-content">
                 <div className="od-chat-byline">
-                  <strong>{fromIsaac ? "Isaac" : "Overtime Desk"}</strong>
+                  <strong>{fromIsaac ? "Isaac" : "Wellspring Media Sports"}</strong>
                   {message.at && <time dateTime={message.at}>{deskTime(message.at, settings?.timezone)}</time>}
                 </div>
                 <p>{message.content}</p>
@@ -530,16 +598,28 @@ function AnchorScript({ anchor }) {
   );
 }
 
+function buildProgress(edition) {
+  const message = edition?.progress?.message || "";
+  const recorded = /Recording Isaac \((\d+) of (\d+)\)/u.exec(message);
+  if (recorded) {
+    const index = Number(recorded[1]);
+    const total = Number(recorded[2]);
+    return { message, percent: 8 + Math.round(((index - 1) / Math.max(total, 1)) * 42) };
+  }
+  const percent = edition?.progress?.percent;
+  return { message, percent: Number.isFinite(percent) ? percent : null };
+}
+
 function Episode({ edition, settings, pending, locked, onBuild }) {
   const building = edition?.status === "building";
   const render = edition?.render;
   const publication = edition?.publication;
   const publishedUrl = externalUrl(publication?.url);
   const stale = render && render.revision !== edition.revision;
-  const readyToBuild = Boolean(edition?.topics?.some((topic) => topic.selected && (!edition.sample || topic.take || topic.script)));
+  const readyToBuild = Boolean(edition?.topics?.some((topic) => topic.selected && (!edition.sample || topic.takeScript || topic.script)));
   const buildDisabled = pending || locked || inProgress(edition) || !(settings?.researchConfigured || edition?.sample) || !readyToBuild;
   const duration = Math.round(Number(render?.duration) || 0);
-  const percent = edition?.progress?.percent;
+  const progress = buildProgress(edition);
   return (
     <section id="od-episode" className="od-episode" aria-labelledby="od-episode-title">
       <header className="od-section-heading">
@@ -556,6 +636,12 @@ function Episode({ edition, settings, pending, locked, onBuild }) {
         <Notice>Evidence review passed for revision {edition.verification.revision}: {edition.verification.segments?.map((segment) => `${segment.headline} (${segment.claims} claims)`).join(" · ")}</Notice>
       )}
       <div className="od-panel od-preview">
+        {building && (
+          <div className="od-build">
+            <div><LoaderCircle className="od-spin" size={16} /><strong>{progress.message || "Rendering the episode"}</strong></div>
+            <progress aria-label="Video build progress" value={progress.percent ?? 0} max="100" />
+          </div>
+        )}
         {render?.url ? (
           <>
             <video key={render.url} preload="metadata" src={render.url} controls aria-label="Episode preview" />
@@ -585,10 +671,9 @@ function Episode({ edition, settings, pending, locked, onBuild }) {
           <div className="od-preview-empty">
             {building ? <LoaderCircle className="od-spin" size={27} /> : <Film size={27} strokeWidth={1.5} />}
             <strong>{building ? "Rendering the episode" : "No video yet"}</strong>
-            <p>{building ? (edition.progress?.message || "The preview will appear when the cut is ready.")
+            <p>{building ? (progress.message || "The preview will appear when the cut is ready.")
               : edition?.sample ? "Build the practice edition from the included takes."
                 : "The overnight build uses the stories included in this rundown."}</p>
-            {building && Number.isFinite(percent) && <progress aria-label="Video build progress" value={percent} max="100" />}
           </div>
         )}
         <div className="od-preview-footer">
@@ -633,7 +718,7 @@ export default function SportsApp() {
 
   useEffect(() => {
     const previous = document.title;
-    document.title = "The Rundown · Overtime Desk · ISNN";
+    document.title = "The Rundown · Wellspring Media Sports";
     return () => { document.title = previous; };
   }, []);
 
@@ -676,10 +761,11 @@ export default function SportsApp() {
     setActionError(null);
     try {
       const next = await request(path, method, { ...payload, date: edition?.date });
-      setView(next.edition ? next : await request("/edition"));
+      const updated = next.edition ? next : await request("/edition");
+      setView(updated);
       setLoadError("");
       if (["scan", "correct", "resolve", "trend", "build"].includes(action)) await loadLedger();
-      return true;
+      return updated;
     } catch (error) {
       setActionError({ action, message: error.message });
       return false;
@@ -699,15 +785,14 @@ export default function SportsApp() {
     <div className="od">
       <header className="od-topbar">
         <div className="od-topbar-inner">
-          <a className="od-brand" href="/" aria-label="Overtime Desk home">
-            <span className="od-brand-icon"><Activity size={23} strokeWidth={2.4} /></span>
-            <span>OVERTIME<span className="od-brand-desk"> DESK</span></span>
-            <span className="od-brand-network">ISNN</span>
+          <a className="od-brand" href="/sports" aria-label="Wellspring Media Sports home">
+            <img className="od-brand-icon" src={wellspringLogo} alt="" />
+            <span>WELLSPRING<span className="od-brand-desk"> MEDIA</span></span>
           </a>
           <nav aria-label="Desk navigation">
             <a href="#od-rundown">Rundown</a><a href="#od-chat">Chat</a><a href="#od-episode">Episode</a>
           </nav>
-          <div className="od-editor-badge"><span aria-hidden="true">I</span> Isaac</div>
+          <div className="od-editor-badge"><span aria-hidden="true">I</span> Isaac Doss</div>
         </div>
       </header>
       <main className="od-workspace">
@@ -745,8 +830,12 @@ export default function SportsApp() {
             {editor === "new" && !locked && (
               <div className="od-panel od-new-topic">
                 <h3>Add a story</h3>
-                <TopicForm scope={settings?.scope} pending={Boolean(pending)} onClose={() => setEditor(null)}
-                  onSave={(fields) => mutate("/topics", "POST", fields, "topic")} />
+                <TopicForm scope={settings?.scope} modelConfigured={settings?.researchConfigured} pending={Boolean(pending)} onClose={() => setEditor(null)}
+                  onSave={async (fields) => {
+                    const saved = await mutate("/topics", "POST", fields, "topic");
+                    if (saved && fields.take) setEditor(saved.edition.topics.at(-1).id);
+                    return saved;
+                  }} />
               </div>
             )}
             <Slate slate={edition?.slate} lastScan={edition?.lastScan} timeZone={settings?.timezone} />
@@ -759,15 +848,16 @@ export default function SportsApp() {
             )}
             <div className="od-topic-list">
               {topics.map((topic) => (
-                <TopicCard key={topic.id} topic={topic} claims={claims} scope={settings?.scope} editing={editor === topic.id}
-                  pending={Boolean(pending)} locked={locked} sample={edition.sample} isCore={edition.trendDesk?.coreTopicId === topic.id}
+                <TopicCard key={topic.id} topic={topic} claims={claims} scope={settings?.scope} modelConfigured={settings?.researchConfigured} editing={editor === topic.id}
+                  pending={Boolean(pending)} locked={locked} isCore={edition.trendDesk?.coreTopicId === topic.id}
                   onEdit={() => setEditor(topic.id)} onClose={() => setEditor(null)}
                   onSave={(fields) => mutate(`/topics/${encodeURIComponent(topic.id)}`, "PATCH", fields, "topic")}
                   onChat={() => discuss(topic)}
                   onTrend={() => mutate(`/topics/${encodeURIComponent(topic.id)}/trend`, "POST", {}, "trend")}
                   onCore={() => mutate("/trend/core", "POST", { topicId: edition.trendDesk?.coreTopicId === topic.id ? null : topic.id }, "core")}
                   onCorrect={(claimId, fields) => mutate(`/claims/${encodeURIComponent(claimId)}/correct`, "POST", fields, "correct")}
-                  onResolve={(claimId, fields) => mutate(`/claims/${encodeURIComponent(claimId)}/resolve`, "POST", fields, "resolve")} />
+                  onResolve={(claimId, fields) => mutate(`/claims/${encodeURIComponent(claimId)}/resolve`, "POST", fields, "resolve")}
+                  onClip={(clipId, fields) => mutate(`/topics/${encodeURIComponent(topic.id)}/clips/${encodeURIComponent(clipId)}`, "POST", fields, "clip")} />
               ))}
             </div>
           </section>

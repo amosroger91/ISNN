@@ -7,6 +7,7 @@ import { createApp } from "../server/app.mjs";
 import { root } from "../server/config.mjs";
 import { SportsDesk, zonedTime } from "../server/sports/desk.mjs";
 import { FixtureEvidenceAdapter } from "../server/sports/evidence.mjs";
+import { espnEvidence } from "./espn-harness.mjs";
 import { loadTrendFixture } from "../server/sports/fixtures.mjs";
 import { FixtureTrendAdapter } from "../server/sports/trend.mjs";
 
@@ -14,7 +15,7 @@ const report = { title: "Lead story report", publisher: "League report", url: "h
 const topic = { id: "story", title: "Lead story", summary: "Editor notes", take: "", selected: true, sources: [report] };
 
 // The practice desk over the evidence slates and a fixture attention feed.
-async function newsroom(t, { now, observations = [], failures = false, live = false, write, anchor } = {}) {
+async function newsroom(t, { now, observations = [], failures = false, live = false, write, anchor, evidence } = {}) {
   await mkdir(path.join(root, "data"), { recursive: true });
   const directory = await mkdtemp(path.join(root, "data", "sports-newsroom-"));
   t.after(() => rm(directory, { recursive: true, force: true }));
@@ -23,7 +24,7 @@ async function newsroom(t, { now, observations = [], failures = false, live = fa
   const desk = new SportsDesk({
     directory, timezone: "America/Chicago", publishEnabled: false, canResearch: () => live, canUpload: () => false, now: () => time, rebuildDelay: 60_000,
     research: async () => [topic], write, anchor,
-    evidence: new FixtureEvidenceAdapter(),
+    evidence: evidence || new FixtureEvidenceAdapter(),
     trend: [new FixtureTrendAdapter(failures ? () => { throw new Error("HTTP 503"); } : observations)],
     render: async (episode, output) => {
       built.push(episode);
@@ -198,7 +199,8 @@ test("an unverified pitch never earns a trend segment, a feed outage is shown as
   assert.equal(college.settings.scope.label, "NCAA, NBA, MLB");
   assert.ok(college.settings.scope.options.some(({ league }) => league === "NCAAB"));
   await browser.patch(`/api/sports/topics/${college.edition.topics.at(-1).id}`).send({ date: "2026-11-16", selected: false }).expect(200);
-  await browser.patch(`/api/sports/topics/${rumor.id}`).send({ date: "2026-11-16", storyId: "2026-11-15-nba-hcg-rvs", aliases: ["Mara Quill trade"], teams: ["Harbor City Gulls", "River Valley Stags"] }).expect(200);
+  const onAir = "I would wait for confirmation before drawing a conclusion.";
+  await browser.patch(`/api/sports/topics/${rumor.id}`).send({ date: "2026-11-16", storyId: "2026-11-15-nba-hcg-rvs", aliases: ["Mara Quill trade"], teams: ["Harbor City Gulls", "River Valley Stags"], takeScript: onAir }).expect(200);
   const checked = await browser.post(`/api/sports/topics/${rumor.id}/trend`).send({ date: "2026-11-16" }).expect(200);
   const card = checked.body.edition.topics.find(({ id }) => id === rumor.id).trend;
   assert.equal(card.recommendation, "insufficient evidence");
@@ -209,6 +211,7 @@ test("an unverified pitch never earns a trend segment, a feed outage is shown as
   const ready = (await browser.get("/api/sports/edition").expect(200)).body.edition;
   assert.equal(ready.status, "ready", ready.error);
   assert.deepEqual(built.at(-1).segments.map(({ kind }) => kind || "story"), ["story"]);
+  assert.equal(built.at(-1).segments[0].narration, `Isaac’s take. ${onAir}`);
   const trend = await browser.get("/api/sports/trend").expect(200);
   assert.equal(trend.body.trendDesk.checks.length, 1);
   const ledger = (await browser.get("/api/sports/ledger").expect(200)).body;
@@ -222,4 +225,54 @@ test("an unverified pitch never earns a trend segment, a feed outage is shown as
   const down = (await outage.desk.checkTrend(core.id, {}, "2026-11-16")).edition.topics.find(({ id }) => id === core.id).trend;
   assert.equal(down.recommendation, "signal unavailable");
   assert.equal(down.airable, false);
+});
+
+test("an ESPN scan pitches the Nuggets final from the night before and builds the script without a model", async (t) => {
+  const cache = await mkdtemp(path.join(root, "data", "espn-newsroom-"));
+  t.after(() => rm(cache, { recursive: true, force: true }));
+  const evidence = await espnEvidence({ cacheDir: cache });
+  const { desk, built } = await newsroom(t, { now: "2026-11-15T12:30:00Z", evidence });
+  const { edition } = await desk.scanSlate("2026-11-15");
+  assert.equal(edition.slate.some((row) => row.gameId === "401909990"), false, "the evening tip after 8 a.m. Central stays off this edition");
+  const nuggets = edition.topics.find((topic) => topic.eventId === "401909980");
+  assert.ok(nuggets, "the Nuggets final is pitched");
+  assert.match(nuggets.script.narration, /November 14/);
+  assert.match(nuggets.script.narration, /116-108/);
+  assert.match(nuggets.script.narration, /26 points, 8 rebounds and 10 assists/);
+  assert.equal(nuggets.league, "NBA");
+  assert.deepEqual(nuggets.teams, ["Denver Nuggets", "New Orleans Pelicans"]);
+  assert.ok(edition.topics.filter((topic) => topic.selected && topic.eventId).length <= 4);
+  assert.equal(edition.slate.some((row) => row.league === "MLB" && row.coverage === "source unavailable"), false);
+
+  // Highlight references ride on the story card as public pages only; Isaac's review records a range and fetches nothing.
+  assert.ok(nuggets.clips.length >= 1, "the Nuggets highlight is listed as a clip reference");
+  const clip = nuggets.clips[0];
+  assert.match(clip.page, /^https:\/\/www\.espn\.com\//u);
+  assert.equal(clip.decision, null);
+  assert.equal(clip.out, 8, "the suggested range is eight seconds");
+  assert.ok(!JSON.stringify(nuggets.clips).includes("watch.auth"), "no playback host is stored on the card");
+  await assert.rejects(desk.reviewClip(nuggets.id, clip.id, { decision: "approved", in: 0, out: 20 }, "2026-11-15"), /capped at 15 seconds/u);
+  const reviewed = (await desk.reviewClip(nuggets.id, clip.id, { decision: "approved", in: 4, out: 12 }, "2026-11-15")).edition.topics.find((topic) => topic.id === nuggets.id).clips[0];
+  assert.deepEqual([reviewed.decision, reviewed.in, reviewed.out, reviewed.reviewedBy], ["approved", 4, 12, "isaac"]);
+  const rescanned = (await desk.scanSlate("2026-11-15")).edition.topics.find((topic) => topic.id === nuggets.id).clips[0];
+  assert.equal(rescanned.decision, "approved", "a rescan keeps Isaac's decision");
+  await desk.run("build", "2026-11-15");
+  await desk.work.done;
+  const ready = (await desk.view()).edition;
+  assert.equal(ready.status, "ready", ready.error);
+  if (nuggets.selected) assert.match(built.at(-1).segments.find((segment) => segment.id === "401909980").narration, /116-108/);
+});
+
+test("a failed ESPN scan does not stop the morning tick", async (t) => {
+  const evidence = {
+    name: "espn",
+    contract: { allowedUses: ["verify"], retention: "excerpt" },
+    listGames: async () => { throw new Error("scoreboard down"); },
+    gameEvidence: async () => { throw new Error("scoreboard down"); },
+  };
+  const { desk } = await newsroom(t, { now: "2026-11-15T12:30:00Z", evidence });
+  await desk.tick();
+  const { edition } = await desk.view();
+  assert.equal(edition.scanFailures, 1);
+  assert.equal(edition.status, "waiting");
 });

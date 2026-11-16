@@ -101,7 +101,7 @@ export async function ingestGame(ledger, adapter, gameId, { asOf, retrievedAt = 
     provider: report.provider, originGroup: report.originGroup, sourceUrl: report.url, sourceTime: report.sourceTime, retrievedAt, version: report.version || "1",
     kind: report.kind, title: report.title || null, excerpt: report.excerpt || null, payload: report.payload || null, allowedUses: adapter.contract.allowedUses, retention: adapter.contract.retention,
   }));
-  const byIndex = new Map(game.reports.map((report, position) => [report.index, snapshots[position]]));
+  const byIndex = new Map(game.reports.map((report, position) => [report.index ?? position, snapshots[position]]));
   const event = ledger.event({
     canonicalGameId: game.id, league: game.league, competition: game.competition, season: game.season,
     participants: [{ role: "home", ...game.home }, { role: "away", ...game.away }], startTime: game.startTime, status: game.status,
@@ -146,12 +146,21 @@ export async function ingestGame(ledger, adapter, gameId, { asOf, retrievedAt = 
       coverage = "awaiting verification";
       reason = claims.find((claim) => claim.disposition !== "supported")?.reason || "Not final.";
     }
+  } else if (game.status === "in-progress") {
+    coverage = "awaiting verification";
+    reason = "The game is still in progress.";
+  }
+  if (game.hold) {
+    coverage = game.hold.coverage || coverage;
+    reason = game.hold.reason || reason;
   }
   return {
-    ...base, coverage, reason, event, snapshots, claims, entities,
+    ...base, coverage, reason, included: game.included !== false, event, snapshots, claims, entities,
     independentOrigins: new Set(snapshots.map((snapshot) => snapshot.originGroup)).size,
     story: game.story ? { headline: game.story.headline, narration: game.story.narration, diagram: game.story.diagram || null, claimIds: claims.map(({ id }) => id) } : null,
     media: game.media || { assets: [], grants: [] },
+    // Highlight references discovered on the event: public pages and metadata only, never media.
+    discovery: Array.isArray(game.discovery) ? game.discovery : [],
   };
 }
 
@@ -192,9 +201,25 @@ export function ingestEpisodeFixture(ledger, fixture, { at = new Date().toISOStr
 }
 
 // Scans a whole slate: one coverage row per game, plus the pitches the desk can use.
-export async function scanSlate(ledger, adapter, { date, asOf, retrievedAt }) {
-  const games = await adapter.listGames({ date, asOf });
+const unavailable = (game, reason) => ({
+  gameId: game.id ?? null, league: game.league, sport: game.sport || null, competition: game.competition || game.league,
+  status: game.status || null, title: game.title || game.league, startTime: game.startTime || null,
+  home: game.home || null, away: game.away || null, coverage: "source unavailable", reason,
+  claims: [], story: null, snapshots: [], independentOrigins: 0, included: false, event: null, entities: [],
+});
+
+export async function scanSlate(ledger, adapter, { date, asOf, retrievedAt, timezone }) {
+  const games = await adapter.listGames({ date, asOf, timezone });
   const results = [];
-  for (const game of games) results.push(await ingestGame(ledger, adapter, game.id, { asOf, retrievedAt }));
+  for (const game of games) {
+    try {
+      results.push(await ingestGame(ledger, adapter, game.id, { asOf, retrievedAt }));
+    } catch (error) {
+      results.push(unavailable({ ...game, title: `${game.away?.name || "Away"} at ${game.home?.name || "Home"}` }, error.message));
+    }
+  }
+  for (const failure of adapter.leagueFailures || []) {
+    results.push(unavailable({ id: null, league: failure.league, sport: failure.sport, title: failure.league }, failure.reason));
+  }
   return results;
 }

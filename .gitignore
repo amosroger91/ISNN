@@ -14,3 +14,5 @@ certs/
 *.key
 *.pfx
 .DS_Store
+data/sports/assets/
+data/sports/cache/
