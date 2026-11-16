@@ -595,6 +595,14 @@ export class SportsDesk {
         claims: result.claims.length, supported: result.claims.filter(({ disposition }) => disposition === "supported").length, independentOrigins: result.independentOrigins, scannedAt: at,
       }));
       edition.lastScan = { at, provider: this.evidence.name, games: results.length, scope: this.scope.leagues };
+      // Stories already in the rundown from a league outside the scope are benched.
+      for (const topic of edition.topics) {
+        if (topic.league && !inScope(topic.league, this.scope)) {
+          topic.selected = false;
+          topic.coverage = "out of scope";
+          topic.coverageReason = `Coverage is limited to ${this.scope.label}.`;
+        }
+      }
       for (const result of results.filter((item) => item.story && covered(item))) {
         let topic = edition.topics.find((candidate) => candidate.eventId === result.gameId);
         if (!topic) {

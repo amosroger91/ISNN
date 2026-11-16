@@ -64,6 +64,12 @@ test("a scanned slate becomes pitches with ledger claims, the trend desk clears 
   const stories = edition.topics.filter(({ eventId }) => eventId);
   assert.equal(stories.length, 2, "an out-of-scope game is never pitched");
   await assert.rejects(desk.changeTopic(null, { title: "Rovers earn a point on the road", league: "MLS", sport: "soccer" }, "2026-11-16"), /limited to NCAA, NBA, MLB/u);
+  const widened = await newsroom(t, { now: "2026-11-16T12:30:00Z" });
+  widened.desk.scope = { leagues: ["NCAA", "NBA", "MLB", "MLS"], label: "NCAA, NBA, MLB, MLS" };
+  assert.equal((await widened.desk.scanSlate("2026-11-16")).edition.topics.filter(({ selected }) => selected).length, 3);
+  widened.desk.scope = { leagues: ["NBA"], label: "NBA" };
+  const narrowed = (await widened.desk.scanSlate("2026-11-16")).edition;
+  assert.deepEqual(narrowed.topics.map(({ league, selected, coverage }) => [league, selected, coverage]), [["NBA", true, "covered"], ["MLB", false, "out of scope"], ["MLS", false, "out of scope"]], "a narrowed scope benches stories already in the rundown");
   const core = stories.find(({ eventId }) => eventId === "2026-11-15-nba-hcg-rvs");
   assert.ok(core.claimIds.length === 3 && core.selected && core.script.narration.includes("33 points"));
   assert.ok(edition.topics.filter(({ eventId }) => !eventId).every(({ selected, practice }) => practice && !selected), "any evergreen practice topic is benched once real recaps exist");
