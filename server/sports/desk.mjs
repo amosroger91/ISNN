@@ -9,6 +9,7 @@ import { FixtureEvidenceAdapter, scanSlate } from "./evidence.mjs";
 import { EvidenceLedger, LedgerError, fingerprint, numbersIn } from "./ledger.mjs";
 import { editTopics, researchConfigured, researchEdition, writeEpisode } from "./research.mjs";
 import { planShots } from "./rights.mjs";
+import { coverageScope, inScope } from "./scope.mjs";
 import { sampleEpisode, sampleTopics, scriptedSegment } from "./sample.mjs";
 import { GoogleTrendingNowAdapter, collectObservations, scoreTrend, trendSegment } from "./trend.mjs";
 import { uploadEpisode, youtubeConfigured } from "./youtube.mjs";
@@ -186,12 +187,14 @@ export class SportsDesk {
     evidence = new FixtureEvidenceAdapter(),
     trend = [new GoogleTrendingNowAdapter()],
     catalog = null,
+    scope = coverageScope(),
     rebuildDelay = 2500,
   } = {}) {
     this.directory = directory;
+    this.scope = scope;
     this.settings = {
       timezone, publishEnabled, privacy, channel, territory, researchConfigured: canResearch(), youtubeConfigured: canUpload(),
-      evidenceProvider: evidence?.name || null, trendProviders: trend.map((adapter) => adapter.name),
+      evidenceProvider: evidence?.name || null, trendProviders: trend.map((adapter) => adapter.name), scope,
     };
     this.now = now;
     this.research = research;
@@ -521,6 +524,7 @@ export class SportsDesk {
       const edition = await this.readCurrent(expectedDate);
       this.ensureEditable(edition);
       const before = topicsDigest(edition.topics);
+      if (changes.league && !inScope(changes.league, this.scope)) throw deskError(409, `Coverage is limited to ${this.scope.label}.`);
       if (topicId) {
         const topic = edition.topics.find(({ id }) => id === topicId);
         if (!topic) throw deskError(404, "Topic not found.");
@@ -583,12 +587,15 @@ export class SportsDesk {
       const results = await scanSlate(ledger, this.evidence, { date: edition.date, asOf: at, retrievedAt: this.now().toISOString() });
       await ledger.save();
       const before = topicsDigest(edition.topics);
+      // Games outside the coverage scope stay visible in the slate but are never pitched.
+      const covered = (result) => inScope(result.league, this.scope);
       edition.slate = results.map((result) => ({
-        gameId: result.gameId, league: result.league, sport: result.sport, title: result.title, status: result.status, coverage: result.coverage, reason: result.reason,
+        gameId: result.gameId, league: result.league, sport: result.sport, title: result.title, status: result.status,
+        coverage: covered(result) ? result.coverage : "out of scope", reason: covered(result) ? result.reason : `Coverage is limited to ${this.scope.label}.`,
         claims: result.claims.length, supported: result.claims.filter(({ disposition }) => disposition === "supported").length, independentOrigins: result.independentOrigins, scannedAt: at,
       }));
-      edition.lastScan = { at, provider: this.evidence.name, games: results.length };
-      for (const result of results.filter(({ story }) => story)) {
+      edition.lastScan = { at, provider: this.evidence.name, games: results.length, scope: this.scope.leagues };
+      for (const result of results.filter((item) => item.story && covered(item))) {
         let topic = edition.topics.find((candidate) => candidate.eventId === result.gameId);
         if (!topic) {
           if (edition.topics.length >= maxTopics) break;
@@ -611,7 +618,7 @@ export class SportsDesk {
       }
       // Once the scan has produced a verified recap, the evergreen practice
       // placeholders leave the lineup so the practice cut is the show, not tips.
-      if (results.some(({ coverage }) => coverage === "covered")) {
+      if (results.some((result) => result.coverage === "covered" && covered(result))) {
         const placeholders = new Set(sampleTopics().map(({ id }) => id));
         for (const topic of edition.topics) {
           if (!topic.eventId && (topic.practice || placeholders.has(topic.id))) topic.selected = false;

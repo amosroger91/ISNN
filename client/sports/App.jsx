@@ -115,16 +115,15 @@ function EditionHeader({ edition, settings }) {
   );
 }
 
-// Sport and league choices for manual entries. A league outside the list is typed in.
-const SPORTS = {
-  basketball: { label: "Basketball", leagues: ["NBA", "WNBA", "NCAAB", "EuroLeague"] },
-  football: { label: "Football", leagues: ["NFL", "NCAAF", "CFL", "UFL"] },
-  baseball: { label: "Baseball", leagues: ["MLB", "NCAA Baseball", "NPB", "KBO"] },
-  hockey: { label: "Hockey", leagues: ["NHL", "PWHL", "NCAA Hockey", "KHL"] },
-  soccer: { label: "Soccer", leagues: ["MLS", "NWSL", "Premier League", "La Liga", "Bundesliga", "Serie A", "Champions League", "Liga MX"] },
-  other: { label: "Other", leagues: ["Tennis", "Golf", "Boxing", "MMA", "Motorsport", "Olympics"] },
-};
-const sportLabel = (sport) => SPORTS[sport]?.label || sport || "";
+// Sport and league choices for manual entries come from the desk's coverage
+// scope (NCAA, NBA and MLB at launch), so nothing outside it can be tagged.
+const SPORT_LABELS = { basketball: "Basketball", football: "Football", baseball: "Baseball", hockey: "Hockey", soccer: "Soccer", other: "Other" };
+const sportLabel = (sport) => SPORT_LABELS[sport] || sport || "";
+function scopeChoices(scope) {
+  const options = scope?.options || [];
+  const sports = [...new Set(options.map(({ sport }) => sport))];
+  return { sports, leaguesFor: (sport) => options.filter((option) => option.sport === sport) };
+}
 
 // What the story is about, readable at a glance: sport, league and the teams.
 function SportTags({ topic }) {
@@ -138,7 +137,7 @@ function SportTags({ topic }) {
   );
 }
 
-function TopicForm({ topic, pending, onSave, onClose }) {
+function TopicForm({ topic, scope, pending, onSave, onClose }) {
   const [fields, setFields] = useState({
     title: topic?.title || "", summary: topic?.summary || "", take: topic?.take || "", url: "", excerpt: "",
     sport: topic?.sport || "", league: topic?.league || "", teams: (topic?.teams || []).join(", "),
@@ -146,8 +145,8 @@ function TopicForm({ topic, pending, onSave, onClose }) {
   const field = (key) => ({
     value: fields[key], onChange: (event) => setFields((old) => ({ ...old, [key]: event.target.value })),
   });
-  const leagues = SPORTS[fields.sport]?.leagues || [];
-  const customLeague = fields.league && !leagues.includes(fields.league);
+  const { sports, leaguesFor } = scopeChoices(scope);
+  const leagues = leaguesFor(fields.sport);
   return (
     <form className="od-topic-form" onSubmit={async (event) => {
       event.preventDefault();
@@ -162,21 +161,19 @@ function TopicForm({ topic, pending, onSave, onClose }) {
     }}>
       <div className="od-form-row">
         <label>Sport
-          <select value={fields.sport} onChange={(event) => setFields((old) => ({ ...old, sport: event.target.value, league: SPORTS[event.target.value]?.leagues.includes(old.league) ? old.league : "" }))}>
+          <select value={fields.sport} onChange={(event) => setFields((old) => ({ ...old, sport: event.target.value, league: leaguesFor(event.target.value).some(({ league }) => league === old.league) ? old.league : "" }))}>
             <option value="">Choose a sport</option>
-            {Object.entries(SPORTS).map(([value, { label }]) => <option key={value} value={value}>{label}</option>)}
+            {sports.map((value) => <option key={value} value={value}>{sportLabel(value)}</option>)}
           </select>
         </label>
         <label>League
-          <select value={customLeague ? "__other" : fields.league} disabled={!fields.sport}
-            onChange={(event) => setFields((old) => ({ ...old, league: event.target.value === "__other" ? " " : event.target.value }))}>
+          <select value={fields.league} disabled={!fields.sport} onChange={(event) => setFields((old) => ({ ...old, league: event.target.value }))}>
             <option value="">Choose a league</option>
-            {leagues.map((name) => <option key={name} value={name}>{name}</option>)}
-            <option value="__other">Other…</option>
+            {leagues.map(({ league, label }) => <option key={league} value={league}>{label}</option>)}
           </select>
         </label>
-        {customLeague && <label>League name<input maxLength={40} placeholder="Type the league" value={fields.league.trim()} onChange={(event) => setFields((old) => ({ ...old, league: event.target.value || " " }))} /></label>}
       </div>
+      {scope?.label && <p className="od-form-hint">Coverage is limited to {scope.label}.</p>}
       <label>Teams covered<input maxLength={300} placeholder="Comma separated; leave empty for a general topic" {...field("teams")} /></label>
       <label>Headline<input required minLength={3} maxLength={160} {...field("title")} /></label>
       <label>Story notes<textarea rows={3} maxLength={1200} {...field("summary")} /></label>
@@ -310,7 +307,7 @@ function Claims({ topic, claims, locked, pending, onCorrect, onResolve }) {
   );
 }
 
-function TopicCard({ topic, claims, editing, pending, locked, sample, isCore, onEdit, onClose, onSave, onChat, onTrend, onCore, onCorrect, onResolve }) {
+function TopicCard({ topic, claims, scope, editing, pending, locked, sample, isCore, onEdit, onClose, onSave, onChat, onTrend, onCore, onCorrect, onResolve }) {
   return (
     <article className={`od-topic${topic.selected ? " is-included" : ""}${isCore ? " is-core" : ""}`}>
       <div className="od-topic-main">
@@ -328,7 +325,7 @@ function TopicCard({ topic, claims, editing, pending, locked, sample, isCore, on
         {topic.script && <p className="od-topic-script">{topic.script.narration}</p>}
         {topic.take && <div className="od-take"><span>{sample ? "Editorial take" : "Isaac’s take"}</span><p>{topic.take}</p></div>}
         <TrendCard trend={topic.trend} />
-        {editing && !locked && <TopicForm topic={topic} pending={pending} onSave={onSave} onClose={onClose} />}
+        {editing && !locked && <TopicForm topic={topic} scope={scope} pending={pending} onSave={onSave} onClose={onClose} />}
       </div>
       <div className="od-topic-tools">
         <div className="od-topic-evidence">
@@ -704,7 +701,7 @@ export default function SportsApp() {
             <header className="od-section-heading">
               <div>
                 <h2 id="od-rundown-title">Story lineup</h2>
-                {topics.length > 0 && <p>{included} of {topics.length} stories in the episode</p>}
+                <p>{topics.length > 0 ? `${included} of ${topics.length} stories in the episode` : "No stories yet"}{settings?.scope?.label ? ` · covering ${settings.scope.label}` : ""}</p>
               </div>
               {!locked && <div className="od-section-actions">
                 {settings?.evidenceProvider && (
@@ -727,7 +724,7 @@ export default function SportsApp() {
             {editor === "new" && !locked && (
               <div className="od-panel od-new-topic">
                 <h3>Add a story</h3>
-                <TopicForm pending={Boolean(pending)} onClose={() => setEditor(null)}
+                <TopicForm scope={settings?.scope} pending={Boolean(pending)} onClose={() => setEditor(null)}
                   onSave={(fields) => mutate("/topics", "POST", fields, "topic")} />
               </div>
             )}
@@ -741,7 +738,7 @@ export default function SportsApp() {
             )}
             <div className="od-topic-list">
               {topics.map((topic) => (
-                <TopicCard key={topic.id} topic={topic} claims={claims} editing={editor === topic.id}
+                <TopicCard key={topic.id} topic={topic} claims={claims} scope={settings?.scope} editing={editor === topic.id}
                   pending={Boolean(pending)} locked={locked} sample={edition.sample} isCore={edition.trendDesk?.coreTopicId === topic.id}
                   onEdit={() => setEditor(topic.id)} onClose={() => setEditor(null)}
                   onSave={(fields) => mutate(`/topics/${encodeURIComponent(topic.id)}`, "PATCH", fields, "topic")}

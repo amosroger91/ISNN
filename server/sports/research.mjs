@@ -1,13 +1,21 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
+import { coverageScope } from "./scope.mjs";
 
-const defaultFeeds = [
-  { publisher: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/" },
-  { publisher: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/nfl" },
-  { publisher: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/nba" },
-  { publisher: "BBC Sport", url: "https://feeds.bbci.co.uk/sport/rss.xml" },
-  { publisher: "MLB.com", url: "https://www.mlb.com/feeds/news/rss.xml" },
-];
+// Publisher feeds per league family; the desk reads the ones in its coverage scope.
+const feedsByFamily = {
+  NBA: [{ publisher: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/nba" }],
+  MLB: [{ publisher: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/mlb" }, { publisher: "MLB.com", url: "https://www.mlb.com/feeds/news/rss.xml" }],
+  NCAA: [{ publisher: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/college-football" }, { publisher: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/college-basketball" }],
+  NFL: [{ publisher: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/nfl" }],
+  NHL: [{ publisher: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/nhl" }],
+  MLS: [{ publisher: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/soccer" }],
+};
+const defaultFeeds = () => {
+  const feeds = coverageScope().leagues.flatMap((family) => feedsByFamily[family] || []);
+  return feeds.length ? feeds : [{ publisher: "CBS Sports", url: "https://www.cbssports.com/rss/headlines/" }];
+};
+const scopeRule = () => `Coverage is limited to ${coverageScope().label}; NCAA means college football and college basketball. Skip any story from another league or sport, even if it is the biggest news of the night.`;
 const articleAge = 36 * 60 * 60 * 1000;
 const field = (max) => z.string().trim().min(1).max(max);
 const isWebUrl = (value) => {
@@ -42,7 +50,7 @@ const editorResponse = z.object({
 });
 
 const feedConfig = () => {
-  if (!process.env.SPORTS_FEEDS) return defaultFeeds;
+  if (!process.env.SPORTS_FEEDS) return defaultFeeds();
   try {
     return feedList.parse(JSON.parse(process.env.SPORTS_FEEDS));
   } catch {
@@ -256,6 +264,7 @@ export async function researchEdition(date, options = {}) {
   const result = await askModel(
     `You set the rundown for a morning sports show. Reply with JSON only {"topics":[{"title":string,"summary":string,"sourceIds":[number]}]}.
 ${groundRules}
+${scopeRule()}
 Pick one to four genuinely distinct, fresh stories from the evidence. Lead with the biggest development and prefer a mix of sports. Skip clickbait and filler. Give a concise, conversational headline and one or two factual sentences about what happened and why it matters when supported. Cite only the numeric IDs of relevant articles. Combine corroborating coverage of one story into a single item. Leave analysis and opinion for the editor.`,
     { date, evidence: articles.map((article, i) => ({ id: i + 1, ...article })) },
     shortlist, "selecting the overnight stories", options,
@@ -290,6 +299,7 @@ async function collectedSources(topics, date, options) {
     const result = await askModel(
       `You are a sports researcher matching original reporting to editor-requested stories. Reply with JSON only {"matches":[{"number":number,"sourceIds":[number]}]}.
 ${groundRules}
+${scopeRule()}
 Use framing and editorNotes to understand the requested subject. Keep a match only when the source directly covers the same event or development. Omit unrelated stories, stale context, and coincidental team matches. If a URL is supplied, prefer that article when it covers the focus and appears in the feed. A story without a suitable source is omitted from matches. Only use source IDs from the supplied feed evidence.`,
       {
         date,

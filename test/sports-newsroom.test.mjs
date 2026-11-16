@@ -59,9 +59,11 @@ test("a scanned slate becomes pitches with ledger claims, the trend desk clears 
   const { desk, built } = await newsroom(t, { now: "2026-11-16T12:30:00Z", observations: trendFixture.scenarios.sameEvent });
   const { edition } = await desk.scanSlate("2026-11-16");
   assert.equal(edition.slate.length, 3);
-  assert.ok(edition.slate.every(({ coverage }) => coverage === "covered"));
+  assert.deepEqual(edition.slate.map(({ league, coverage }) => [league, coverage]), [["NBA", "covered"], ["MLB", "covered"], ["MLS", "out of scope"]], "the launch scope is NCAA, NBA and MLB");
+  assert.match(edition.slate[2].reason, /limited to NCAA, NBA, MLB/u);
   const stories = edition.topics.filter(({ eventId }) => eventId);
-  assert.equal(stories.length, 3);
+  assert.equal(stories.length, 2, "an out-of-scope game is never pitched");
+  await assert.rejects(desk.changeTopic(null, { title: "Rovers earn a point on the road", league: "MLS", sport: "soccer" }, "2026-11-16"), /limited to NCAA, NBA, MLB/u);
   const core = stories.find(({ eventId }) => eventId === "2026-11-15-nba-hcg-rvs");
   assert.ok(core.claimIds.length === 3 && core.selected && core.script.narration.includes("33 points"));
   assert.ok(edition.topics.filter(({ eventId }) => !eventId).every(({ selected, practice }) => practice && !selected), "any evergreen practice topic is benched once real recaps exist");
@@ -83,7 +85,7 @@ test("a scanned slate becomes pitches with ledger claims, the trend desk clears 
   assert.equal(ready.verification.ok, true);
   assert.equal(ready.render.revisionId, ready.verification.revisionId);
   const episode = built.at(-1);
-  assert.equal(episode.segments.length, 4);
+  assert.equal(episode.segments.length, 3, "two in-scope stories and the trend segment");
   assert.equal(episode.segments.at(-1).kind, "trend");
   assert.ok(episode.segments.every((segment) => segment.claims.length > 0 && segment.claims.every((claim) => claim.evidence[0].id.startsWith("snap_"))));
   assert.equal(episode.segments[0].id, "2026-11-15-nba-hcg-rvs", "stable segment IDs for the Short release items");
@@ -146,6 +148,11 @@ test("an unverified pitch never earns a trend segment, a feed outage is shown as
   assert.deepEqual([general.sport, general.league, general.teams], ["other", null, []], "a general topic can carry no league and no team");
   await browser.patch(`/api/sports/topics/${general.id}`).send({ date: "2026-11-16", selected: false }).expect(200);
   await browser.post("/api/sports/topics").send({ date: "2026-11-16", title: "Bad tag", sport: "curling" }).expect(400);
+  await browser.post("/api/sports/topics").send({ date: "2026-11-16", title: "Out of scope", sport: "hockey", league: "NHL" }).expect(409);
+  const college = (await browser.post("/api/sports/topics").send({ date: "2026-11-16", title: "Pine Ridge opens at home", sport: "basketball", league: "NCAAB", teams: ["Pine Ridge"] }).expect(201)).body;
+  assert.equal(college.settings.scope.label, "NCAA, NBA, MLB");
+  assert.ok(college.settings.scope.options.some(({ league }) => league === "NCAAB"));
+  await browser.patch(`/api/sports/topics/${college.edition.topics.at(-1).id}`).send({ date: "2026-11-16", selected: false }).expect(200);
   await browser.patch(`/api/sports/topics/${rumor.id}`).send({ date: "2026-11-16", storyId: "2026-11-15-nba-hcg-rvs", aliases: ["Mara Quill trade"], teams: ["Harbor City Gulls", "River Valley Stags"] }).expect(200);
   const checked = await browser.post(`/api/sports/topics/${rumor.id}/trend`).send({ date: "2026-11-16" }).expect(200);
   const card = checked.body.edition.topics.find(({ id }) => id === rumor.id).trend;

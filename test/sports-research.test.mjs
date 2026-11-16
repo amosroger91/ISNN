@@ -75,6 +75,32 @@ test("research uses only current, nonpromotional feed evidence and keeps origina
   assert.equal(topics[0].sources[0].url, "https://league.example/results?a=1");
 });
 
+test("the default feeds and the research prompt follow the coverage scope", async (t) => {
+  for (const key of ["SPORTS_FEEDS", "SPORTS_LEAGUES"]) {
+    const previous = process.env[key];
+    delete process.env[key];
+    t.after(() => { if (previous !== undefined) process.env[key] = previous; });
+  }
+  process.env.SPORTS_LLM_URL = "https://model.example/v1";
+  t.after(() => delete process.env.SPORTS_LLM_URL);
+  const feeds = [];
+  let prompt = "";
+  await researchEdition(date, {
+    now,
+    fetchImpl: async (url, request) => {
+      if (request.method !== "POST") {
+        feeds.push(String(url));
+        return new Response(rss());
+      }
+      prompt ||= JSON.parse(request.body).messages[0].content;
+      return modelResponse({ topics: [{ title: "Sparks win at home", summary: "The Sparks won 81–77.", sourceIds: [1] }] });
+    },
+  }).catch(() => {});
+  assert.ok(feeds.some((url) => url.includes("/nba")) && feeds.some((url) => url.includes("/mlb")) && feeds.some((url) => url.includes("college-football")) && feeds.some((url) => url.includes("college-basketball")));
+  assert.ok(!feeds.some((url) => url.includes("/nfl") || url.includes("bbci")));
+  assert.match(prompt, /limited to NCAA, NBA, MLB/u);
+});
+
 test("a local Ollama model is asked through its native API with thinking off and JSON forced", async (t) => {
   settings(t);
   for (const [key, value] of Object.entries({ SPORTS_LLM_URL: "http://127.0.0.1:11434", SPORTS_LLM_API: "ollama", SPORTS_LLM_MODEL: "qwen3.5:9b", SPORTS_LLM_TIMEOUT_MS: "300000" })) {
