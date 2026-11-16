@@ -1,19 +1,18 @@
 {
-  "name": "word-daily",
+  "name": "isnn",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "One-click daily Bible verse videos in The Word's style: narrated, word-highlighted, with B-roll and music.",
+  "description": "ISNN Overtime Desk: an overnight sports newsroom that researches, scripts, renders and publishes a daily multi-sport recap with one Short per segment.",
   "engines": {
     "node": ">=22.12.0"
   },
   "scripts": {
-    "setup": "node scripts/setup.mjs",
     "dev": "node server/index.mjs --dev",
     "build": "vite build",
     "start": "node server/index.mjs",
     "test": "node --test --test-concurrency=1 test/*.test.mjs",
-    "test:render": "node scripts/smoke-render.mjs"
+    "render:fixture": "node scripts/render-fixture.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "3.8.1",

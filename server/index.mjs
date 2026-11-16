@@ -3,7 +3,7 @@ import path from "node:path";
 import { createApp } from "./app.mjs";
 import { root, port, host } from "./config.mjs";
 
-const { app, jobs } = await createApp();
+const { app } = await createApp();
 let vite;
 if (process.argv.includes("--dev")) {
   const { createServer } = await import("vite");
@@ -20,10 +20,9 @@ if (process.argv.includes("--dev")) {
   );
 }
 const server = app.listen(port, host, () =>
-  console.log(`The Word Daily is ready at http://${host}:${port} (Overtime Desk at /sports)`),
+  console.log(`ISNN Overtime Desk is ready at http://${host}:${port}/sports`),
 );
 async function shutdown() {
-  await jobs.stop();
   await vite?.close();
   server.close();
 }

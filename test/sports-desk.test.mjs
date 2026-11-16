@@ -133,8 +133,7 @@ test("a restart resumes the recorded YouTube session and keeps its URL out of th
 
 test("practice chat persists edits and rejects a stale date and a foreign cron request", async (t) => {
   const { desk, clock } = await fixture(t, { canResearch: () => false });
-  const jobs = { init: async () => {} };
-  const { app } = await createApp({ sports: desk, jobs });
+  const { app } = await createApp({ sports: desk });
   const browser = request(app);
   const authenticate = (req) => process.env.SPORTS_DESK_PASSWORD
     ? req.auth(process.env.SPORTS_DESK_USER || "isaac", process.env.SPORTS_DESK_PASSWORD) : req;

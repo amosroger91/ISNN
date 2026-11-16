@@ -47,6 +47,7 @@ body:has(.od) { margin: 0; background: #101210; }
 .od-brand { display: flex; align-items: center; gap: 11px; width: fit-content; text-decoration: none; font-weight: 700; font-size: 19px; letter-spacing: -.045em; white-space: nowrap; }
 .od-brand-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 9px; color: var(--od-accent-ink); background: var(--od-accent); }
 .od-brand-desk { color: var(--od-accent); }
+.od-brand-network { margin-left: 2px; padding: 3px 7px; border: 1px solid var(--od-line); border-radius: 6px; font-size: 11px; letter-spacing: .12em; color: var(--od-muted); }
 .od-topbar nav { display: flex; gap: 27px; align-items: center; }
 .od-topbar nav a { color: var(--od-muted); text-decoration: none; font-size: 14px; font-weight: 700; }
 .od-topbar nav a:hover, .od-topbar nav a:focus-visible { color: var(--od-accent); }

@@ -1,4 +1,4 @@
-# Production image: built studio + Express API + media worker.
+# Production image: built desk + Express API + render worker.
 FROM node:24-bookworm-slim AS build
 WORKDIR /app
 # CPU-only server: skip ONNX Runtime's CUDA download (hundreds of MB).
@@ -10,7 +10,7 @@ RUN npm run build
 
 FROM node:24-bookworm-slim
 WORKDIR /app
-ENV ONNXRUNTIME_NODE_INSTALL_CUDA=skip NODE_ENV=production HOST=0.0.0.0 PORT=4319 DATA_DIR=/data MODEL_CACHE_DIR=/models
+ENV ONNXRUNTIME_NODE_INSTALL_CUDA=skip NODE_ENV=production HOST=0.0.0.0 PORT=4320 DATA_DIR=/data MODEL_CACHE_DIR=/models
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
@@ -23,10 +23,8 @@ RUN npm ci --omit=dev \
     && npm cache clean --force
 COPY --from=build /app/dist ./dist
 COPY assets ./assets
-COPY docs ./docs
 COPY server ./server
-COPY shared ./shared
-COPY scripts/sports-cron.mjs ./scripts/sports-cron.mjs
+COPY scripts ./scripts
 VOLUME ["/data", "/models"]
-EXPOSE 4319
+EXPOSE 4320
 CMD ["node", "server/index.mjs"]

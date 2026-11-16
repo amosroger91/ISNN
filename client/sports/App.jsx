@@ -88,7 +88,7 @@ function EditionHeader({ edition, settings }) {
       <div className="od-edition-copy">
         <div className="od-edition-date"><CalendarDays size={14} />{editionDate(edition?.date)}</div>
         <h1 id="od-title">The Rundown</h1>
-        <p>Daily sports show</p>
+        <p>ISNN’s daily multi-sport recap</p>
       </div>
       <div className="od-schedule" aria-label="Daily production schedule">
         <ScheduleItem icon={Moon} label="Overnight research" time={`12:00 AM ${zone}`}
@@ -356,7 +356,7 @@ export default function SportsApp() {
 
   useEffect(() => {
     const previous = document.title;
-    document.title = "The Rundown · Overtime Desk";
+    document.title = "The Rundown · Overtime Desk · ISNN";
     return () => { document.title = previous; };
   }, []);
 
@@ -423,6 +423,7 @@ export default function SportsApp() {
           <a className="od-brand" href="/sports" aria-label="Overtime Desk home">
             <span className="od-brand-icon"><Activity size={23} strokeWidth={2.4} /></span>
             <span>OVERTIME<span className="od-brand-desk"> DESK</span></span>
+            <span className="od-brand-network">ISNN</span>
           </a>
           <nav aria-label="Desk navigation">
             <a href="#od-rundown">Rundown</a><a href="#od-chat">Chat</a><a href="#od-episode">Episode</a>

@@ -1,29 +1,21 @@
-# Runs on the server from /opt/word-daily (source checked out in ./src).
+# Runs on the server from /opt/isnn (source checked out in ./src).
 services:
-  word-daily:
+  isnn:
     build: ./src
-    image: word-daily:latest
-    container_name: word-daily
+    image: isnn:latest
+    container_name: isnn
     restart: unless-stopped
+    # SPORTS_*, YOUTUBE_* and SPORTS_DESK_PASSWORD live in /opt/isnn/.env.
     env_file: .env
     environment:
-      PUBLIC_URL: https://word.wellspringstudiollc.com
-      # Captions come from the server's existing llama.cpp container (Qwen3 4B
-      # Instruct on :8081); LLM_API_KEY is set in .env. A second copy of the
-      # model does not fit in this server's memory.
-      LLM_URL: http://host.docker.internal:8081
-      LLM_MODEL: qwen3-4b-instruct
-      # Shares the TikTok connection made in Finds Studio (same developer app).
-      TIKTOK_TOKEN_FILE: /shared/tiktok/token.json
-      TIKTOK_CONNECT_URL: https://finds.wellspringstudiollc.com/api/tiktok/connect
+      PUBLIC_URL: https://isnn.example.com
     ports:
-      - "127.0.0.1:4319:4319"
+      - "127.0.0.1:4320:4320"
     volumes:
       - ./data:/data
       - ./models:/models
-      - /opt/finds-studio/data/tiktok:/shared/tiktok
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    # Leave headroom for the sites and the LLM sharing this 4-core, 3.8 GB box.
+    # The handoff's render budget: two vCPUs and 1,800 MB for the show.
     cpus: 2
     mem_limit: 1800m

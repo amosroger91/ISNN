@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-const port = Number(process.env.PORT || 4319);
+const port = Number(process.env.PORT || 4320);
 const url = `http://127.0.0.1:${port}/api/sports/cron`;
 try {
   const response = await fetch(url, { method: "POST", signal: AbortSignal.timeout(10_000) });

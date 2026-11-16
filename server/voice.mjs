@@ -1,7 +1,6 @@
 import { writeFile } from "node:fs/promises";
 import { env } from "@huggingface/transformers";
 import { modelCacheDir } from "./config.mjs";
-import { speechChunks, spokenReference } from "../shared/verse.mjs";
 
 // Kokoro-82M (Apache-2.0): natural, expressive narration that runs on the CPU.
 env.cacheDir = modelCacheDir;
@@ -14,14 +13,11 @@ export const VOICES = {
   bm_george: "George — classic British (male)",
   bm_lewis: "Lewis — deep, weathered (male)",
 };
-export const DEFAULT_VOICE = "af_heart";
+export const DEFAULT_VOICE = "am_michael";
 const RATE = 24000;
-// Default pace and pauses (each style sets its own).
+// Default pace and pause between parts (the desk passes its own speed).
 const SPEED = 0.9;
-const PAUSE_AFTER_REFERENCE = 0.75;
 const PAUSE_BETWEEN_CHUNKS = 0.38;
-// Small-caps names in the KJV read as words, not letters.
-export const forSpeech = (text) => text.replace(/\bLORD\b/g, "Lord").replace(/\bGOD\b/g, "God").replace(/\bJAH\b/g, "Jah");
 
 let engine;
 async function loadVoice(report) {
@@ -54,16 +50,7 @@ function soften(samples) {
   return samples;
 }
 
-// Narrates "<reference>. <verse>" and records where each spoken chunk sits,
-// so word timings can be anchored to known boundaries.
-export async function narrate(verse, voice, file, report = () => {}, signal, { speed = SPEED, pause = PAUSE_BETWEEN_CHUNKS } = {}) {
-  const parts = [
-    { kind: "reference", text: spokenReference(verse.ref), pause: PAUSE_AFTER_REFERENCE },
-    ...speechChunks(verse.text).map((text) => ({ kind: "verse", text, pause })),
-  ];
-  return narrateParts(parts, voice, file, report, signal, { speed, prepareText: forSpeech });
-}
-
+// Narrates a list of parts in order and records where each spoken part sits.
 export async function narrateParts(parts, voice, file, report = () => {}, signal, { speed = SPEED, prepareText = (text) => text } = {}) {
   if (!Object.hasOwn(VOICES, voice)) voice = DEFAULT_VOICE;
   const tts = await loadVoice(report);
