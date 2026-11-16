@@ -20,8 +20,7 @@ export async function createApp({ sports = new SportsDesk() } = {}) {
     next();
   });
   app.use(express.json({ limit: "64kb" }));
-  // The desk is the whole site.
-  app.get("/", (_req, res) => res.redirect("/sports"));
+  // The desk is the whole site and lives at the root.
   mountSports(app, sports);
 
   app.get("/api/health", async (_req, res) => {

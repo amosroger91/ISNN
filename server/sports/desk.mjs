@@ -9,7 +9,7 @@ import { FixtureEvidenceAdapter, scanSlate } from "./evidence.mjs";
 import { EvidenceLedger, LedgerError, fingerprint, numbersIn } from "./ledger.mjs";
 import { editTopics, researchConfigured, researchEdition, writeEpisode } from "./research.mjs";
 import { planShots } from "./rights.mjs";
-import { sampleEpisode, sampleTopics } from "./sample.mjs";
+import { sampleEpisode, sampleTopics, scriptedSegment } from "./sample.mjs";
 import { GoogleTrendingNowAdapter, collectObservations, scoreTrend, trendSegment } from "./trend.mjs";
 import { uploadEpisode, youtubeConfigured } from "./youtube.mjs";
 
@@ -82,9 +82,9 @@ function message(role, content, at) {
   return { id: randomUUID(), role, content, at };
 }
 
-function newTopic({ title, summary = "", take = "", selected = true, url, excerpt = "" }) {
+function newTopic({ title, summary = "", take = "", selected = true, url, excerpt = "", sport = null, league = null, teams = [] }) {
   return {
-    id: randomUUID(), title, summary, take, selected,
+    id: randomUUID(), title, summary, take, selected, sport, league, teams,
     sources: url ? [{ title: "Source supplied by Isaac", publisher: new URL(url).hostname, url, excerpt }] : [],
   };
 }
@@ -402,9 +402,24 @@ export class SportsDesk {
     return { ledger, revision };
   }
 
+  // Live editions: stories scanned from evidence render from their scripts;
+  // only feed-sourced and take-only topics go to the model writer.
+  async writeLive(snapshot) {
+    const selected = snapshot.topics.filter((topic) => topic.selected);
+    const unscripted = selected.filter((topic) => !topic.script);
+    const written = unscripted.length
+      ? await this.write({ ...snapshot, topics: unscripted })
+      : { title: `Overtime Desk | ${snapshot.date}`, description: "The overnight recap with every number bound to its evidence.", segments: [] };
+    const byTopic = new Map(unscripted.map((topic, index) => [topic.id, written.segments[index]]));
+    return {
+      ...written,
+      segments: selected.map((topic) => topic.script ? scriptedSegment(topic) : byTopic.get(topic.id) && { ...byTopic.get(topic.id), topicId: topic.id }).filter(Boolean),
+    };
+  }
+
   async produce(snapshot) {
     this.work.progress = { percent: 2, message: "Writing the broadcast script…" };
-    const { topicSources = [], ...draft } = snapshot.sample ? sampleEpisode(snapshot) : await this.write(snapshot);
+    const { topicSources = [], ...draft } = snapshot.sample ? sampleEpisode(snapshot) : await this.writeLive(snapshot);
     const selected = snapshot.topics.filter((topic) => topic.selected);
     const episode = {
       ...draft, date: snapshot.date, airAt: this.airTimeFor(snapshot.date), channel: this.settings.channel, territory: this.settings.territory,
@@ -581,6 +596,9 @@ export class SportsDesk {
           edition.topics.push(topic);
         }
         topic.title = result.story.headline;
+        topic.sport = result.sport;
+        topic.league = result.league;
+        topic.teams = [result.away.name, result.home.name];
         topic.script = { headline: result.story.headline, narration: result.story.narration, diagram: result.story.diagram };
         topic.claimIds = result.story.claimIds;
         topic.coverage = result.coverage;

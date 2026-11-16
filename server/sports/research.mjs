@@ -55,7 +55,19 @@ function modelConfig() {
     url: process.env.SPORTS_LLM_URL,
     model: process.env.SPORTS_LLM_MODEL || "default",
     key: process.env.SPORTS_LLM_API_KEY,
+    // "openai" (default) speaks /v1/chat/completions; "ollama" speaks Ollama's
+    // native /api/chat so thinking can be switched off and JSON output forced.
+    api: process.env.SPORTS_LLM_API === "ollama" ? "ollama" : "openai",
+    timeout: Number(process.env.SPORTS_LLM_TIMEOUT_MS) || 120_000,
   };
+}
+
+function ollamaEndpoint(base) {
+  if (!isWebUrl(base)) throw new Error("Set SPORTS_LLM_URL to the Ollama server, for example http://127.0.0.1:11434.");
+  const url = new URL(base);
+  url.pathname = "/api/chat";
+  url.search = "";
+  return url;
 }
 
 export function researchConfigured() {
@@ -78,8 +90,13 @@ const withTimeout = (signal, milliseconds) => {
 };
 
 async function askModel(system, input, schema, operation, { signal, fetchImpl = fetch } = {}) {
-  const { url, model, key } = modelConfig();
-  const endpoint = modelEndpoint(url);
+  const { url, model, key, api, timeout } = modelConfig();
+  const ollama = api === "ollama";
+  const endpoint = ollama ? ollamaEndpoint(url) : modelEndpoint(url);
+  const messages = [
+    { role: "system", content: system },
+    { role: "user", content: JSON.stringify(input) },
+  ];
   let response;
   try {
     response = await fetchImpl(endpoint, {
@@ -88,16 +105,11 @@ async function askModel(system, input, schema, operation, { signal, fetchImpl = 
         "Content-Type": "application/json",
         ...(key && { Authorization: `Bearer ${key}` }),
       },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: JSON.stringify(input) },
-        ],
-        max_tokens: 4800,
-      }),
+      body: JSON.stringify(ollama
+        ? { model, messages, stream: false, think: false, format: "json", options: { num_predict: 4800, temperature: 0.2 } }
+        : { model, messages, max_tokens: 4800 }),
       redirect: "error",
-      signal: withTimeout(signal, 120_000),
+      signal: withTimeout(signal, timeout),
     });
   } catch (error) {
     signal?.throwIfAborted();
@@ -105,7 +117,8 @@ async function askModel(system, input, schema, operation, { signal, fetchImpl = 
   }
   if (!response.ok) throw new Error(`The sports model returned HTTP ${response.status} while ${operation}.`);
   try {
-    const completion = (await response.json()).choices?.[0];
+    const data = await response.json();
+    const completion = ollama ? { finish_reason: data.done_reason, message: data.message } : data.choices?.[0];
     if (completion?.finish_reason === "length") throw new Error("Output was truncated");
     const text = completion.message.content.replace(/<think>[\s\S]*?<\/think>/gu, "").trim();
     const json = text.match(/^\x60\x60\x60(?:json)?\s*([\s\S]*?)\s*\x60\x60\x60$/iu)?.[1] ?? text;

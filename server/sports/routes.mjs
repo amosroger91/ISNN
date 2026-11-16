@@ -15,12 +15,16 @@ const url = z.url({ protocol: /^https?$/ }).max(1200).refine((value) => {
   return parsed && !parsed.username && !parsed.password;
 }, "Use an HTTP or HTTPS source link without credentials.");
 const aliases = z.array(z.string().trim().min(2).max(80)).max(12);
+const sport = z.enum(["basketball", "football", "baseball", "hockey", "soccer", "other"]).nullable();
+const league = z.string().trim().min(2).max(40).nullable();
+const teams = z.array(z.string().trim().min(2).max(60)).max(6);
+const tagging = { sport: sport.optional(), league: league.optional(), teams: teams.optional() };
 const topicFields = z.object({ title, summary, take, selected: z.boolean() });
 const patchTopic = requestDate.extend(topicFields.partial().shape).extend({
   headline: z.string().trim().min(3).max(140).optional(), narration: z.string().trim().min(20).max(750).optional(),
-  storyId: z.string().trim().min(3).max(120).nullable().optional(), aliases: aliases.optional(),
+  storyId: z.string().trim().min(3).max(120).nullable().optional(), aliases: aliases.optional(), ...tagging,
 });
-const addTopic = requestDate.extend({ title, summary: summary.optional(), take: take.optional(), url: url.optional(), excerpt: z.string().trim().max(1000).optional() });
+const addTopic = requestDate.extend({ title, summary: summary.optional(), take: take.optional(), url: url.optional(), excerpt: z.string().trim().max(1000).optional(), ...tagging });
 const chatInput = requestDate.extend({ message: z.string().trim().min(1).max(2400), topicId: topicId.optional() });
 const chatEdits = z.array(topicFields.partial().extend({ id: topicId.optional(), url: url.optional() })).max(12).refine(
   (edits) => edits.every((edit) => edit.id || edit.title), "A new topic needs a title.",
@@ -65,10 +69,9 @@ function deskAccess(req, res, next) {
 }
 
 export function mountSports(app, desk) {
-  app.get(/^\/sports\/?$/i, deskAccess, (req, res, next) => {
-    if (req.path !== "/sports") return res.redirect(308, "/sports");
-    next();
-  });
+  app.get("/", deskAccess, (_req, _res, next) => next());
+  // Old bookmarks of the desk's former address.
+  app.get(/^\/sports\/?$/i, (_req, res) => res.redirect(308, "/"));
 
   const router = Router();
   router.post("/cron", async (req, res) => {

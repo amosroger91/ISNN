@@ -346,3 +346,19 @@ body:has(.od) { margin: 0; background: #101210; }
 .od-corrections svg { flex: 0 0 auto; margin-top: 2px; }
 .od-shots { list-style: none; margin: 0; padding: 10px 16px 12px; display: grid; gap: 4px; font-size: 12px; color: var(--od-muted); border-top: 1px solid var(--od-line); }
 .od-shots span { display: inline-block; min-width: 24px; color: var(--od-accent); font-weight: 700; }
+
+/* Sport, league and team tags */
+.od-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.od-tag { display: inline-flex; align-items: center; min-height: 22px; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--od-line); font-size: 11.5px; font-weight: 700; letter-spacing: .03em; color: var(--od-text); background: #1f261f; }
+.od-tag.is-basketball { color: #ffb86b; border-color: #6a4a22; background: #2b2217; }
+.od-tag.is-football { color: #9fd0ff; border-color: #2d4d6b; background: #17222b; }
+.od-tag.is-baseball { color: #ff9f9f; border-color: #6b2d2d; background: #2b1717; }
+.od-tag.is-hockey { color: #c9d6ff; border-color: #3a456b; background: #1a1d2b; }
+.od-tag.is-soccer { color: var(--od-accent); border-color: #4f6b2a; background: #1a2316; }
+.od-tag.is-other { color: #e2c7ff; border-color: #5a3f6b; background: #241a2b; }
+.od-tag.is-league { color: var(--od-muted); }
+.od-tag.is-teams { font-weight: 400; letter-spacing: 0; }
+.od-form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.od-topic-form select { width: 100%; min-height: 36px; padding: 6px 8px; border: 1px solid var(--od-line); border-radius: 6px; background: var(--od-bg); color: var(--od-text); }
+.od-topic-form select:disabled { opacity: .5; }
+.od-lineup-league { display: inline-block; min-width: 44px; margin-right: 6px; padding: 1px 6px; border-radius: 4px; border: 1px solid var(--od-line); font-size: 10.5px; font-weight: 700; color: var(--od-muted); text-align: center; vertical-align: 1px; }

@@ -143,10 +143,12 @@ test("practice chat persists edits and rejects a stale date and a foreign cron r
   const authenticate = (req) => process.env.SPORTS_DESK_PASSWORD
     ? req.auth(process.env.SPORTS_DESK_USER || "isaac", process.env.SPORTS_DESK_PASSWORD) : req;
   const current = await authenticate(browser.get("/api/sports/edition")).expect(200);
-  const { id } = current.body.edition.topics[0];
+  assert.equal(current.body.edition.sample, true);
+  const added = await authenticate(browser.post("/api/sports/chat")).send({ date, message: "add: The closing lineup question" }).expect(200);
+  const { id } = added.body.edition.topics[0];
   const update = await authenticate(browser.post("/api/sports/chat")).send({ date, topicId: id, message: "take: Start with the defense." }).expect(200);
   assert.equal(update.body.edition.topics[0].take, "Start with the defense.");
-  assert.equal(update.body.edition.messages.length, 2);
+  assert.equal(update.body.edition.messages.length, 4);
   await browser.post("/api/sports/cron").set("X-Forwarded-For", "203.0.113.4").expect(403);
   await browser.post("/api/sports/cron").set("Sec-Fetch-Site", "same-origin").expect(403);
   await browser.post("/api/sports/cron").expect(204);

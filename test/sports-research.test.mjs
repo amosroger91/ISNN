@@ -75,6 +75,34 @@ test("research uses only current, nonpromotional feed evidence and keeps origina
   assert.equal(topics[0].sources[0].url, "https://league.example/results?a=1");
 });
 
+test("a local Ollama model is asked through its native API with thinking off and JSON forced", async (t) => {
+  settings(t);
+  for (const [key, value] of Object.entries({ SPORTS_LLM_URL: "http://127.0.0.1:11434", SPORTS_LLM_API: "ollama", SPORTS_LLM_MODEL: "qwen3.5:9b", SPORTS_LLM_TIMEOUT_MS: "300000" })) {
+    const previous = process.env[key];
+    process.env[key] = value;
+    t.after(() => {
+      if (previous === undefined) delete process.env[key];
+      else process.env[key] = previous;
+    });
+  }
+  const result = await editTopics({ date, topics: [topic], messages: [] }, "take: Keep Vega in the closing lineup.", topic.id, {
+    fetchImpl: async (url, request) => {
+      assert.equal(String(url), "http://127.0.0.1:11434/api/chat");
+      const body = JSON.parse(request.body);
+      assert.equal(body.model, "qwen3.5:9b");
+      assert.equal(body.think, false);
+      assert.equal(body.format, "json");
+      assert.equal(body.stream, false);
+      assert.equal(body.messages[0].role, "system");
+      return Response.json({ done_reason: "stop", message: { role: "assistant", content: JSON.stringify({ reply: "Noted.", edits: [{ id: topic.id, take: "Keep Vega in the closing lineup." }] }) } });
+    },
+  });
+  assert.equal(result.edits[0].take, "Keep Vega in the closing lineup.");
+  await assert.rejects(editTopics({ date, topics: [topic], messages: [] }, "take: x", topic.id, {
+    fetchImpl: async () => Response.json({ done_reason: "length", message: { role: "assistant", content: "{" } }),
+  }), /invalid response/u);
+});
+
 test("research stops for invented citations or when sources are unavailable", async (t) => {
   settings(t);
   await assert.rejects(researchEdition(date, {

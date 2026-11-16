@@ -1,25 +1,5 @@
 const topics = [
-  {
-    id: "fourth-down", title: "The fourth-down call starts with field position",
-    summary: "A football segment about how the same distance to go can mean very different things depending on where the ball is spotted.",
-    take: "Start with where a failed conversion leaves the defense. Then weigh the distance, the score and the clock. The interesting debate starts when those factors point in different directions.",
-    selected: true,
-    sources: [{ title: "NFL rulebook", publisher: "NFL Football Operations", url: "https://operations.nfl.com/the-rules/nfl-rulebook/", excerpt: "" }],
-  },
-  {
-    id: "next-pass", title: "The pass after the pass against a ball-screen blitz",
-    summary: "A basketball segment on what the offense can do after two defenders commit to the ball handler.",
-    take: "Watch the weak-side defender. If they tag the roll, the next pass goes to the corner. If they stay home, the roller can finish. The first pass escapes pressure and the second one makes the defense pay.",
-    selected: true,
-    sources: [{ title: "NBA stats glossary", publisher: "NBA", url: "https://www.nba.com/stats/help/glossary", excerpt: "" }],
-  },
-  {
-    id: "bullpen", title: "What a bullpen day asks of a manager",
-    summary: "A baseball segment on sequencing pitchers and planning which parts of the batting order each one will face.",
-    take: "I would map the first three trips through the lineup before I assign anyone an inning. The matchup that matters most could arrive in the fifth.",
-    selected: false,
-    sources: [{ title: "Relief pitcher", publisher: "MLB", url: "https://www.mlb.com/glossary/positions/relief-pitcher", excerpt: "" }],
-  },
+ 
 ];
 
 // Evergreen placeholders for a desk with no research model. They are benched
@@ -31,12 +11,18 @@ export function sampleTopics() {
 // The practice edition: scripted stories from scanned evidence render as
 // factual segments bound to their claims; plain topics render as attributed
 // opinion from the editorial take.
-export function sampleEpisode({ topics }) {
-  const segments = topics.filter((topic) => topic.selected && (topic.script || topic.take)).map((topic) => topic.script ? {
+// A story scanned from evidence renders from its own script, with Isaac's
+// take attributed after it. No model is involved.
+export function scriptedSegment(topic) {
+  return {
     id: topic.eventId || undefined, topicId: topic.id, eventId: topic.eventId || null,
     headline: topic.script.headline, narration: [topic.script.narration, topic.take?.trim() && `Isaac’s take. ${topic.take.trim()}`].filter(Boolean).join("\n\n"),
     sources: topic.sources, diagram: topic.script.diagram || undefined,
-  } : {
+  };
+}
+
+export function sampleEpisode({ topics }) {
+  const segments = topics.filter((topic) => topic.selected && (topic.script || topic.take)).map((topic) => topic.script ? scriptedSegment(topic) : {
     topicId: topic.id, headline: topic.title, narration: topic.take, sources: topic.sources, opinion: true,
   });
   if (!segments.length) throw new Error("Include a topic with an editorial take or scanned evidence to render the practice edition.");

@@ -115,22 +115,69 @@ function EditionHeader({ edition, settings }) {
   );
 }
 
+// Sport and league choices for manual entries. A league outside the list is typed in.
+const SPORTS = {
+  basketball: { label: "Basketball", leagues: ["NBA", "WNBA", "NCAAB", "EuroLeague"] },
+  football: { label: "Football", leagues: ["NFL", "NCAAF", "CFL", "UFL"] },
+  baseball: { label: "Baseball", leagues: ["MLB", "NCAA Baseball", "NPB", "KBO"] },
+  hockey: { label: "Hockey", leagues: ["NHL", "PWHL", "NCAA Hockey", "KHL"] },
+  soccer: { label: "Soccer", leagues: ["MLS", "NWSL", "Premier League", "La Liga", "Bundesliga", "Serie A", "Champions League", "Liga MX"] },
+  other: { label: "Other", leagues: ["Tennis", "Golf", "Boxing", "MMA", "Motorsport", "Olympics"] },
+};
+const sportLabel = (sport) => SPORTS[sport]?.label || sport || "";
+
+// What the story is about, readable at a glance: sport, league and the teams.
+function SportTags({ topic }) {
+  if (!topic.sport && !topic.league && !topic.teams?.length) return null;
+  return (
+    <div className="od-tags" aria-label="Sport, league and teams">
+      {topic.sport && <span className={`od-tag is-${topic.sport}`}>{sportLabel(topic.sport)}</span>}
+      {topic.league && <span className="od-tag is-league">{topic.league}</span>}
+      {(topic.teams || []).map((team) => <span key={team} className="od-tag is-teams">{team}</span>)}
+    </div>
+  );
+}
+
 function TopicForm({ topic, pending, onSave, onClose }) {
   const [fields, setFields] = useState({
     title: topic?.title || "", summary: topic?.summary || "", take: topic?.take || "", url: "", excerpt: "",
+    sport: topic?.sport || "", league: topic?.league || "", teams: (topic?.teams || []).join(", "),
   });
   const field = (key) => ({
     value: fields[key], onChange: (event) => setFields((old) => ({ ...old, [key]: event.target.value })),
   });
+  const leagues = SPORTS[fields.sport]?.leagues || [];
+  const customLeague = fields.league && !leagues.includes(fields.league);
   return (
     <form className="od-topic-form" onSubmit={async (event) => {
       event.preventDefault();
       const values = { title: fields.title.trim(), summary: fields.summary.trim(), take: fields.take.trim() };
       if (values.title.length < 3) return;
+      values.sport = fields.sport || null;
+      values.league = fields.league.trim() || null;
+      values.teams = [...new Set(fields.teams.split(",").map((team) => team.trim()).filter((team) => team.length >= 2))].slice(0, 6);
       if (!topic && fields.url.trim()) values.url = fields.url.trim();
       if (!topic && fields.url.trim() && fields.excerpt.trim()) values.excerpt = fields.excerpt.trim();
       if (await onSave(values)) onClose();
     }}>
+      <div className="od-form-row">
+        <label>Sport
+          <select value={fields.sport} onChange={(event) => setFields((old) => ({ ...old, sport: event.target.value, league: SPORTS[event.target.value]?.leagues.includes(old.league) ? old.league : "" }))}>
+            <option value="">Choose a sport</option>
+            {Object.entries(SPORTS).map(([value, { label }]) => <option key={value} value={value}>{label}</option>)}
+          </select>
+        </label>
+        <label>League
+          <select value={customLeague ? "__other" : fields.league} disabled={!fields.sport}
+            onChange={(event) => setFields((old) => ({ ...old, league: event.target.value === "__other" ? " " : event.target.value }))}>
+            <option value="">Choose a league</option>
+            {leagues.map((name) => <option key={name} value={name}>{name}</option>)}
+            <option value="__other">Other…</option>
+          </select>
+        </label>
+        {customLeague && <label>League name<input maxLength={40} placeholder="Type the league" value={fields.league.trim()} onChange={(event) => setFields((old) => ({ ...old, league: event.target.value || " " }))} /></label>}
+      </div>
+      <label>Teams covered<input maxLength={300} placeholder="Comma separated; leave empty for a general topic" {...field("teams")} /></label>
       <label>Headline<input required minLength={3} maxLength={160} {...field("title")} /></label>
       <label>Story notes<textarea rows={3} maxLength={1200} {...field("summary")} /></label>
       <label>Isaac’s take<textarea rows={3} maxLength={1800} {...field("take")} /></label>
@@ -275,6 +322,7 @@ function TopicCard({ topic, claims, editing, pending, locked, sample, isCore, on
             <span>{topic.selected ? "Included" : "Excluded"}</span>
           </label>
         </header>
+        <SportTags topic={topic} />
         {topic.eventId && <p className="od-topic-meta">{topic.eventId}{topic.coverage ? ` · ${topic.coverage}` : ""}</p>}
         {topic.summary && <p className="od-topic-summary">{topic.summary}</p>}
         {topic.script && <p className="od-topic-script">{topic.script.narration}</p>}
@@ -382,9 +430,10 @@ function Chat({ edition, settings, topic, clearTopic, draft, setDraft, input, pe
                 <>
                   <p>{edition.sample ? "Practice lineup" : edition.researchedAt ? "Rundown after overnight research" : "Current lineup"}</p>
                   <ul className="od-chat-lineup">
-                    {lineup.map((story) => <li key={story.id}>{locked ? story.title : (
-                      <button type="button" onClick={() => onDiscuss(story)}>{story.title} <ArrowUpRight size={12} /></button>
-                    )}</li>)}
+                    {lineup.map((story) => <li key={story.id}>
+                      {story.league && <span className="od-lineup-league">{story.league}</span>}
+                      {locked ? story.title : <button type="button" onClick={() => onDiscuss(story)}>{story.title} <ArrowUpRight size={12} /></button>}
+                    </li>)}
                   </ul>
                 </>
               )}
@@ -470,7 +519,7 @@ function Episode({ edition, settings, pending, locked, onBuild }) {
   const publication = edition?.publication;
   const publishedUrl = externalUrl(publication?.url);
   const stale = render && render.revision !== edition.revision;
-  const readyToBuild = Boolean(edition?.topics?.some((topic) => topic.selected && (!edition.sample || topic.take)));
+  const readyToBuild = Boolean(edition?.topics?.some((topic) => topic.selected && (!edition.sample || topic.take || topic.script)));
   const buildDisabled = pending || locked || inProgress(edition) || !(settings?.researchConfigured || edition?.sample) || !readyToBuild;
   const duration = Math.round(Number(render?.duration) || 0);
   const percent = edition?.progress?.percent;
@@ -632,7 +681,7 @@ export default function SportsApp() {
     <div className="od">
       <header className="od-topbar">
         <div className="od-topbar-inner">
-          <a className="od-brand" href="/sports" aria-label="Overtime Desk home">
+          <a className="od-brand" href="/" aria-label="Overtime Desk home">
             <span className="od-brand-icon"><Activity size={23} strokeWidth={2.4} /></span>
             <span>OVERTIME<span className="od-brand-desk"> DESK</span></span>
             <span className="od-brand-network">ISNN</span>

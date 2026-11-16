@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Open [http://127.0.0.1:4320/sports](http://127.0.0.1:4320/sports). Without a research model the desk opens the practice rundown, which supports topic edits, chat commands and a preview render with no model or YouTube account. Narration uses Kokoro on the CPU and downloads its voice (about 300 MB) into `MODEL_CACHE_DIR` on the first render.
+Open [http://127.0.0.1:4320/](http://127.0.0.1:4320/). Without a research model the desk opens the practice rundown, which supports topic edits, chat commands and a preview render with no model or YouTube account. Narration uses Kokoro on the CPU and downloads its voice (about 300 MB) into `MODEL_CACHE_DIR` on the first render.
 
 ```bash
 npm test          # desk, ledger, trend, rights, research and production tests with simulated model, feed and YouTube responses
@@ -63,7 +63,7 @@ The first provider is the US Google Trending Now RSS export; a fixture adapter s
 
 ## Schedule and accounts
 
-1. Configure `SPORTS_LLM_URL`, `SPORTS_LLM_MODEL` and, for a hosted model, `SPORTS_LLM_API_KEY`. Use a model that reliably follows structured editorial instructions. To choose coverage, set `SPORTS_FEEDS` to a JSON array of up to eight `{ "publisher", "url" }` objects. Set `SPORTS_TIMEZONE` to change the IANA time zone.
+1. Configure `SPORTS_LLM_URL`, `SPORTS_LLM_MODEL` and, for a hosted model, `SPORTS_LLM_API_KEY`. Use a model that reliably follows structured editorial instructions. For a local Ollama model set `SPORTS_LLM_URL=http://127.0.0.1:11434`, `SPORTS_LLM_API=ollama` and `SPORTS_LLM_MODEL` to an installed model such as `qwen3.5:9b` (more capable) or `qwen3.5:4b-q4_K_M` (fits a 6 GB GPU, about four times faster); the desk then uses Ollama's native API with thinking switched off and JSON output forced, and `SPORTS_LLM_TIMEOUT_MS` (default 120000) gives a slow local model room. Stories scanned from evidence never go through the model writer; only feed-sourced and take-only topics do. To choose coverage, set `SPORTS_FEEDS` to a JSON array of up to eight `{ "publisher", "url" }` objects. Set `SPORTS_TIMEZONE` to change the IANA time zone.
 2. Set `SPORTS_DESK_PASSWORD` for access outside the app host, and use the desk over HTTPS on your configured `PUBLIC_URL`. Isaac signs in as `isaac` by default. Keep one app instance writing to the same persistent `DATA_DIR`. Editions live in `DATA_DIR/sports`.
 3. Enable YouTube Data API v3 and obtain an offline OAuth refresh token for the ISNN channel with the `https://www.googleapis.com/auth/youtube.upload` scope. In Google's OAuth Playground, register the Playground redirect URI on your web OAuth client and use **Use your own OAuth credentials** to authorize the channel and exchange the authorization code. Set `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET` and `YOUTUBE_REFRESH_TOKEN`. Set `SPORTS_PUBLISH_ENABLED=true` to start uploads, and choose `YOUTUBE_PRIVACY_STATUS` (`public` by default, or `unlisted` or `private`). [Google OAuth Playground](https://developers.google.com/oauthplayground/), [YouTube upload reference](https://developers.google.com/youtube/data/reference/rest/v3/videos/insert).
 4. Install the entry in [deploy/sports.crontab](deploy/sports.crontab) with `crontab -e` on the Compose host. It calls the app each minute, and the app uses `SPORTS_TIMEZONE` for midnight and the 8 a.m. upload window regardless of the host cron time zone. For a bare Node install, use `* * * * * cd /absolute/path/to/isnn && /absolute/path/to/node scripts/sports-cron.mjs`.

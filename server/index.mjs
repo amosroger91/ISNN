@@ -20,7 +20,7 @@ if (process.argv.includes("--dev")) {
   );
 }
 const server = app.listen(port, host, () =>
-  console.log(`ISNN Overtime Desk is ready at http://${host}:${port}/sports`),
+  console.log(`ISNN Overtime Desk is ready at http://${host}:${port}/`),
 );
 async function shutdown() {
   await vite?.close();

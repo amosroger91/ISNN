@@ -64,9 +64,7 @@ test("a scanned slate becomes pitches with ledger claims, the trend desk clears 
   assert.equal(stories.length, 3);
   const core = stories.find(({ eventId }) => eventId === "2026-11-15-nba-hcg-rvs");
   assert.ok(core.claimIds.length === 3 && core.selected && core.script.narration.includes("33 points"));
-  const placeholders = edition.topics.filter(({ eventId }) => !eventId);
-  assert.equal(placeholders.length, 3);
-  assert.ok(placeholders.every(({ selected, practice }) => practice && !selected), "evergreen practice topics are benched once real recaps exist");
+  assert.ok(edition.topics.filter(({ eventId }) => !eventId).every(({ selected, practice }) => practice && !selected), "any evergreen practice topic is benched once real recaps exist");
 
   const checked = await desk.checkTrend(core.id, { aliases: ["Mara Quill", "Gulls Stags"] }, "2026-11-16");
   const card = checked.edition.topics.find(({ id }) => id === core.id).trend;
@@ -140,8 +138,15 @@ test("an unverified pitch never earns a trend segment, a feed outage is shown as
   const { app } = await createApp({ sports: desk });
   const browser = request(app);
   const scanned = await browser.post("/api/sports/evidence/scan").send({ date: "2026-11-16" }).expect(200);
-  const rumor = (await browser.post("/api/sports/topics").send({ date: "2026-11-16", title: "Mara Quill trade rumor", take: "I would not read anything into it yet." }).expect(201)).body.edition.topics.at(-1);
-  await browser.patch(`/api/sports/topics/${rumor.id}`).send({ date: "2026-11-16", storyId: "2026-11-15-nba-hcg-rvs", aliases: ["Mara Quill trade"] }).expect(200);
+  const pitched = scanned.body.edition.topics.find(({ eventId }) => eventId === "2026-11-15-nba-hcg-rvs");
+  assert.deepEqual([pitched.sport, pitched.league, pitched.teams], ["basketball", "NBA", ["River Valley Stags", "Harbor City Gulls"]], "scanned pitches are tagged with sport, league and teams");
+  const rumor = (await browser.post("/api/sports/topics").send({ date: "2026-11-16", title: "Mara Quill trade rumor", take: "I would not read anything into it yet.", sport: "basketball", league: "NBA", teams: ["Harbor City Gulls"] }).expect(201)).body.edition.topics.at(-1);
+  assert.deepEqual([rumor.sport, rumor.league, rumor.teams], ["basketball", "NBA", ["Harbor City Gulls"]]);
+  const general = (await browser.post("/api/sports/topics").send({ date: "2026-11-16", title: "What to watch this weekend", take: "Three games worth the early alarm.", sport: "other", league: null, teams: [] }).expect(201)).body.edition.topics.at(-1);
+  assert.deepEqual([general.sport, general.league, general.teams], ["other", null, []], "a general topic can carry no league and no team");
+  await browser.patch(`/api/sports/topics/${general.id}`).send({ date: "2026-11-16", selected: false }).expect(200);
+  await browser.post("/api/sports/topics").send({ date: "2026-11-16", title: "Bad tag", sport: "curling" }).expect(400);
+  await browser.patch(`/api/sports/topics/${rumor.id}`).send({ date: "2026-11-16", storyId: "2026-11-15-nba-hcg-rvs", aliases: ["Mara Quill trade"], teams: ["Harbor City Gulls", "River Valley Stags"] }).expect(200);
   const checked = await browser.post(`/api/sports/topics/${rumor.id}/trend`).send({ date: "2026-11-16" }).expect(200);
   const card = checked.body.edition.topics.find(({ id }) => id === rumor.id).trend;
   assert.equal(card.recommendation, "insufficient evidence");
