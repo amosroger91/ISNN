@@ -1,0 +1,76 @@
+{
+  "name": "overtime-trend-scenarios",
+  "notes": "Synthetic attention observations for the Check trend scorecard. Queries, publishers and URLs are fictional and use reserved example domains.",
+  "story": {
+    "id": "2026-11-15-nba-hcg-rvs",
+    "title": "Harbor City Gulls 112, River Valley Stags 104: Quill's corner three again",
+    "date": "2026-11-16",
+    "entities": ["Harbor City Gulls", "River Valley Stags", "Gulls", "Stags", "Mara Quill"],
+    "aliases": ["Mara Quill", "Gulls Stags", "Harbor City Gulls"],
+    "sourceUrls": ["https://scores.example/nba/2026-11-15-nba-hcg-rvs/box"],
+    "verified": true,
+    "visualEvidence": false,
+    "originalAnalysis": true,
+    "scope": "core"
+  },
+  "now": "2026-11-16T12:30:00Z",
+  "scenarios": {
+    "sameEvent": [
+      { "query": "Mara Quill", "traffic": 50000, "observedAt": "2026-11-16T07:10:00Z", "sourceUrl": "https://trends.google.com/trending?geo=US",
+        "news": [{ "title": "Quill's corner three sinks the Stags in Harbor City", "url": "https://news-a.example/nba/quill-corner-three", "publisher": "News A" }] },
+      { "query": "Mara Quill", "traffic": 100000, "observedAt": "2026-11-16T09:40:00Z", "sourceUrl": "https://trends.google.com/trending?geo=US",
+        "news": [{ "title": "Quill's corner three sinks the Stags in Harbor City", "url": "https://news-a.example/nba/quill-corner-three", "publisher": "News A" },
+                 { "title": "Gulls 112, Stags 104: how the last minute unfolded", "url": "https://wire.example/nba/gulls-stags-final-minute", "publisher": "Wire Service" }] },
+      { "query": "Mara Quill", "traffic": 100000, "observedAt": "2026-11-16T11:50:00Z", "sourceUrl": "https://trends.google.com/trending?geo=US",
+        "news": [{ "title": "Quill's corner three sinks the Stags in Harbor City", "url": "https://news-a.example/nba/quill-corner-three", "publisher": "News A" },
+                 { "title": "Gulls hold off Stags behind Quill's 33", "url": "https://news-b.example/sports/gulls-stags", "publisher": "News B" }] }
+    ],
+    "standalone": [
+      { "query": "Mara Quill", "traffic": 200000, "observedAt": "2026-11-16T07:10:00Z",
+        "news": [{ "title": "Quill's corner three sinks the Stags in Harbor City", "url": "https://news-a.example/nba/quill-corner-three", "publisher": "News A" }] },
+      { "query": "Gulls Stags", "traffic": 500000, "observedAt": "2026-11-16T09:40:00Z",
+        "news": [{ "title": "Gulls 112, Stags 104: how the last minute unfolded", "url": "https://wire.example/nba/gulls-stags-final-minute", "publisher": "Wire Service" },
+                 { "title": "Harbor City Gulls beat River Valley Stags on Quill's late three", "url": "https://news-c.example/nba/gulls-stags", "publisher": "News C" }] },
+      { "query": "Mara Quill", "traffic": 500000, "observedAt": "2026-11-16T11:50:00Z",
+        "news": [{ "title": "Gulls hold off Stags behind Quill's 33", "url": "https://news-b.example/sports/gulls-stags", "publisher": "News B" }] }
+    ],
+    "noTrend": [
+      { "query": "Prairie Kings injury report", "traffic": 200000, "observedAt": "2026-11-16T09:00:00Z",
+        "news": [{ "title": "Kings list two starters as questionable", "url": "https://news-a.example/nfl/kings-injuries", "publisher": "News A" }] },
+      { "query": "weather radar", "traffic": 1000000, "observedAt": "2026-11-16T10:00:00Z", "news": [] }
+    ],
+    "stale": [
+      { "query": "Gulls Stags", "traffic": 200000, "observedAt": "2026-11-13T02:00:00Z",
+        "news": [{ "title": "Gulls and Stags meet again on Sunday: preview", "url": "https://news-a.example/nba/gulls-stags-preview", "publisher": "News A" }] },
+      { "query": "Harbor City Gulls anniversary", "traffic": 100000, "observedAt": "2026-11-16T09:00:00Z",
+        "news": [{ "title": "On this day: the Gulls' classic game against the Stags", "url": "https://news-a.example/nba/gulls-on-this-day", "publisher": "News A" }] }
+    ],
+    "promo": [
+      { "query": "Gulls tickets presale", "traffic": 500000, "observedAt": "2026-11-16T09:00:00Z",
+        "news": [{ "title": "Harbor City Gulls vs Stags tickets: presale opens", "url": "https://tickets.example/gulls-stags", "publisher": "Ticket Hub" }] },
+      { "query": "Mara Quill jersey sale", "traffic": 200000, "observedAt": "2026-11-16T10:30:00Z",
+        "news": [{ "title": "Mara Quill jersey sale after the Gulls win", "url": "https://shop.example/quill", "publisher": "Team Shop" }] }
+    ],
+    "repost": [
+      { "query": "Mara Quill", "traffic": 100000, "observedAt": "2026-11-16T09:10:00Z",
+        "news": [{ "title": "Quill's corner three sinks the Stags in Harbor City", "url": "https://news-a.example/nba/quill-corner-three", "publisher": "News A" }] },
+      { "query": "Mara Quill", "traffic": 100000, "observedAt": "2026-11-16T09:40:00Z",
+        "news": [{ "title": "Quill's corner three sinks the Stags in Harbor City", "url": "https://news-a.example/nba/quill-corner-three", "publisher": "News A" }] },
+      { "query": "Mara Quill", "traffic": 90000, "observedAt": "2026-11-16T11:00:00Z",
+        "news": [{ "title": "Quill's corner three sinks the Stags in Harbor City", "url": "https://news-a.example/nba/quill-corner-three", "publisher": "News A" }] }
+    ],
+    "collision": [
+      { "query": "Mara Quill", "traffic": 1000000, "observedAt": "2026-11-16T08:00:00Z",
+        "news": [{ "title": "Mara Quill cast as the lead in a new streaming drama", "url": "https://entertainment.example/mara-quill-cast", "publisher": "Entertainment Daily" }] },
+      { "query": "Mara Quill", "traffic": 1000000, "observedAt": "2026-11-16T10:30:00Z",
+        "news": [{ "title": "Mara Quill talks about her new series", "url": "https://entertainment.example/mara-quill-interview", "publisher": "Entertainment Daily" }] }
+    ],
+    "rumor": [
+      { "query": "Mara Quill trade", "traffic": 500000, "observedAt": "2026-11-16T08:00:00Z",
+        "news": [{ "title": "Report: Gulls listening to offers for Mara Quill", "url": "https://rumors.example/nba/quill-trade", "publisher": "Rumor Mill" }] },
+      { "query": "Mara Quill trade", "traffic": 1000000, "observedAt": "2026-11-16T10:30:00Z",
+        "news": [{ "title": "Quill trade chatter grows after Stags game", "url": "https://rumors.example/nba/quill-trade-2", "publisher": "Rumor Mill" },
+                 { "title": "Gulls deny Quill trade talks", "url": "https://news-a.example/nba/gulls-deny", "publisher": "News A" }] }
+    ]
+  }
+}

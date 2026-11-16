@@ -9,14 +9,24 @@ import { listFixtures, loadFixture, placeholderNarrate, wordCount } from "../ser
 import { uploadEpisode } from "../server/sports/youtube.mjs";
 import { wav } from "../server/voice.mjs";
 
+const grant = {
+  id: "g-test", version: 1, licensor: "Test Network", status: "active", components: ["video"], channels: ["isnn-youtube"], surfaces: ["episode"], territories: ["worldwide"],
+  window: { expiresAt: "2026-11-15T12:00:00Z" }, credit: "Courtesy Test Network", claimContact: "rights@test.example", evidenceRef: "grants/test.pdf",
+};
+const asset = { id: "clip-1", providerId: "p1", eventId: "game-1", captureTime: "2026-11-15T03:00:00Z", credit: "Courtesy Test Network", grantId: "g-test", grantVersion: 1, sha256: "a".repeat(64), status: "available" };
 const episode = {
   title: "Saturday's short-yardage story",
   description: "The adjustments that changed the game.",
   date: "2026-11-15",
+  revisionId: "rev_test",
+  rights: { channel: "isnn-youtube", territory: "worldwide", airAt: "2026-11-15T14:00:00Z", catalog: { assets: [asset], grants: [grant] } },
   segments: [{
     headline: "The fourth quarter came down to one adjustment",
     narration: "The defense tightened its rotation on the final drive.",
     sources: [{ publisher: "League newsroom", title: "Fourth-quarter notes", url: "https://example.org/league/game" }],
+    eventId: "game-1", claims: [{ id: "clm_test", text: "Rotation tightened", evidence: [{ id: "snap_test", locator: "notes" }] }],
+    // Selected while the grant was live; by air time it has expired, so the render must fall back.
+    shots: { episode: { kind: "ShotUse", assetId: "clip-1", grantId: "g-test", grantVersion: 1, surface: "episode" }, short: { kind: "Fallback", surface: "short", fallback: "Play diagram", reasons: [{ code: "surface", reason: "Grant g-test does not cover the short surface." }] } },
   }, {
     id: "watch",
     headline: "What to watch on Sunday",
@@ -75,6 +85,15 @@ test("renders the 1080p episode, one vertical Short per segment, captions and ma
   assert.ok(qc.outputs.every((output) => Number.isFinite(output.loudness?.integrated)));
   const credits = JSON.parse(await readFile(path.join(directory, "credits.json"), "utf8"));
   assert.equal(credits.segments[0].sources[0].url, "https://example.org/league/game");
+  assert.equal(credits.revisionId, "rev_test");
+  assert.equal(credits.segments[0].claims[0].id, "clm_test");
+  assert.equal(credits.segments[0].shots.episode.kind, "Fallback", "the grant expired before air, so the clip is replaced at render");
+  assert.equal(credits.segments[0].shots.episode.reasons[0].code, "grant-expired");
+  assert.equal(credits.segments[0].shots.short.fallback, "Play diagram");
+  assert.equal(timeline.segments[0].short.shot.fallback, "Play diagram");
+  assert.equal(timeline.segments[1].shots, null);
+  assert.ok(qc.warnings.some((warning) => /clip clip-1 replaced by the Play diagram/u.test(warning)));
+  assert.equal(rendered.shots[0].episode.fallback, "Play diagram");
   const srt = await readFile(path.join(directory, "shorts/segment-02.srt"), "utf8");
   assert.match(srt, /^1\n00:00:00,000 --> 00:00:0[1-3],\d{3}\nStart by watching the pressure\nup front\./u);
 });

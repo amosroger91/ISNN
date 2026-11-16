@@ -1,0 +1,986 @@
+{
+  "name": "2026-11-15-international-college",
+  "title": "International and college night",
+  "date": "2026-11-15",
+  "games": [
+    {
+      "id": "2026-11-14-cup-sph-unm",
+      "league": "Continental Cup",
+      "sport": "soccer",
+      "competition": "Continental Cup group stage",
+      "season": "2026-27",
+      "venue": "Halden Park",
+      "home": {
+        "id": "sph",
+        "name": "Sporting Halden",
+        "short": "SPH"
+      },
+      "away": {
+        "id": "unm",
+        "name": "Union Meridian",
+        "short": "UNM"
+      },
+      "startTime": "2026-11-14T19:45:00Z",
+      "finalAt": "2026-11-14T21:40:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": "1H",
+          "home": 1,
+          "away": 0
+        },
+        {
+          "period": "2H",
+          "home": 1,
+          "away": 1
+        }
+      ],
+      "plays": [
+        {
+          "period": 2,
+          "clock": "90th",
+          "description": "Sofia Marin equalized from close range in the 90th minute to level it at 1 to 1",
+          "player": "Sofia Marin",
+          "team": "unm",
+          "home": 1,
+          "away": 1,
+          "at": "2026-11-14T21:34:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Sofia Marin",
+          "team": "unm",
+          "stats": {
+            "goals": 1,
+            "shots": 2
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "continental-cup-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/continental-cup/2026-11-14-cup-sph-unm/box",
+          "sourceTime": "2026-11-14T21:44:00Z",
+          "title": "Union Meridian at Sporting Halden box score",
+          "excerpt": "Final: Union Meridian 1, Sporting Halden 1. Sofia Marin scored 1 goals and had 2 shots on target.",
+          "payload": {
+            "final": {
+              "home": 1,
+              "away": 1
+            },
+            "leaders": [
+              {
+                "player": "Sofia Marin",
+                "team": "unm",
+                "stats": {
+                  "goals": 1,
+                  "shots": 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "continental-cup-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/continental-cup/2026-11-14-cup-sph-unm/pbp",
+          "sourceTime": "2026-11-14T21:34:00Z",
+          "title": "Union Meridian at Sporting Halden play-by-play",
+          "excerpt": "2 90th: Sofia Marin equalized from close range in the 90th minute to level it at 1 to 1. SPH 1, UNM 1.",
+          "payload": {
+            "plays": [
+              {
+                "period": 2,
+                "clock": "90th",
+                "player": "Sofia Marin",
+                "action": "equalized from close range",
+                "home": 1,
+                "away": 1
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/continental-cup/2026-11-14-cup-sph-unm",
+          "sourceTime": "2026-11-14T22:05:00Z",
+          "title": "Sporting Halden and Union Meridian draw 1-1",
+          "excerpt": "Sporting Halden and Union Meridian drew 1-1 on November 14. Sofia Marin scored 1 goals and had 2 shots on target."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Sporting Halden 1, Union Meridian 1: Marin's stoppage-time equalizer",
+        "narration": "Sporting Halden 1, Union Meridian 1 in Continental Cup group stage. Sofia Marin scored 1 goals and had 2 shots on target for Meridian. Sofia Marin equalized from close range in the 90th minute to level it at 1 to 1, and the draw kept both sides level in the group.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Sporting Halden 1, Union Meridian 1",
+            "value": [
+              1,
+              1
+            ],
+            "unit": "goals",
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede"
+              }
+            ]
+          },
+          {
+            "key": "leader:Sofia Marin",
+            "text": "Sofia Marin scored 1 goals and had 2 shots on target",
+            "value": [
+              1,
+              2
+            ],
+            "unit": "goals, shots on target",
+            "subject": {
+              "player": "Sofia Marin",
+              "team": "unm"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Union Meridian box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Sofia Marin equalized from close range in the 90th minute to level it at 1 to 1",
+            "value": [
+              1,
+              1
+            ],
+            "unit": "goals",
+            "subject": {
+              "player": "Sofia Marin",
+              "team": "unm"
+            },
+            "period": 2,
+            "clock": "90th",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "second period, 90th"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-14-ncaaf-cam-stt",
+      "league": "NCAAF",
+      "sport": "football",
+      "competition": "college football Week 11",
+      "season": "2026",
+      "venue": "Coastal Stadium",
+      "home": {
+        "id": "cam",
+        "name": "Coastal A&M",
+        "short": "CAM"
+      },
+      "away": {
+        "id": "stt",
+        "name": "State Tech",
+        "short": "STT"
+      },
+      "startTime": "2026-11-15T00:00:00Z",
+      "finalAt": "2026-11-15T03:20:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 0,
+          "away": 10
+        },
+        {
+          "period": 2,
+          "home": 10,
+          "away": 17
+        },
+        {
+          "period": 3,
+          "home": 20,
+          "away": 17
+        },
+        {
+          "period": 4,
+          "home": 27,
+          "away": 24
+        }
+      ],
+      "plays": [
+        {
+          "period": 4,
+          "clock": "3:12",
+          "description": "Noah Pruitt threw an 8-yard touchdown pass with 3:12 left in the fourth to put the A&M ahead 27 to 24",
+          "player": "Noah Pruitt",
+          "team": "cam",
+          "home": 27,
+          "away": 24,
+          "at": "2026-11-15T03:14:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Noah Pruitt",
+          "team": "cam",
+          "stats": {
+            "passingYards": 276,
+            "touchdowns": 3
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "ncaaf-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/ncaaf/2026-11-14-ncaaf-cam-stt/box",
+          "sourceTime": "2026-11-15T03:24:00Z",
+          "title": "State Tech at Coastal A&M box score",
+          "excerpt": "Final: State Tech 24, Coastal A&M 27. Noah Pruitt threw for 276 yards and 3 touchdowns.",
+          "payload": {
+            "final": {
+              "home": 27,
+              "away": 24
+            },
+            "leaders": [
+              {
+                "player": "Noah Pruitt",
+                "team": "cam",
+                "stats": {
+                  "passingYards": 276,
+                  "touchdowns": 3
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "ncaaf-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/ncaaf/2026-11-14-ncaaf-cam-stt/pbp",
+          "sourceTime": "2026-11-15T03:14:00Z",
+          "title": "State Tech at Coastal A&M play-by-play",
+          "excerpt": "4 3:12: Noah Pruitt threw an 8-yard touchdown pass with 3:12 left in the fourth to put the A&M ahead 27 to 24. CAM 27, STT 24.",
+          "payload": {
+            "plays": [
+              {
+                "period": 4,
+                "clock": "3:12",
+                "player": "Noah Pruitt",
+                "action": "threw an 8-yard touchdown pass",
+                "home": 27,
+                "away": 24
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/ncaaf/2026-11-14-ncaaf-cam-stt",
+          "sourceTime": "2026-11-15T03:45:00Z",
+          "title": "Coastal A&M beat State Tech 27-24",
+          "excerpt": "Coastal A&M beat State Tech 27-24 on November 15. Noah Pruitt threw for 276 yards and 3 touchdowns."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Coastal A&M 27, State Tech 24: Pruitt's go-ahead touchdown",
+        "narration": "Coastal A&M 27, State Tech 24 in college football Week 11. Noah Pruitt threw for 276 yards and 3 touchdowns for the A&M. Noah Pruitt threw an 8-yard touchdown pass with 3:12 left in the fourth to put the A&M ahead 27 to 24, and the A&M closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Coastal A&M 27, State Tech 24",
+            "value": [
+              27,
+              24
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "cam"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Noah Pruitt",
+            "text": "Noah Pruitt threw for 276 yards and 3 touchdowns",
+            "value": [
+              276,
+              3
+            ],
+            "unit": "passing yards, touchdowns",
+            "subject": {
+              "player": "Noah Pruitt",
+              "team": "cam"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Coastal A&M box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Noah Pruitt threw an 8-yard touchdown pass with 3:12 left in the fourth to put the A&M ahead 27 to 24",
+            "value": [
+              27,
+              24
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Noah Pruitt",
+              "team": "cam"
+            },
+            "period": 4,
+            "clock": "3:12",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "fourth period, 3:12"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-14-ncaab-prg-hcg-exhibition",
+      "league": "NCAAB",
+      "sport": "basketball",
+      "competition": "college basketball opening week",
+      "season": "2026-27",
+      "venue": "Pine Ridge Fieldhouse",
+      "home": {
+        "id": "prg",
+        "name": "Pine Ridge",
+        "short": "PRG"
+      },
+      "away": {
+        "id": "mtu",
+        "name": "Metro University",
+        "short": "MTU"
+      },
+      "startTime": "2026-11-15T01:00:00Z",
+      "finalAt": "2026-11-15T03:30:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": "1H",
+          "home": 40,
+          "away": 29
+        },
+        {
+          "period": "2H",
+          "home": 81,
+          "away": 70
+        }
+      ],
+      "plays": [
+        {
+          "period": 1,
+          "clock": "2:05",
+          "description": "Jalen Okafor scored on a fast break with 2:05 left in the first to put the Ridge ahead 36 to 27",
+          "player": "Jalen Okafor",
+          "team": "prg",
+          "home": 36,
+          "away": 27,
+          "at": "2026-11-15T03:24:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Jalen Okafor",
+          "team": "prg",
+          "stats": {
+            "points": 29,
+            "rebounds": 7,
+            "assists": 5
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "ncaab-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/ncaab/2026-11-14-ncaab-prg-hcg-exhibition/box",
+          "sourceTime": "2026-11-15T03:34:00Z",
+          "title": "Metro University at Pine Ridge box score",
+          "excerpt": "Final: Metro University 70, Pine Ridge 81. Jalen Okafor finished with 29 points, 7 rebounds and 5 assists.",
+          "payload": {
+            "final": {
+              "home": 81,
+              "away": 70
+            },
+            "leaders": [
+              {
+                "player": "Jalen Okafor",
+                "team": "prg",
+                "stats": {
+                  "points": 29,
+                  "rebounds": 7,
+                  "assists": 5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "ncaab-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/ncaab/2026-11-14-ncaab-prg-hcg-exhibition/pbp",
+          "sourceTime": "2026-11-15T03:24:00Z",
+          "title": "Metro University at Pine Ridge play-by-play",
+          "excerpt": "1 2:05: Jalen Okafor scored on a fast break with 2:05 left in the first to put the Ridge ahead 36 to 27. PRG 36, MTU 27.",
+          "payload": {
+            "plays": [
+              {
+                "period": 1,
+                "clock": "2:05",
+                "player": "Jalen Okafor",
+                "action": "scored on a fast break",
+                "home": 36,
+                "away": 27
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/ncaab/2026-11-14-ncaab-prg-hcg-exhibition",
+          "sourceTime": "2026-11-15T03:55:00Z",
+          "title": "Pine Ridge beat Metro University 81-70",
+          "excerpt": "Pine Ridge beat Metro University 81-70 on November 15. Jalen Okafor finished with 29 points, 7 rebounds and 5 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Pine Ridge 81, Metro University 70: Okafor's first-half burst",
+        "narration": "Pine Ridge 81, Metro University 70 in college basketball opening week. Jalen Okafor finished with 29 points, 7 rebounds and 5 assists for the Ridge. Jalen Okafor scored on a fast break with 2:05 left in the first to put the Ridge ahead 36 to 27, and the Ridge closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Pine Ridge 81, Metro University 70",
+            "value": [
+              81,
+              70
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "prg"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Jalen Okafor",
+            "text": "Jalen Okafor finished with 29 points, 7 rebounds and 5 assists",
+            "value": [
+              29,
+              7,
+              5
+            ],
+            "unit": "points, rebounds, assists",
+            "subject": {
+              "player": "Jalen Okafor",
+              "team": "prg"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Pine Ridge box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Jalen Okafor scored on a fast break with 2:05 left in the first to put the Ridge ahead 36 to 27",
+            "value": [
+              36,
+              27
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Jalen Okafor",
+              "team": "prg"
+            },
+            "period": 1,
+            "clock": "2:05",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "first period, 2:05"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-14-wnba-tws-mcf",
+      "league": "WNBA",
+      "sport": "basketball",
+      "competition": "WNBA exhibition",
+      "season": "2026",
+      "venue": "Tidewater Arena",
+      "home": {
+        "id": "tws",
+        "name": "Tidewater Sirens",
+        "short": "TWS"
+      },
+      "away": {
+        "id": "mcf",
+        "name": "Monarch City Falcons",
+        "short": "MCF"
+      },
+      "startTime": "2026-11-15T00:00:00Z",
+      "finalAt": "2026-11-15T02:30:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 22,
+          "away": 19
+        },
+        {
+          "period": 2,
+          "home": 44,
+          "away": 40
+        },
+        {
+          "period": 3,
+          "home": 63,
+          "away": 66
+        },
+        {
+          "period": 4,
+          "home": 88,
+          "away": 90
+        }
+      ],
+      "plays": [
+        {
+          "period": 4,
+          "clock": "0:14",
+          "description": "Dana Whitlock hit a fadeaway with 0:14 left in the fourth to put the Falcons ahead 90 to 88",
+          "player": "Dana Whitlock",
+          "team": "mcf",
+          "home": 88,
+          "away": 90,
+          "at": "2026-11-15T02:24:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Dana Whitlock",
+          "team": "mcf",
+          "stats": {
+            "points": 30,
+            "rebounds": 9,
+            "assists": 4
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "wnba-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/wnba/2026-11-14-wnba-tws-mcf/box",
+          "sourceTime": "2026-11-15T02:34:00Z",
+          "title": "Monarch City Falcons at Tidewater Sirens box score",
+          "excerpt": "Final: Monarch City Falcons 90, Tidewater Sirens 88. Dana Whitlock finished with 30 points, 9 rebounds and 4 assists.",
+          "payload": {
+            "final": {
+              "home": 88,
+              "away": 90
+            },
+            "leaders": [
+              {
+                "player": "Dana Whitlock",
+                "team": "mcf",
+                "stats": {
+                  "points": 30,
+                  "rebounds": 9,
+                  "assists": 4
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "wnba-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/wnba/2026-11-14-wnba-tws-mcf/pbp",
+          "sourceTime": "2026-11-15T02:24:00Z",
+          "title": "Monarch City Falcons at Tidewater Sirens play-by-play",
+          "excerpt": "4 0:14: Dana Whitlock hit a fadeaway with 0:14 left in the fourth to put the Falcons ahead 90 to 88. TWS 88, MCF 90.",
+          "payload": {
+            "plays": [
+              {
+                "period": 4,
+                "clock": "0:14",
+                "player": "Dana Whitlock",
+                "action": "hit a fadeaway",
+                "home": 88,
+                "away": 90
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/wnba/2026-11-14-wnba-tws-mcf",
+          "sourceTime": "2026-11-15T02:55:00Z",
+          "title": "Monarch City Falcons beat Tidewater Sirens 90-88",
+          "excerpt": "Monarch City Falcons beat Tidewater Sirens 90-88 on November 15. Dana Whitlock finished with 30 points, 9 rebounds and 4 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Monarch City Falcons 90, Tidewater Sirens 88: Whitlock's fadeaway wins it",
+        "narration": "Monarch City Falcons 90, Tidewater Sirens 88 in WNBA exhibition. Dana Whitlock finished with 30 points, 9 rebounds and 4 assists for the Falcons. Dana Whitlock hit a fadeaway with 0:14 left in the fourth to put the Falcons ahead 90 to 88, and the Falcons closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Monarch City Falcons 90, Tidewater Sirens 88",
+            "value": [
+              90,
+              88
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "mcf"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Dana Whitlock",
+            "text": "Dana Whitlock finished with 30 points, 9 rebounds and 4 assists",
+            "value": [
+              30,
+              9,
+              4
+            ],
+            "unit": "points, rebounds, assists",
+            "subject": {
+              "player": "Dana Whitlock",
+              "team": "mcf"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Monarch City Falcons box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Dana Whitlock hit a fadeaway with 0:14 left in the fourth to put the Falcons ahead 90 to 88",
+            "value": [
+              88,
+              90
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Dana Whitlock",
+              "team": "mcf"
+            },
+            "period": 4,
+            "clock": "0:14",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "fourth period, 0:14"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-14-nhl-hlb-tml",
+      "league": "NHL",
+      "sport": "hockey",
+      "competition": "NHL regular season",
+      "season": "2026-27",
+      "venue": "Beacon Arena",
+      "home": {
+        "id": "hlb",
+        "name": "Harbor Light Beacons",
+        "short": "HLB"
+      },
+      "away": {
+        "id": "tml",
+        "name": "Tamarack Lynx",
+        "short": "TML"
+      },
+      "startTime": "2026-11-15T00:00:00Z",
+      "finalAt": "2026-11-15T02:30:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 0,
+          "away": 2
+        },
+        {
+          "period": 2,
+          "home": 2,
+          "away": 2
+        },
+        {
+          "period": 3,
+          "home": 4,
+          "away": 2
+        }
+      ],
+      "plays": [
+        {
+          "period": 3,
+          "clock": "11:03",
+          "description": "Ilya Petrov scored short-handed at 11:03 of the third to put the Beacons ahead 3 to 2",
+          "player": "Ilya Petrov",
+          "team": "hlb",
+          "home": 3,
+          "away": 2,
+          "at": "2026-11-15T02:24:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Ilya Petrov",
+          "team": "hlb",
+          "stats": {
+            "goals": 2,
+            "assists": 0
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nhl-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nhl/2026-11-14-nhl-hlb-tml/box",
+          "sourceTime": "2026-11-15T02:34:00Z",
+          "title": "Tamarack Lynx at Harbor Light Beacons box score",
+          "excerpt": "Final: Tamarack Lynx 2, Harbor Light Beacons 4. Ilya Petrov scored 2 goals and added 0 assists.",
+          "payload": {
+            "final": {
+              "home": 4,
+              "away": 2
+            },
+            "leaders": [
+              {
+                "player": "Ilya Petrov",
+                "team": "hlb",
+                "stats": {
+                  "goals": 2,
+                  "assists": 0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nhl-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nhl/2026-11-14-nhl-hlb-tml/pbp",
+          "sourceTime": "2026-11-15T02:24:00Z",
+          "title": "Tamarack Lynx at Harbor Light Beacons play-by-play",
+          "excerpt": "3 11:03: Ilya Petrov scored short-handed at 11:03 of the third to put the Beacons ahead 3 to 2. HLB 3, TML 2.",
+          "payload": {
+            "plays": [
+              {
+                "period": 3,
+                "clock": "11:03",
+                "player": "Ilya Petrov",
+                "action": "scored short-handed",
+                "home": 3,
+                "away": 2
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nhl/2026-11-14-nhl-hlb-tml",
+          "sourceTime": "2026-11-15T02:55:00Z",
+          "title": "Harbor Light Beacons beat Tamarack Lynx 4-2",
+          "excerpt": "Harbor Light Beacons beat Tamarack Lynx 4-2 on November 15. Ilya Petrov scored 2 goals and added 0 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Harbor Light Beacons 4, Tamarack Lynx 2: Petrov short-handed",
+        "narration": "Harbor Light Beacons 4, Tamarack Lynx 2 in NHL regular season. Ilya Petrov scored 2 goals and added 0 assists for the Beacons. Ilya Petrov scored short-handed at 11:03 of the third to put the Beacons ahead 3 to 2, and the Beacons closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Harbor Light Beacons 4, Tamarack Lynx 2",
+            "value": [
+              4,
+              2
+            ],
+            "unit": "goals",
+            "subject": {
+              "team": "hlb"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Ilya Petrov",
+            "text": "Ilya Petrov scored 2 goals and added 0 assists",
+            "value": [
+              2,
+              0
+            ],
+            "unit": "goals, assists",
+            "subject": {
+              "player": "Ilya Petrov",
+              "team": "hlb"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Harbor Light Beacons box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Ilya Petrov scored short-handed at 11:03 of the third to put the Beacons ahead 3 to 2",
+            "value": [
+              3,
+              2
+            ],
+            "unit": "goals",
+            "subject": {
+              "player": "Ilya Petrov",
+              "team": "hlb"
+            },
+            "period": 3,
+            "clock": "11:03",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "third period, 11:03"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    }
+  ],
+  "synthetic": true,
+  "notes": "Synthetic test slate dated by the morning it airs; the games tip the evening before. Teams, people, scores, clips and source URLs are fictional and use reserved example domains."
+}

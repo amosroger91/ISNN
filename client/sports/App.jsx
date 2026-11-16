@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Activity, ArrowDownToLine, ArrowUpRight, CalendarDays, ChevronDown, CircleAlert,
-  Clapperboard, Clock3, FileText, Film, LoaderCircle, MessageSquare, Moon, Pencil,
-  Plus, Radio, RefreshCw, Send, SquarePlay, X,
+  Clapperboard, Clock3, FileText, Film, Gavel, LoaderCircle, MessageSquare, Moon, Pencil,
+  Plus, Radio, RefreshCw, ScanSearch, Send, ShieldCheck, SquarePlay, Target, TrendingUp, X,
 } from "lucide-react";
 import "./style.css";
 
@@ -47,6 +47,15 @@ function externalUrl(text) {
     if (["https:", "http:"].includes(url.protocol)) return url.href;
   } catch {}
   return undefined;
+}
+
+// Claims as the desk shows them: evidence resolved to the snapshot's URL and provider.
+function publicClaims(ledger) {
+  const snapshots = Object.fromEntries((ledger.snapshots || []).map((snapshot) => [snapshot.id, snapshot]));
+  return (ledger.claims || []).map((claim) => ({
+    ...claim,
+    evidence: (claim.evidence || []).map((item) => ({ ...item, url: snapshots[item.snapshotId]?.sourceUrl || null, provider: snapshots[item.snapshotId]?.provider || null })),
+  }));
 }
 
 function Notice({ children, error = false }) {
@@ -161,25 +170,130 @@ function Sources({ sources }) {
   );
 }
 
-function TopicCard({ topic, editing, pending, locked, sample, onEdit, onClose, onSave, onChat }) {
+// The Check trend scorecard: the four components, the recommendation and why.
+function TrendCard({ trend }) {
+  if (!trend) return null;
+  const tone = trend.airable ? " is-go" : trend.recommendation === "signal unavailable" ? " is-warn" : "";
+  const filtered = [...new Set(trend.filtered.map(({ reason }) => reason))];
   return (
-    <article className={`od-topic${topic.selected ? " is-included" : ""}`}>
+    <div className={`od-trend${tone}`} aria-label="Trend scorecard">
+      <div className="od-trend-head">
+        <TrendingUp size={14} /><strong>{trend.recommendation}</strong><span>{trend.score} / 100</span>
+        {trend.scope === "out" && <em>out of scope</em>}
+      </div>
+      <ul className="od-trend-parts">
+        {Object.entries(trend.components).map(([part, value]) => <li key={part}><span>{part}</span><strong>{value}</strong></li>)}
+      </ul>
+      {trend.query && <p>“{trend.query}” via {trend.providers.join(", ") || "no provider"} · {trend.comparison.qualifying} qualifying of {trend.comparison.observations} observations</p>}
+      {trend.explanation.map((line) => <p key={line}>{line}</p>)}
+      {trend.missing.length > 0 && <p className="od-trend-note">Missing: {trend.missing.join("; ")}.</p>}
+      {filtered.length > 0 && <p className="od-trend-note">Filtered: {filtered.join(", ")}.</p>}
+    </div>
+  );
+}
+
+function CorrectionForm({ claim, pending, onSubmit, onClose }) {
+  const [fields, setFields] = useState({ text: claim.text, value: Array.isArray(claim.value) ? claim.value.join(", ") : claim.value ?? "", url: "", locator: "", excerpt: "", reason: "" });
+  const field = (key) => ({ value: fields[key], onChange: (event) => setFields((old) => ({ ...old, [key]: event.target.value })) });
+  return (
+    <form className="od-topic-form od-correction" onSubmit={async (event) => {
+      event.preventDefault();
+      const numbers = fields.value.split(",").map((part) => part.trim()).filter(Boolean).map(Number);
+      const payload = { text: fields.text.trim(), evidence: { url: fields.url.trim(), locator: fields.locator.trim(), excerpt: fields.excerpt.trim() || undefined }, reason: fields.reason.trim() };
+      if (numbers.length && numbers.every(Number.isFinite)) payload.value = numbers.length === 1 ? numbers[0] : numbers;
+      if (await onSubmit(payload)) onClose();
+    }}>
+      <label>Corrected claim<input required minLength={3} maxLength={300} {...field("text")} /></label>
+      <label>Value (numbers, comma separated)<input maxLength={80} {...field("value")} /></label>
+      <label>Evidence URL<input required type="url" maxLength={1200} placeholder="https://" {...field("url")} /></label>
+      <label>Locator in that source<input required maxLength={160} placeholder="Stat correction, line score, 4th quarter 0:41…" {...field("locator")} /></label>
+      <label>Excerpt<textarea rows={2} maxLength={1000} {...field("excerpt")} /></label>
+      <label>Reason<input required minLength={3} maxLength={400} {...field("reason")} /></label>
+      <div className="od-form-actions">
+        <button type="button" className="od-button od-button-quiet" onClick={onClose}>Cancel</button>
+        <button type="submit" className="od-button od-button-accent" disabled={pending}>{pending && <LoaderCircle className="od-spin" size={14} />} Supersede claim</button>
+      </div>
+    </form>
+  );
+}
+
+function ResolveForm({ pending, onSubmit }) {
+  const [reason, setReason] = useState("");
+  const decide = async (disposition) => {
+    if (reason.trim().length < 3) return;
+    if (await onSubmit({ disposition, reason: reason.trim() })) setReason("");
+  };
+  return (
+    <div className="od-resolve">
+      <input aria-label="Ruling reason" placeholder="Why this evidence wins" maxLength={400} value={reason} onChange={(event) => setReason(event.target.value)} />
+      <button type="button" className="od-button od-button-accent" disabled={pending} onClick={() => decide("supported")}><Gavel size={13} /> Confirm</button>
+      <button type="button" className="od-button od-button-quiet" disabled={pending} onClick={() => decide("withheld")}>Withhold</button>
+    </div>
+  );
+}
+
+// The claims behind a story: evidence locators, dispositions, and Isaac's
+// controls to correct a claim or rule on a conflict.
+function Claims({ topic, claims, locked, pending, onCorrect, onResolve }) {
+  const [correcting, setCorrecting] = useState(null);
+  const list = (topic.claimIds || []).map((id) => claims?.[id]).filter(Boolean);
+  if (!list.length) return null;
+  return (
+    <details className="od-sources od-claims">
+      <summary><ShieldCheck size={14} /> {list.length} {list.length === 1 ? "claim" : "claims"} · {topic.coverage || "unverified"} <ChevronDown size={13} /></summary>
+      {topic.coverageReason && <p className="od-claims-reason">{topic.coverageReason}</p>}
+      <ul>
+        {list.map((claim) => (
+          <li key={claim.id} className={`od-claim is-${claim.disposition}`}>
+            <span className="od-claim-state">{claim.disposition}{claim.reason ? ` · ${claim.reason}` : ""}</span>
+            <strong>{claim.text}</strong>
+            <small>{claim.evidence.map((item, index) => {
+              const href = externalUrl(item.url);
+              return <span key={`${item.id}-${index}`}>{href ? <a href={href} target="_blank" rel="noreferrer">{item.provider || "source"}</a> : item.provider || "source"} · {item.locator}{item.stance === "contradicts" ? " · contradicts" : ""}</span>;
+            })}</small>
+            {!locked && claim.disposition === "conflict" && <ResolveForm pending={pending} onSubmit={(fields) => onResolve(claim.id, fields)} />}
+            {!locked && claim.disposition === "supported" && correcting !== claim.id && (
+              <button type="button" className="od-link" onClick={() => setCorrecting(claim.id)}>Correct this claim</button>
+            )}
+            {correcting === claim.id && <CorrectionForm claim={claim} pending={pending} onSubmit={(fields) => onCorrect(claim.id, fields)} onClose={() => setCorrecting(null)} />}
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+}
+
+function TopicCard({ topic, claims, editing, pending, locked, sample, isCore, onEdit, onClose, onSave, onChat, onTrend, onCore, onCorrect, onResolve }) {
+  return (
+    <article className={`od-topic${topic.selected ? " is-included" : ""}${isCore ? " is-core" : ""}`}>
       <div className="od-topic-main">
         <header className="od-topic-head">
-          <h3>{topic.title}</h3>
+          <h3>{isCore && <Target size={15} aria-label="Core story" />} {topic.title}</h3>
           <label className="od-check">
             <input type="checkbox" checked={topic.selected} disabled={pending || locked}
               aria-label={`Include ${topic.title} in the episode`} onChange={(event) => onSave({ selected: event.target.checked })} />
             <span>{topic.selected ? "Included" : "Excluded"}</span>
           </label>
         </header>
+        {topic.eventId && <p className="od-topic-meta">{topic.eventId}{topic.coverage ? ` · ${topic.coverage}` : ""}</p>}
         {topic.summary && <p className="od-topic-summary">{topic.summary}</p>}
+        {topic.script && <p className="od-topic-script">{topic.script.narration}</p>}
         {topic.take && <div className="od-take"><span>{sample ? "Editorial take" : "Isaac’s take"}</span><p>{topic.take}</p></div>}
+        <TrendCard trend={topic.trend} />
         {editing && !locked && <TopicForm topic={topic} pending={pending} onSave={onSave} onClose={onClose} />}
       </div>
       <div className="od-topic-tools">
-        <Sources sources={topic.sources || []} />
+        <div className="od-topic-evidence">
+          <Sources sources={topic.sources || []} />
+          <Claims topic={topic} claims={claims} locked={locked} pending={pending} onCorrect={onCorrect} onResolve={onResolve} />
+        </div>
         {!locked && <div className="od-topic-actions">
+          <button type="button" className="od-button od-button-quiet" disabled={pending} onClick={onTrend} title="Score attention on this story">
+            <TrendingUp size={14} /> Check trend
+          </button>
+          <button type="button" className={`od-button od-button-quiet${isCore ? " is-active" : ""}`} disabled={pending} onClick={onCore} title="Lock as the episode's core story">
+            <Target size={14} /> {isCore ? "Core story" : "Make core"}
+          </button>
           <button type="button" className="od-button od-button-quiet" onClick={onChat}>
             <MessageSquare size={14} /> Discuss
           </button>
@@ -189,6 +303,51 @@ function TopicCard({ topic, editing, pending, locked, sample, onEdit, onClose, o
         </div>}
       </div>
     </article>
+  );
+}
+
+// Coverage of the scanned slate: which games are covered, which await
+// verification, and which sources were unavailable.
+function Slate({ slate, lastScan, timeZone }) {
+  if (!slate?.length) return null;
+  return (
+    <details className="od-panel od-slate">
+      <summary><ScanSearch size={15} /> Slate scan · {slate.length} games{lastScan ? ` · ${deskTime(lastScan.at, timeZone)} via ${lastScan.provider}` : ""} <ChevronDown size={13} /></summary>
+      <table>
+        <thead><tr><th>League</th><th>Game</th><th>Status</th><th>Coverage</th><th>Claims</th></tr></thead>
+        <tbody>
+          {slate.map((row) => (
+            <tr key={row.gameId} className={`is-${row.coverage.replaceAll(" ", "-")}`}>
+              <td>{row.league}</td>
+              <td>{row.title}</td>
+              <td>{row.status}</td>
+              <td>{row.coverage}{row.reason ? <small>{row.reason}</small> : null}</td>
+              <td>{row.supported}/{row.claims}{row.independentOrigins ? <small>{row.independentOrigins} origins</small> : null}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </details>
+  );
+}
+
+function TrendDesk({ trendDesk, topics, timeZone }) {
+  if (!trendDesk?.checks?.length && !trendDesk?.coreTopicId) return null;
+  const core = topics.find(({ id }) => id === trendDesk.coreTopicId);
+  return (
+    <div className="od-panel od-trenddesk">
+      <h3><TrendingUp size={15} /> Trend desk</h3>
+      <p>{core ? <>Core story: <strong>{core.title}</strong>{trendDesk.lockedAt ? ` · locked ${deskTime(trendDesk.lockedAt, timeZone)}` : ""}</> : "No core story locked. Angles score against their own story until Isaac locks one."}</p>
+      {trendDesk.checks?.length > 0 && (
+        <ul>
+          {trendDesk.checks.map((check) => (
+            <li key={check.topicId} className={check.airable ? "is-go" : ""}>
+              <strong>{check.score}</strong> {check.recommendation} · {check.title}{check.query ? ` (“${check.query}”)` : ""} · {deskTime(check.checkedAt, timeZone)}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
 
@@ -279,6 +438,32 @@ function Chat({ edition, settings, topic, clearTopic, draft, setDraft, input, pe
   );
 }
 
+function Corrections({ corrections, timeZone }) {
+  if (!corrections?.length) return null;
+  return (
+    <div className="od-corrections" role="status">
+      {corrections.slice(-3).reverse().map((item) => (
+        <p key={item.id}>
+          <CircleAlert size={14} /> <strong>Correction {deskTime(item.at, timeZone)}</strong>: “{item.previousText}” is superseded by “{item.text}”. {item.reason}
+          {item.invalidatedRevision !== null && item.invalidatedRevision !== undefined ? ` Revision ${item.invalidatedRevision} was withdrawn; rebuild to air the corrected copy.` : ""}
+          {item.topics?.length ? ` Affects: ${item.topics.map(({ title }) => title).join("; ")}.` : ""}
+        </p>
+      ))}
+    </div>
+  );
+}
+
+function Shots({ shots }) {
+  const rows = (shots || []).filter(Boolean);
+  if (!rows.length) return null;
+  const describe = (shot) => shot.use ? `clip ${shot.use} (${shot.grant}, audio ${shot.audio})` : `${shot.fallback}${shot.reasons?.length ? ` · ${shot.reasons.map(({ reason }) => reason).join("; ")}` : ""}`;
+  return (
+    <ul className="od-shots" aria-label="Rights decisions per segment">
+      {rows.map((row) => <li key={row.segment}><span>{String(row.segment).padStart(2, "0")}</span> Episode: {describe(row.episode)} · Short: {describe(row.short)}</li>)}
+    </ul>
+  );
+}
+
 function Episode({ edition, settings, pending, locked, onBuild }) {
   const building = edition?.status === "building";
   const render = edition?.render;
@@ -300,6 +485,10 @@ function Episode({ edition, settings, pending, locked, onBuild }) {
       </header>
       {edition?.error && <Notice error>{edition.error}</Notice>}
       {publication?.error && publication.error !== edition?.error && <Notice error>{publication.error}</Notice>}
+      <Corrections corrections={edition?.corrections} timeZone={settings?.timezone} />
+      {edition?.verification?.ok && render && !stale && (
+        <Notice>Evidence review passed for revision {edition.verification.revision}: {edition.verification.segments?.map((segment) => `${segment.headline} (${segment.claims} claims)`).join(" · ")}</Notice>
+      )}
       <div className="od-panel od-preview">
         {render?.url ? (
           <>
@@ -323,6 +512,7 @@ function Episode({ edition, settings, pending, locked, onBuild }) {
                 ))}
               </ul>
             )}
+            <Shots shots={render.shots} />
           </>
         ) : (
           <div className="od-preview-empty">
@@ -350,6 +540,7 @@ function Episode({ edition, settings, pending, locked, onBuild }) {
 
 export default function SportsApp() {
   const [view, setView] = useState(null);
+  const [ledger, setLedger] = useState(null);
   const [loadError, setLoadError] = useState("");
   const [actionError, setActionError] = useState(null);
   const [pending, setPending] = useState("");
@@ -365,6 +556,13 @@ export default function SportsApp() {
   const locked = edition?.locked ?? ["published", "uploading", "uncertain"].includes(edition?.publication?.status);
   const selectedTopic = topics.find((topic) => topic.id === target);
   const included = topics.filter((topic) => topic.selected).length;
+  const claims = ledger?.claims ? Object.fromEntries(ledger.claims.map((claim) => [claim.id, claim])) : null;
+  const loadLedger = async (signal) => {
+    try {
+      const next = await request("/ledger", "GET", undefined, signal);
+      if (!signal?.aborted) setLedger({ ...next, claims: publicClaims(next) });
+    } catch {}
+  };
 
   useEffect(() => {
     const previous = document.title;
@@ -384,6 +582,7 @@ export default function SportsApp() {
         if (version !== mutation.current.version || controller.signal.aborted) return;
         setView(next);
         setLoadError("");
+        if (next.edition?.topics?.some((topic) => topic.claimIds?.length)) await loadLedger(controller.signal);
       } catch (error) {
         if (version === mutation.current.version && !controller.signal.aborted) setLoadError(error.message);
       } finally {
@@ -412,6 +611,7 @@ export default function SportsApp() {
       const next = await request(path, method, { ...payload, date: edition?.date });
       setView(next.edition ? next : await request("/edition"));
       setLoadError("");
+      if (["scan", "correct", "resolve", "trend", "build"].includes(action)) await loadLedger();
       return true;
     } catch (error) {
       setActionError({ action, message: error.message });
@@ -458,6 +658,12 @@ export default function SportsApp() {
                 {topics.length > 0 && <p>{included} of {topics.length} stories in the episode</p>}
               </div>
               {!locked && <div className="od-section-actions">
+                {settings?.evidenceProvider && (
+                  <button type="button" className="od-button" disabled={Boolean(pending) || isActive} title={`Scan tonight's slate through the ${settings.evidenceProvider} evidence adapter`}
+                    onClick={() => mutate("/evidence/scan", "POST", {}, "scan")}>
+                    <ScanSearch size={14} className={pending === "scan" ? "od-spin" : ""} /> Scan slate
+                  </button>
+                )}
                 {settings?.researchConfigured && (
                   <button type="button" className="od-button" disabled={Boolean(pending) || isActive}
                     onClick={() => mutate("/research", "POST", {}, "research")}>
@@ -476,6 +682,8 @@ export default function SportsApp() {
                   onSave={(fields) => mutate("/topics", "POST", fields, "topic")} />
               </div>
             )}
+            <Slate slate={edition?.slate} lastScan={edition?.lastScan} timeZone={settings?.timezone} />
+            <TrendDesk trendDesk={edition?.trendDesk} topics={topics} timeZone={settings?.timezone} />
             {topics.length === 0 && (
               <div className="od-panel od-empty">
                 {(!view && !loadError) || edition?.status === "researching" ? <LoaderCircle className="od-spin" size={20} /> : <Clock3 size={19} />}
@@ -484,11 +692,15 @@ export default function SportsApp() {
             )}
             <div className="od-topic-list">
               {topics.map((topic) => (
-                <TopicCard key={topic.id} topic={topic} editing={editor === topic.id}
-                  pending={Boolean(pending)} locked={locked} sample={edition.sample}
+                <TopicCard key={topic.id} topic={topic} claims={claims} editing={editor === topic.id}
+                  pending={Boolean(pending)} locked={locked} sample={edition.sample} isCore={edition.trendDesk?.coreTopicId === topic.id}
                   onEdit={() => setEditor(topic.id)} onClose={() => setEditor(null)}
                   onSave={(fields) => mutate(`/topics/${encodeURIComponent(topic.id)}`, "PATCH", fields, "topic")}
-                  onChat={() => discuss(topic)} />
+                  onChat={() => discuss(topic)}
+                  onTrend={() => mutate(`/topics/${encodeURIComponent(topic.id)}/trend`, "POST", {}, "trend")}
+                  onCore={() => mutate("/trend/core", "POST", { topicId: edition.trendDesk?.coreTopicId === topic.id ? null : topic.id }, "core")}
+                  onCorrect={(claimId, fields) => mutate(`/claims/${encodeURIComponent(claimId)}/correct`, "POST", fields, "correct")}
+                  onResolve={(claimId, fields) => mutate(`/claims/${encodeURIComponent(claimId)}/resolve`, "POST", fields, "resolve")} />
               ))}
             </div>
           </section>

@@ -1,0 +1,1299 @@
+{
+  "name": "2026-11-14-rights-pilot",
+  "title": "Rights pilot: cleared, expired, long-form-only and misfiled clips",
+  "date": "2026-11-14",
+  "games": [
+    {
+      "id": "2026-11-13-nba-hcg-blc",
+      "league": "NBA",
+      "sport": "basketball",
+      "competition": "NBA regular season",
+      "season": "2026-27",
+      "venue": "Harbor Arena",
+      "home": {
+        "id": "hcg",
+        "name": "Harbor City Gulls",
+        "short": "HCG"
+      },
+      "away": {
+        "id": "blc",
+        "name": "Bayline Comets",
+        "short": "BLC"
+      },
+      "startTime": "2026-11-14T00:30:00Z",
+      "finalAt": "2026-11-14T03:00:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 29,
+          "away": 24
+        },
+        {
+          "period": 2,
+          "home": 56,
+          "away": 50
+        },
+        {
+          "period": 3,
+          "home": 84,
+          "away": 79
+        },
+        {
+          "period": 4,
+          "home": 109,
+          "away": 102
+        }
+      ],
+      "plays": [
+        {
+          "period": 4,
+          "clock": "0:41",
+          "description": "Mara Quill hit a step-back three with 0:41 left in the fourth to put the Gulls ahead 106 to 102",
+          "player": "Mara Quill",
+          "team": "hcg",
+          "home": 106,
+          "away": 102,
+          "at": "2026-11-14T02:54:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Mara Quill",
+          "team": "hcg",
+          "stats": {
+            "points": 27,
+            "rebounds": 11,
+            "assists": 8
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nba-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nba/2026-11-13-nba-hcg-blc/box",
+          "sourceTime": "2026-11-14T03:04:00Z",
+          "title": "Bayline Comets at Harbor City Gulls box score",
+          "excerpt": "Final: Bayline Comets 102, Harbor City Gulls 109. Mara Quill finished with 27 points, 11 rebounds and 8 assists.",
+          "payload": {
+            "final": {
+              "home": 109,
+              "away": 102
+            },
+            "leaders": [
+              {
+                "player": "Mara Quill",
+                "team": "hcg",
+                "stats": {
+                  "points": 27,
+                  "rebounds": 11,
+                  "assists": 8
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nba-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nba/2026-11-13-nba-hcg-blc/pbp",
+          "sourceTime": "2026-11-14T02:54:00Z",
+          "title": "Bayline Comets at Harbor City Gulls play-by-play",
+          "excerpt": "4 0:41: Mara Quill hit a step-back three with 0:41 left in the fourth to put the Gulls ahead 106 to 102. HCG 106, BLC 102.",
+          "payload": {
+            "plays": [
+              {
+                "period": 4,
+                "clock": "0:41",
+                "player": "Mara Quill",
+                "action": "hit a step-back three",
+                "home": 106,
+                "away": 102
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nba/2026-11-13-nba-hcg-blc",
+          "sourceTime": "2026-11-14T03:25:00Z",
+          "title": "Harbor City Gulls beat Bayline Comets 109-102",
+          "excerpt": "Harbor City Gulls beat Bayline Comets 109-102 on November 14. Mara Quill finished with 27 points, 11 rebounds and 8 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Harbor City Gulls 109, Bayline Comets 102: Quill's step-back three",
+        "narration": "Harbor City Gulls 109, Bayline Comets 102 in NBA regular season. Mara Quill finished with 27 points, 11 rebounds and 8 assists for the Gulls. Mara Quill hit a step-back three with 0:41 left in the fourth to put the Gulls ahead 106 to 102, and the Gulls closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Harbor City Gulls 109, Bayline Comets 102",
+            "value": [
+              109,
+              102
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "hcg"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Mara Quill",
+            "text": "Mara Quill finished with 27 points, 11 rebounds and 8 assists",
+            "value": [
+              27,
+              11,
+              8
+            ],
+            "unit": "points, rebounds, assists",
+            "subject": {
+              "player": "Mara Quill",
+              "team": "hcg"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Harbor City Gulls box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Mara Quill hit a step-back three with 0:41 left in the fourth to put the Gulls ahead 106 to 102",
+            "value": [
+              106,
+              102
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Mara Quill",
+              "team": "hcg"
+            },
+            "period": 4,
+            "clock": "0:41",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "fourth period, 0:41"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [
+        "rightsCleared",
+        "wrongGameClip"
+      ],
+      "media": {
+        "assets": [
+          {
+            "id": "clip-quill-stepback",
+            "providerId": "hrsn-clip-quill-stepback",
+            "providerVersion": "1",
+            "eventId": "2026-11-13-nba-hcg-blc",
+            "people": [],
+            "captureTime": "2026-11-13T03:40:00Z",
+            "duration": 9.5,
+            "width": 1920,
+            "height": 1080,
+            "focalArea": "center",
+            "credit": "Courtesy Harbor Regional Sports Network",
+            "grantId": "g-pilot-live",
+            "grantVersion": 1,
+            "sha256": "b971a932ab409e17d8526ed12faa0687a0669745c9908b699d43787884dd37ee",
+            "status": "available",
+            "sourceIn": "00:41:12:04",
+            "sourceOut": "00:41:21:19",
+            "eventClock": "4th 0:41",
+            "audio": false
+          },
+          {
+            "id": "clip-misfiled-owls",
+            "providerId": "hrsn-clip-misfiled-owls",
+            "providerVersion": "1",
+            "eventId": "2026-11-13-ncaab-mtu-prg",
+            "people": [],
+            "captureTime": "2026-11-14T02:10:00Z",
+            "duration": 9.5,
+            "width": 1920,
+            "height": 1080,
+            "focalArea": "center",
+            "credit": "Courtesy Harbor Regional Sports Network",
+            "grantId": "g-pilot-live",
+            "grantVersion": 1,
+            "sha256": "11b7f952c8302f2c14fdf14ae888ec0aeb30b6a5c7c0bdd1bf4a459d850ce1d8",
+            "status": "available",
+            "sourceIn": "00:41:12:04",
+            "sourceOut": "00:41:21:19",
+            "eventClock": "2H 0:19",
+            "audio": false
+          }
+        ],
+        "grants": [
+          {
+            "id": "g-pilot-live",
+            "version": 1,
+            "licensor": "Harbor Regional Sports Network",
+            "status": "active",
+            "components": [
+              "video"
+            ],
+            "channels": [
+              "isnn-youtube"
+            ],
+            "surfaces": [
+              "episode",
+              "short"
+            ],
+            "territories": [
+              "worldwide"
+            ],
+            "window": {
+              "expiresAt": "2027-06-30T00:00:00Z"
+            },
+            "alterations": {
+              "reframe": true,
+              "overlays": true,
+              "freezeFrame": false,
+              "speedChange": false
+            },
+            "retention": "archive while the grant is active",
+            "aiProcessing": false,
+            "credit": "Courtesy Harbor Regional Sports Network",
+            "claimContact": "rights@hrsn.example",
+            "evidenceRef": "grants/hrsn-pilot-2026.pdf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "2026-11-13-nfl-lsh-ngf",
+      "league": "NFL",
+      "sport": "football",
+      "competition": "NFL Week 10",
+      "season": "2026",
+      "venue": "Lakeshore Field",
+      "home": {
+        "id": "lsh",
+        "name": "Lakeshore Herons",
+        "short": "LSH"
+      },
+      "away": {
+        "id": "ngf",
+        "name": "Northgate Foxes",
+        "short": "NGF"
+      },
+      "startTime": "2026-11-14T01:15:00Z",
+      "finalAt": "2026-11-14T04:30:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 7,
+          "away": 7
+        },
+        {
+          "period": 2,
+          "home": 14,
+          "away": 10
+        },
+        {
+          "period": 3,
+          "home": 21,
+          "away": 17
+        },
+        {
+          "period": 4,
+          "home": 24,
+          "away": 27
+        }
+      ],
+      "plays": [
+        {
+          "period": 4,
+          "clock": "0:52",
+          "description": "Dez Arrington threw a 19-yard touchdown pass with 0:52 left in the fourth to put the Foxes ahead 27 to 24",
+          "player": "Dez Arrington",
+          "team": "ngf",
+          "home": 24,
+          "away": 27,
+          "at": "2026-11-14T04:24:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Dez Arrington",
+          "team": "ngf",
+          "stats": {
+            "passingYards": 298,
+            "touchdowns": 2
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nfl-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nfl/2026-11-13-nfl-lsh-ngf/box",
+          "sourceTime": "2026-11-14T04:34:00Z",
+          "title": "Northgate Foxes at Lakeshore Herons box score",
+          "excerpt": "Final: Northgate Foxes 27, Lakeshore Herons 24. Dez Arrington threw for 298 yards and 2 touchdowns.",
+          "payload": {
+            "final": {
+              "home": 24,
+              "away": 27
+            },
+            "leaders": [
+              {
+                "player": "Dez Arrington",
+                "team": "ngf",
+                "stats": {
+                  "passingYards": 298,
+                  "touchdowns": 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nfl-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nfl/2026-11-13-nfl-lsh-ngf/pbp",
+          "sourceTime": "2026-11-14T04:24:00Z",
+          "title": "Northgate Foxes at Lakeshore Herons play-by-play",
+          "excerpt": "4 0:52: Dez Arrington threw a 19-yard touchdown pass with 0:52 left in the fourth to put the Foxes ahead 27 to 24. LSH 24, NGF 27.",
+          "payload": {
+            "plays": [
+              {
+                "period": 4,
+                "clock": "0:52",
+                "player": "Dez Arrington",
+                "action": "threw a 19-yard touchdown pass",
+                "home": 24,
+                "away": 27
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nfl/2026-11-13-nfl-lsh-ngf",
+          "sourceTime": "2026-11-14T04:55:00Z",
+          "title": "Northgate Foxes beat Lakeshore Herons 27-24",
+          "excerpt": "Northgate Foxes beat Lakeshore Herons 27-24 on November 14. Dez Arrington threw for 298 yards and 2 touchdowns."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Northgate Foxes 27, Lakeshore Herons 24: Arrington's fourth-quarter strike",
+        "narration": "Northgate Foxes 27, Lakeshore Herons 24 in NFL Week 10. Dez Arrington threw for 298 yards and 2 touchdowns for the Foxes. Dez Arrington threw a 19-yard touchdown pass with 0:52 left in the fourth to put the Foxes ahead 27 to 24, and the Foxes closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Northgate Foxes 27, Lakeshore Herons 24",
+            "value": [
+              27,
+              24
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "ngf"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Dez Arrington",
+            "text": "Dez Arrington threw for 298 yards and 2 touchdowns",
+            "value": [
+              298,
+              2
+            ],
+            "unit": "passing yards, touchdowns",
+            "subject": {
+              "player": "Dez Arrington",
+              "team": "ngf"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Northgate Foxes box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Dez Arrington threw a 19-yard touchdown pass with 0:52 left in the fourth to put the Foxes ahead 27 to 24",
+            "value": [
+              24,
+              27
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Dez Arrington",
+              "team": "ngf"
+            },
+            "period": 4,
+            "clock": "0:52",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "fourth period, 0:52"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [
+        "rightsExpiry"
+      ],
+      "media": {
+        "assets": [
+          {
+            "id": "clip-arrington-td",
+            "providerId": "hrsn-clip-arrington-td",
+            "providerVersion": "1",
+            "eventId": "2026-11-13-nfl-lsh-ngf",
+            "people": [],
+            "captureTime": "2026-11-14T04:20:00Z",
+            "duration": 9.5,
+            "width": 1920,
+            "height": 1080,
+            "focalArea": "center",
+            "credit": "Courtesy Harbor Regional Sports Network",
+            "grantId": "g-pilot-expiring",
+            "grantVersion": 1,
+            "sha256": "c87b0ca7cc21ef602775c42aea75bf4d8fa5116c20471c4ca50cc2928c89d225",
+            "status": "available",
+            "sourceIn": "00:41:12:04",
+            "sourceOut": "00:41:21:19",
+            "eventClock": "4th 0:52",
+            "audio": false
+          }
+        ],
+        "grants": [
+          {
+            "id": "g-pilot-expiring",
+            "version": 1,
+            "licensor": "Harbor Regional Sports Network",
+            "status": "active",
+            "components": [
+              "video"
+            ],
+            "channels": [
+              "isnn-youtube"
+            ],
+            "surfaces": [
+              "episode",
+              "short"
+            ],
+            "territories": [
+              "worldwide"
+            ],
+            "window": {
+              "expiresAt": "2026-11-14T12:00:00Z"
+            },
+            "alterations": {
+              "reframe": true,
+              "overlays": true,
+              "freezeFrame": false,
+              "speedChange": false
+            },
+            "retention": "archive while the grant is active",
+            "aiProcessing": false,
+            "credit": "Courtesy Harbor Regional Sports Network",
+            "claimContact": "rights@hrsn.example",
+            "evidenceRef": "grants/hrsn-pilot-2026.pdf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "2026-11-13-nhl-gbw-sfp",
+      "league": "NHL",
+      "sport": "hockey",
+      "competition": "NHL regular season",
+      "season": "2026-27",
+      "venue": "Glacier Bay Centre",
+      "home": {
+        "id": "gbw",
+        "name": "Glacier Bay Wolves",
+        "short": "GBW"
+      },
+      "away": {
+        "id": "sfp",
+        "name": "Silver Fork Pike",
+        "short": "SFP"
+      },
+      "startTime": "2026-11-14T00:00:00Z",
+      "finalAt": "2026-11-14T02:30:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 1,
+          "away": 0
+        },
+        {
+          "period": 2,
+          "home": 2,
+          "away": 1
+        },
+        {
+          "period": 3,
+          "home": 3,
+          "away": 1
+        }
+      ],
+      "plays": [
+        {
+          "period": 3,
+          "clock": "6:40",
+          "description": "Anton Reilly scored on a rebound at 6:40 of the third to put the Wolves ahead 3 to 1",
+          "player": "Anton Reilly",
+          "team": "gbw",
+          "home": 3,
+          "away": 1,
+          "at": "2026-11-14T02:24:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Nils Bergqvist",
+          "team": "gbw",
+          "stats": {
+            "goals": 1,
+            "assists": 2
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nhl-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nhl/2026-11-13-nhl-gbw-sfp/box",
+          "sourceTime": "2026-11-14T02:34:00Z",
+          "title": "Silver Fork Pike at Glacier Bay Wolves box score",
+          "excerpt": "Final: Silver Fork Pike 1, Glacier Bay Wolves 3. Nils Bergqvist scored 1 goals and added 2 assists.",
+          "payload": {
+            "final": {
+              "home": 3,
+              "away": 1
+            },
+            "leaders": [
+              {
+                "player": "Nils Bergqvist",
+                "team": "gbw",
+                "stats": {
+                  "goals": 1,
+                  "assists": 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nhl-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nhl/2026-11-13-nhl-gbw-sfp/pbp",
+          "sourceTime": "2026-11-14T02:24:00Z",
+          "title": "Silver Fork Pike at Glacier Bay Wolves play-by-play",
+          "excerpt": "3 6:40: Anton Reilly scored on a rebound at 6:40 of the third to put the Wolves ahead 3 to 1. GBW 3, SFP 1.",
+          "payload": {
+            "plays": [
+              {
+                "period": 3,
+                "clock": "6:40",
+                "player": "Anton Reilly",
+                "action": "scored on a rebound",
+                "home": 3,
+                "away": 1
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nhl/2026-11-13-nhl-gbw-sfp",
+          "sourceTime": "2026-11-14T02:55:00Z",
+          "title": "Glacier Bay Wolves beat Silver Fork Pike 3-1",
+          "excerpt": "Glacier Bay Wolves beat Silver Fork Pike 3-1 on November 14. Nils Bergqvist scored 1 goals and added 2 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Glacier Bay Wolves 3, Silver Fork Pike 1: Reilly's rebound goal",
+        "narration": "Glacier Bay Wolves 3, Silver Fork Pike 1 in NHL regular season. Nils Bergqvist scored 1 goals and added 2 assists for the Wolves. Anton Reilly scored on a rebound at 6:40 of the third to put the Wolves ahead 3 to 1, and the Wolves closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Glacier Bay Wolves 3, Silver Fork Pike 1",
+            "value": [
+              3,
+              1
+            ],
+            "unit": "goals",
+            "subject": {
+              "team": "gbw"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Nils Bergqvist",
+            "text": "Nils Bergqvist scored 1 goals and added 2 assists",
+            "value": [
+              1,
+              2
+            ],
+            "unit": "goals, assists",
+            "subject": {
+              "player": "Nils Bergqvist",
+              "team": "gbw"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Glacier Bay Wolves box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Anton Reilly scored on a rebound at 6:40 of the third to put the Wolves ahead 3 to 1",
+            "value": [
+              3,
+              1
+            ],
+            "unit": "goals",
+            "subject": {
+              "player": "Anton Reilly",
+              "team": "gbw"
+            },
+            "period": 3,
+            "clock": "6:40",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "third period, 6:40"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [
+        "longFormOnly"
+      ],
+      "media": {
+        "assets": [
+          {
+            "id": "clip-reilly-rebound",
+            "providerId": "hrsn-clip-reilly-rebound",
+            "providerVersion": "1",
+            "eventId": "2026-11-13-nhl-gbw-sfp",
+            "people": [],
+            "captureTime": "2026-11-14T02:05:00Z",
+            "duration": 9.5,
+            "width": 1920,
+            "height": 1080,
+            "focalArea": "center",
+            "credit": "Courtesy Harbor Regional Sports Network",
+            "grantId": "g-longform-only",
+            "grantVersion": 1,
+            "sha256": "551ff1c701aa305b6428fa6ad55b7859d70ad7c4b3fb770f39d342813c8babed",
+            "status": "available",
+            "sourceIn": "00:41:12:04",
+            "sourceOut": "00:41:21:19",
+            "eventClock": "3rd 6:40",
+            "audio": false
+          }
+        ],
+        "grants": [
+          {
+            "id": "g-longform-only",
+            "version": 1,
+            "licensor": "Glacier Bay Broadcast Partners",
+            "status": "active",
+            "components": [
+              "video"
+            ],
+            "channels": [
+              "isnn-youtube"
+            ],
+            "surfaces": [
+              "episode"
+            ],
+            "territories": [
+              "worldwide"
+            ],
+            "window": {
+              "expiresAt": "2027-06-30T00:00:00Z"
+            },
+            "alterations": {
+              "reframe": true,
+              "overlays": true,
+              "freezeFrame": false,
+              "speedChange": false
+            },
+            "retention": "archive while the grant is active",
+            "aiProcessing": false,
+            "credit": "Courtesy Glacier Bay Broadcast Partners",
+            "claimContact": "rights@hrsn.example",
+            "evidenceRef": "grants/gbbp-longform-2026.pdf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "2026-11-13-mls-sph-rcb",
+      "league": "MLS",
+      "sport": "soccer",
+      "competition": "MLS Cup playoffs",
+      "season": "2026",
+      "venue": "Halden Park",
+      "home": {
+        "id": "sph",
+        "name": "Sporting Halden",
+        "short": "SPH"
+      },
+      "away": {
+        "id": "rcb",
+        "name": "Castlebridge Rovers",
+        "short": "RCB"
+      },
+      "startTime": "2026-11-14T01:00:00Z",
+      "finalAt": "2026-11-14T02:55:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": "1H",
+          "home": 0,
+          "away": 1
+        },
+        {
+          "period": "2H",
+          "home": 3,
+          "away": 1
+        }
+      ],
+      "plays": [
+        {
+          "period": 2,
+          "clock": "64th",
+          "description": "Mateo Lindqvist curled in a free kick in the 64th minute to put Sporting Halden ahead 2 to 1",
+          "player": "Mateo Lindqvist",
+          "team": "sph",
+          "home": 2,
+          "away": 1,
+          "at": "2026-11-14T02:49:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Mateo Lindqvist",
+          "team": "sph",
+          "stats": {
+            "goals": 2,
+            "shots": 5
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "mls-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/mls/2026-11-13-mls-sph-rcb/box",
+          "sourceTime": "2026-11-14T02:59:00Z",
+          "title": "Castlebridge Rovers at Sporting Halden box score",
+          "excerpt": "Final: Castlebridge Rovers 1, Sporting Halden 3. Mateo Lindqvist scored 2 goals and had 5 shots on target.",
+          "payload": {
+            "final": {
+              "home": 3,
+              "away": 1
+            },
+            "leaders": [
+              {
+                "player": "Mateo Lindqvist",
+                "team": "sph",
+                "stats": {
+                  "goals": 2,
+                  "shots": 5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "mls-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/mls/2026-11-13-mls-sph-rcb/pbp",
+          "sourceTime": "2026-11-14T02:49:00Z",
+          "title": "Castlebridge Rovers at Sporting Halden play-by-play",
+          "excerpt": "2 64th: Mateo Lindqvist curled in a free kick in the 64th minute to put Sporting Halden ahead 2 to 1. SPH 2, RCB 1.",
+          "payload": {
+            "plays": [
+              {
+                "period": 2,
+                "clock": "64th",
+                "player": "Mateo Lindqvist",
+                "action": "curled in a free kick",
+                "home": 2,
+                "away": 1
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/mls/2026-11-13-mls-sph-rcb",
+          "sourceTime": "2026-11-14T03:20:00Z",
+          "title": "Sporting Halden beat Castlebridge Rovers 3-1",
+          "excerpt": "Sporting Halden beat Castlebridge Rovers 3-1 on November 14. Mateo Lindqvist scored 2 goals and had 5 shots on target."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Sporting Halden 3, Castlebridge Rovers 1: Lindqvist's free kick turns it",
+        "narration": "Sporting Halden 3, Castlebridge Rovers 1 in MLS Cup playoffs. Mateo Lindqvist scored 2 goals and had 5 shots on target for the Halden. Mateo Lindqvist curled in a free kick in the 64th minute to put Sporting Halden ahead 2 to 1, and the Halden closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Sporting Halden 3, Castlebridge Rovers 1",
+            "value": [
+              3,
+              1
+            ],
+            "unit": "goals",
+            "subject": {
+              "team": "sph"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Mateo Lindqvist",
+            "text": "Mateo Lindqvist scored 2 goals and had 5 shots on target",
+            "value": [
+              2,
+              5
+            ],
+            "unit": "goals, shots on target",
+            "subject": {
+              "player": "Mateo Lindqvist",
+              "team": "sph"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Sporting Halden box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Mateo Lindqvist curled in a free kick in the 64th minute to put Sporting Halden ahead 2 to 1",
+            "value": [
+              2,
+              1
+            ],
+            "unit": "goals",
+            "subject": {
+              "player": "Mateo Lindqvist",
+              "team": "sph"
+            },
+            "period": 2,
+            "clock": "64th",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "second period, 64th"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [
+        "embargo",
+        "revokedGrant"
+      ],
+      "media": {
+        "assets": [
+          {
+            "id": "clip-lindqvist-freekick",
+            "providerId": "hrsn-clip-lindqvist-freekick",
+            "providerVersion": "1",
+            "eventId": "2026-11-13-mls-sph-rcb",
+            "people": [],
+            "captureTime": "2026-11-14T02:00:00Z",
+            "duration": 9.5,
+            "width": 1920,
+            "height": 1080,
+            "focalArea": "center",
+            "credit": "Courtesy Harbor Regional Sports Network",
+            "grantId": "g-embargoed",
+            "grantVersion": 1,
+            "sha256": "add8314967177a3d786cfa4c8402db1bf7dd4f8d67623931bc34cb5bc69e2eb6",
+            "status": "available",
+            "sourceIn": "00:41:12:04",
+            "sourceOut": "00:41:21:19",
+            "eventClock": "64'",
+            "audio": false
+          },
+          {
+            "id": "clip-lindqvist-second",
+            "providerId": "hrsn-clip-lindqvist-second",
+            "providerVersion": "1",
+            "eventId": "2026-11-13-mls-sph-rcb",
+            "people": [],
+            "captureTime": "2026-11-14T02:25:00Z",
+            "duration": 9.5,
+            "width": 1920,
+            "height": 1080,
+            "focalArea": "center",
+            "credit": "Courtesy Harbor Regional Sports Network",
+            "grantId": "g-revoked",
+            "grantVersion": 1,
+            "sha256": "cc380f7e230c6c6d25507a15f65131ab874e2c95d9c68c6ee02d7c1524204277",
+            "status": "available",
+            "sourceIn": "00:41:12:04",
+            "sourceOut": "00:41:21:19",
+            "eventClock": "81'",
+            "audio": false
+          }
+        ],
+        "grants": [
+          {
+            "id": "g-embargoed",
+            "version": 1,
+            "licensor": "Harbor Regional Sports Network",
+            "status": "active",
+            "components": [
+              "video"
+            ],
+            "channels": [
+              "isnn-youtube"
+            ],
+            "surfaces": [
+              "episode",
+              "short"
+            ],
+            "territories": [
+              "worldwide"
+            ],
+            "window": {
+              "embargoUntil": "2026-11-15T18:00:00Z",
+              "expiresAt": "2027-06-30T00:00:00Z"
+            },
+            "alterations": {
+              "reframe": true,
+              "overlays": true,
+              "freezeFrame": false,
+              "speedChange": false
+            },
+            "retention": "archive while the grant is active",
+            "aiProcessing": false,
+            "credit": "Courtesy Harbor Regional Sports Network",
+            "claimContact": "rights@hrsn.example",
+            "evidenceRef": "grants/hrsn-pilot-2026.pdf"
+          },
+          {
+            "id": "g-revoked",
+            "version": 1,
+            "licensor": "Harbor Regional Sports Network",
+            "status": "revoked",
+            "components": [
+              "video"
+            ],
+            "channels": [
+              "isnn-youtube"
+            ],
+            "surfaces": [
+              "episode",
+              "short"
+            ],
+            "territories": [
+              "worldwide"
+            ],
+            "window": {
+              "expiresAt": "2027-06-30T00:00:00Z"
+            },
+            "alterations": {
+              "reframe": true,
+              "overlays": true,
+              "freezeFrame": false,
+              "speedChange": false
+            },
+            "retention": "archive while the grant is active",
+            "aiProcessing": false,
+            "credit": "Courtesy Harbor Regional Sports Network",
+            "claimContact": "rights@hrsn.example",
+            "evidenceRef": "grants/hrsn-pilot-2026.pdf"
+          }
+        ]
+      }
+    },
+    {
+      "id": "2026-11-13-ncaab-mtu-prg",
+      "league": "NCAAB",
+      "sport": "basketball",
+      "competition": "college basketball opening week",
+      "season": "2026-27",
+      "venue": "Metro Pavilion",
+      "home": {
+        "id": "mtu",
+        "name": "Metro University",
+        "short": "MTU"
+      },
+      "away": {
+        "id": "prg",
+        "name": "Pine Ridge",
+        "short": "PRG"
+      },
+      "startTime": "2026-11-14T00:00:00Z",
+      "finalAt": "2026-11-14T02:30:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": "1H",
+          "home": 30,
+          "away": 33
+        },
+        {
+          "period": "2H",
+          "home": 68,
+          "away": 66
+        }
+      ],
+      "plays": [
+        {
+          "period": 2,
+          "clock": "0:19",
+          "description": "Darius Flint scored on a drive with 0:19 left in the second to put the University ahead 68 to 66",
+          "player": "Darius Flint",
+          "team": "mtu",
+          "home": 68,
+          "away": 66,
+          "at": "2026-11-14T02:24:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Darius Flint",
+          "team": "mtu",
+          "stats": {
+            "points": 22,
+            "rebounds": 6,
+            "assists": 4
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "ncaab-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/ncaab/2026-11-13-ncaab-mtu-prg/box",
+          "sourceTime": "2026-11-14T02:34:00Z",
+          "title": "Pine Ridge at Metro University box score",
+          "excerpt": "Final: Pine Ridge 66, Metro University 68. Darius Flint finished with 22 points, 6 rebounds and 4 assists.",
+          "payload": {
+            "final": {
+              "home": 68,
+              "away": 66
+            },
+            "leaders": [
+              {
+                "player": "Darius Flint",
+                "team": "mtu",
+                "stats": {
+                  "points": 22,
+                  "rebounds": 6,
+                  "assists": 4
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "ncaab-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/ncaab/2026-11-13-ncaab-mtu-prg/pbp",
+          "sourceTime": "2026-11-14T02:24:00Z",
+          "title": "Pine Ridge at Metro University play-by-play",
+          "excerpt": "2 0:19: Darius Flint scored on a drive with 0:19 left in the second to put the University ahead 68 to 66. MTU 68, PRG 66.",
+          "payload": {
+            "plays": [
+              {
+                "period": 2,
+                "clock": "0:19",
+                "player": "Darius Flint",
+                "action": "scored on a drive",
+                "home": 68,
+                "away": 66
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/ncaab/2026-11-13-ncaab-mtu-prg",
+          "sourceTime": "2026-11-14T02:55:00Z",
+          "title": "Metro University beat Pine Ridge 68-66",
+          "excerpt": "Metro University beat Pine Ridge 68-66 on November 14. Darius Flint finished with 22 points, 6 rebounds and 4 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Metro University 68, Pine Ridge 66: Flint's drive",
+        "narration": "Metro University 68, Pine Ridge 66 in college basketball opening week. Darius Flint finished with 22 points, 6 rebounds and 4 assists for the University. Darius Flint scored on a drive with 0:19 left in the second to put the University ahead 68 to 66, and the University closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Metro University 68, Pine Ridge 66",
+            "value": [
+              68,
+              66
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "mtu"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Darius Flint",
+            "text": "Darius Flint finished with 22 points, 6 rebounds and 4 assists",
+            "value": [
+              22,
+              6,
+              4
+            ],
+            "unit": "points, rebounds, assists",
+            "subject": {
+              "player": "Darius Flint",
+              "team": "mtu"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Metro University box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Darius Flint scored on a drive with 0:19 left in the second to put the University ahead 68 to 66",
+            "value": [
+              68,
+              66
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Darius Flint",
+              "team": "mtu"
+            },
+            "period": 2,
+            "clock": "0:19",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "second period, 0:19"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    }
+  ],
+  "synthetic": true,
+  "notes": "Synthetic test slate dated by the morning it airs; the games tip the evening before. Teams, people, scores, clips and source URLs are fictional and use reserved example domains."
+}

@@ -5,6 +5,7 @@ import { ffmpegPath, root } from "../config.mjs";
 import { probe } from "../media.mjs";
 import { run } from "../process.mjs";
 import { narrateParts } from "../voice.mjs";
+import { enforceShots } from "./rights.mjs";
 
 // The broadcast package: one horizontal episode and one vertical Short per
 // segment, drawn from the same narration, evidence and design version.
@@ -534,6 +535,11 @@ export async function renderEpisode(episode, directory, report = () => {}, signa
   await mkdir(directory, { recursive: true });
   const temporary = await mkdtemp(path.join(directory, ".render-"));
   const voice = process.env.SPORTS_VOICE || "am_michael";
+  // Rights are rechecked at render time against the planned air time: a shot
+  // selected earlier that no longer clears falls back to the Play diagram.
+  const shots = episode.rights ? enforceShots(episode.segments, episode.rights) : episode.segments.map(() => null);
+  const rightsWarnings = shots.flatMap((plan, index) => Object.values(plan || {}).filter((shot) => shot?.kind === "Fallback" && shot.replaced)
+    .map((shot) => `${segmentId(episode.segments[index], index)} ${shot.surface}: clip ${shot.replaced} replaced by the Play diagram (${shot.reasons.map(({ reason }) => reason).join("; ")}).`));
   try {
     report(5, "Preparing sports desk narration…");
     const narration = await narrate(parts, voice, path.join(temporary, "narration.wav"), (message) => report(15, message), signal, { speed: 1.02 });
@@ -599,25 +605,29 @@ export async function renderEpisode(episode, directory, report = () => {}, signa
     report(94, "Checking picture, sound, sync and loudness…");
     const outputs = [await inspect(path.join(temporary, "episode.mp4"), { ...EPISODE, duration: narration.duration }, signal)];
     for (const short of shorts) outputs.push(await inspect(path.join(temporary, short.file), { ...SHORT, duration: short.duration }, signal));
-    const warnings = outputs.filter((output) => !output.checks.loudness).map((output) => `${output.file}: loudness outside the house target.`);
+    const warnings = [...outputs.filter((output) => !output.checks.loudness).map((output) => `${output.file}: loudness outside the house target.`), ...rightsWarnings];
     if (!outputs.every((output) => output.passed)) throw new Error("The sports episode did not pass output validation.");
     const duration = outputs[0].duration;
     const qc = { package: PACKAGE, target: { ...LOUDNESS, syncTolerance: SYNC_TOLERANCE }, passed: true, warnings, outputs, checkedAt: new Date().toISOString() };
+    const rights = episode.rights ? { channel: episode.rights.channel, territory: episode.rights.territory, airAt: episode.rights.airAt } : null;
     const timeline = {
-      package: PACKAGE, title: episode.title, date: episode.date, narrator: { voice: narration.voice || voice, engine: narration.engine || "kokoro" },
+      package: PACKAGE, title: episode.title, date: episode.date, revisionId: episode.revisionId || null, rights, narrator: { voice: narration.voice || voice, engine: narration.engine || "kokoro" },
       episode: { file: "episode.mp4", captions: "captions.srt", ...EPISODE, duration, fps: FPS },
       segments: spans.map((span) => ({
-        id: span.id, index: span.index, headline: span.headline, start: span.start, end: span.end,
+        id: span.id, index: span.index, headline: span.headline, kind: episode.segments[span.index].kind || "story", start: span.start, end: span.end,
         cues: episodeCues.filter((cue) => cue.start >= span.start - 0.001 && cue.start < span.end).map(({ start, end, lines }) => ({ start, end, text: lines.join(" ") })),
-        plate: `chapter-${span.index}.png`, diagram: episode.segments[span.index].diagram || null,
+        plate: `chapter-${span.index}.png`, diagram: episode.segments[span.index].diagram || null, eventId: episode.segments[span.index].eventId || null,
+        claimIds: (episode.segments[span.index].claims || []).map(({ id }) => id).filter(Boolean), shots: shots[span.index],
         sources: verifiedSources(episode.segments[span.index].sources),
-        short: { ...SHORT, file: shorts[span.index].file, captions: shorts[span.index].captions, duration: shorts[span.index].duration },
+        short: { ...SHORT, file: shorts[span.index].file, captions: shorts[span.index].captions, duration: shorts[span.index].duration, shot: shots[span.index]?.short || null },
       })),
     };
     const credits = {
-      package: PACKAGE, title: episode.title, date: episode.date,
+      package: PACKAGE, title: episode.title, date: episode.date, revisionId: episode.revisionId || null, rights,
       segments: spans.map((span) => ({
-        id: span.id, headline: span.headline, sources: verifiedSources(episode.segments[span.index].sources), claims: episode.segments[span.index].claims || [],
+        id: span.id, headline: span.headline, kind: episode.segments[span.index].kind || "story", eventId: episode.segments[span.index].eventId || null,
+        sources: verifiedSources(episode.segments[span.index].sources), claims: episode.segments[span.index].claims || [],
+        citations: episode.segments[span.index].citations || null, shots: shots[span.index], trend: episode.segments[span.index].trend || null,
       })),
       fonts: [{ family: FONT, license: "SIL Open Font License 1.1" }],
       narration: { engine: narration.engine || "kokoro", voice: narration.voice || voice, disclosure: "synthetic narrator" },
@@ -635,7 +645,12 @@ export async function renderEpisode(episode, directory, report = () => {}, signa
       await rename(path.join(temporary, file), path.join(directory, file));
     }
     report(100, "Sports episode and Shorts ready.");
-    return { ...EPISODE, duration, chapters, shorts, qc: { passed: true, warnings } };
+    return {
+      ...EPISODE, duration, chapters, shorts, qc: { passed: true, warnings },
+      shots: shots.map((plan, index) => plan && { segment: index + 1, id: spans[index].id, ...Object.fromEntries(Object.entries(plan).map(([surface, shot]) => [surface, shot.kind === "ShotUse"
+        ? { use: shot.assetId, grant: `${shot.grantId} v${shot.grantVersion}`, audio: shot.audio }
+        : { fallback: shot.fallback, reasons: shot.reasons.map(({ code, reason }) => ({ code, reason })) }])) }),
+    };
   } finally {
     await rm(temporary, { recursive: true, force: true });
   }

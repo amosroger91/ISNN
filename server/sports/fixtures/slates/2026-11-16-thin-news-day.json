@@ -1,0 +1,629 @@
+{
+  "name": "2026-11-16-thin-news-day",
+  "title": "Thin news day: three verified results and a core story for the trend desk",
+  "date": "2026-11-16",
+  "games": [
+    {
+      "id": "2026-11-15-nba-hcg-rvs",
+      "league": "NBA",
+      "sport": "basketball",
+      "competition": "NBA regular season",
+      "season": "2026-27",
+      "venue": "Harbor Arena",
+      "home": {
+        "id": "hcg",
+        "name": "Harbor City Gulls",
+        "short": "HCG"
+      },
+      "away": {
+        "id": "rvs",
+        "name": "River Valley Stags",
+        "short": "RVS"
+      },
+      "startTime": "2026-11-16T00:30:00Z",
+      "finalAt": "2026-11-16T03:00:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 27,
+          "away": 24
+        },
+        {
+          "period": 2,
+          "home": 52,
+          "away": 50
+        },
+        {
+          "period": 3,
+          "home": 80,
+          "away": 77
+        },
+        {
+          "period": 4,
+          "home": 112,
+          "away": 104
+        }
+      ],
+      "plays": [
+        {
+          "period": 4,
+          "clock": "0:41",
+          "description": "Mara Quill hit a corner three with 0:41 left in the fourth to put the Gulls ahead 108 to 104",
+          "player": "Mara Quill",
+          "team": "hcg",
+          "home": 108,
+          "away": 104,
+          "at": "2026-11-16T02:54:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Mara Quill",
+          "team": "hcg",
+          "stats": {
+            "points": 33,
+            "rebounds": 8,
+            "assists": 7
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nba-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nba/2026-11-15-nba-hcg-rvs/box",
+          "sourceTime": "2026-11-16T03:04:00Z",
+          "title": "River Valley Stags at Harbor City Gulls box score",
+          "excerpt": "Final: River Valley Stags 104, Harbor City Gulls 112. Mara Quill finished with 33 points, 8 rebounds and 7 assists.",
+          "payload": {
+            "final": {
+              "home": 112,
+              "away": 104
+            },
+            "leaders": [
+              {
+                "player": "Mara Quill",
+                "team": "hcg",
+                "stats": {
+                  "points": 33,
+                  "rebounds": 8,
+                  "assists": 7
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nba-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nba/2026-11-15-nba-hcg-rvs/pbp",
+          "sourceTime": "2026-11-16T02:54:00Z",
+          "title": "River Valley Stags at Harbor City Gulls play-by-play",
+          "excerpt": "4 0:41: Mara Quill hit a corner three with 0:41 left in the fourth to put the Gulls ahead 108 to 104. HCG 108, RVS 104.",
+          "payload": {
+            "plays": [
+              {
+                "period": 4,
+                "clock": "0:41",
+                "player": "Mara Quill",
+                "action": "hit a corner three",
+                "home": 108,
+                "away": 104
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nba/2026-11-15-nba-hcg-rvs",
+          "sourceTime": "2026-11-16T03:25:00Z",
+          "title": "Harbor City Gulls beat River Valley Stags 112-104",
+          "excerpt": "Harbor City Gulls beat River Valley Stags 112-104 on November 16. Mara Quill finished with 33 points, 8 rebounds and 7 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Harbor City Gulls 112, River Valley Stags 104: Quill's corner three again",
+        "narration": "Harbor City Gulls 112, River Valley Stags 104 in NBA regular season. Mara Quill finished with 33 points, 8 rebounds and 7 assists for the Gulls. Mara Quill hit a corner three with 0:41 left in the fourth to put the Gulls ahead 108 to 104, and the Gulls closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Harbor City Gulls 112, River Valley Stags 104",
+            "value": [
+              112,
+              104
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "hcg"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Mara Quill",
+            "text": "Mara Quill finished with 33 points, 8 rebounds and 7 assists",
+            "value": [
+              33,
+              8,
+              7
+            ],
+            "unit": "points, rebounds, assists",
+            "subject": {
+              "player": "Mara Quill",
+              "team": "hcg"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Harbor City Gulls box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Mara Quill hit a corner three with 0:41 left in the fourth to put the Gulls ahead 108 to 104",
+            "value": [
+              108,
+              104
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Mara Quill",
+              "team": "hcg"
+            },
+            "period": 4,
+            "clock": "0:41",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "fourth period, 0:41"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [
+        "coreStory"
+      ],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-15-mlb-wff-paa",
+      "league": "MLB",
+      "sport": "baseball",
+      "competition": "MLB spring series",
+      "season": "2026",
+      "venue": "Foundry Park",
+      "home": {
+        "id": "wff",
+        "name": "Westfield Foundry",
+        "short": "WFF"
+      },
+      "away": {
+        "id": "paa",
+        "name": "Port Allen Anchors",
+        "short": "PAA"
+      },
+      "startTime": "2026-11-15T20:05:00Z",
+      "finalAt": "2026-11-15T22:45:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 0,
+          "away": 0
+        },
+        {
+          "period": 2,
+          "home": 1,
+          "away": 0
+        },
+        {
+          "period": 3,
+          "home": 1,
+          "away": 0
+        },
+        {
+          "period": 4,
+          "home": 1,
+          "away": 0
+        },
+        {
+          "period": 5,
+          "home": 1,
+          "away": 1
+        },
+        {
+          "period": 6,
+          "home": 1,
+          "away": 1
+        },
+        {
+          "period": 7,
+          "home": 2,
+          "away": 1
+        },
+        {
+          "period": 8,
+          "home": 2,
+          "away": 1
+        },
+        {
+          "period": 9,
+          "home": 2,
+          "away": 1
+        }
+      ],
+      "plays": [
+        {
+          "period": 7,
+          "clock": "B7",
+          "description": "Eli Navarro singled home the go-ahead run in the 7th inning to put the Foundry ahead 2 to 1",
+          "player": "Eli Navarro",
+          "team": "wff",
+          "home": 2,
+          "away": 1,
+          "at": "2026-11-15T22:39:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Grant Whitaker",
+          "team": "wff",
+          "stats": {
+            "strikeouts": 10,
+            "innings": 8
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "mlb-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/mlb/2026-11-15-mlb-wff-paa/box",
+          "sourceTime": "2026-11-15T22:49:00Z",
+          "title": "Port Allen Anchors at Westfield Foundry box score",
+          "excerpt": "Final: Port Allen Anchors 1, Westfield Foundry 2. Grant Whitaker struck out 10 over 8 innings.",
+          "payload": {
+            "final": {
+              "home": 2,
+              "away": 1
+            },
+            "leaders": [
+              {
+                "player": "Grant Whitaker",
+                "team": "wff",
+                "stats": {
+                  "strikeouts": 10,
+                  "innings": 8
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "mlb-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/mlb/2026-11-15-mlb-wff-paa/pbp",
+          "sourceTime": "2026-11-15T22:39:00Z",
+          "title": "Port Allen Anchors at Westfield Foundry play-by-play",
+          "excerpt": "7 B7: Eli Navarro singled home the go-ahead run in the 7th inning to put the Foundry ahead 2 to 1. WFF 2, PAA 1.",
+          "payload": {
+            "plays": [
+              {
+                "period": 7,
+                "clock": "B7",
+                "player": "Eli Navarro",
+                "action": "singled home the go-ahead run",
+                "home": 2,
+                "away": 1
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/mlb/2026-11-15-mlb-wff-paa",
+          "sourceTime": "2026-11-15T23:10:00Z",
+          "title": "Westfield Foundry beat Port Allen Anchors 2-1",
+          "excerpt": "Westfield Foundry beat Port Allen Anchors 2-1 on November 15. Grant Whitaker struck out 10 over 8 innings."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Westfield Foundry 2, Port Allen Anchors 1: Navarro's seventh-inning single",
+        "narration": "Westfield Foundry 2, Port Allen Anchors 1 in MLB spring series. Grant Whitaker struck out 10 over 8 innings for the Foundry. Eli Navarro singled home the go-ahead run in the 7th inning to put the Foundry ahead 2 to 1, and the Foundry closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Westfield Foundry 2, Port Allen Anchors 1",
+            "value": [
+              2,
+              1
+            ],
+            "unit": "runs",
+            "subject": {
+              "team": "wff"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Grant Whitaker",
+            "text": "Grant Whitaker struck out 10 over 8 innings",
+            "value": [
+              10,
+              8
+            ],
+            "unit": "strikeouts, innings",
+            "subject": {
+              "player": "Grant Whitaker",
+              "team": "wff"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Westfield Foundry box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Eli Navarro singled home the go-ahead run in the 7th inning to put the Foundry ahead 2 to 1",
+            "value": [
+              2,
+              1
+            ],
+            "unit": "runs",
+            "subject": {
+              "player": "Eli Navarro",
+              "team": "wff"
+            },
+            "period": 7,
+            "clock": "B7",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "7th period, B7"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-15-mls-unm-rcb",
+      "league": "MLS",
+      "sport": "soccer",
+      "competition": "MLS Cup playoffs",
+      "season": "2026",
+      "venue": "Meridian Stadium",
+      "home": {
+        "id": "unm",
+        "name": "Union Meridian",
+        "short": "UNM"
+      },
+      "away": {
+        "id": "rcb",
+        "name": "Castlebridge Rovers",
+        "short": "RCB"
+      },
+      "startTime": "2026-11-15T23:00:00Z",
+      "finalAt": "2026-11-16T00:55:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": "1H",
+          "home": 0,
+          "away": 0
+        },
+        {
+          "period": "2H",
+          "home": 1,
+          "away": 0
+        }
+      ],
+      "plays": [
+        {
+          "period": 2,
+          "clock": "58th",
+          "description": "Sofia Marin scored on a counter in the 58th minute to put Union Meridian ahead 1 to 0",
+          "player": "Sofia Marin",
+          "team": "unm",
+          "home": 1,
+          "away": 0,
+          "at": "2026-11-16T00:49:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Sofia Marin",
+          "team": "unm",
+          "stats": {
+            "goals": 1,
+            "shots": 2
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "mls-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/mls/2026-11-15-mls-unm-rcb/box",
+          "sourceTime": "2026-11-16T00:59:00Z",
+          "title": "Castlebridge Rovers at Union Meridian box score",
+          "excerpt": "Final: Castlebridge Rovers 0, Union Meridian 1. Sofia Marin scored 1 goals and had 2 shots on target.",
+          "payload": {
+            "final": {
+              "home": 1,
+              "away": 0
+            },
+            "leaders": [
+              {
+                "player": "Sofia Marin",
+                "team": "unm",
+                "stats": {
+                  "goals": 1,
+                  "shots": 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "mls-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/mls/2026-11-15-mls-unm-rcb/pbp",
+          "sourceTime": "2026-11-16T00:49:00Z",
+          "title": "Castlebridge Rovers at Union Meridian play-by-play",
+          "excerpt": "2 58th: Sofia Marin scored on a counter in the 58th minute to put Union Meridian ahead 1 to 0. UNM 1, RCB 0.",
+          "payload": {
+            "plays": [
+              {
+                "period": 2,
+                "clock": "58th",
+                "player": "Sofia Marin",
+                "action": "scored on a counter",
+                "home": 1,
+                "away": 0
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/mls/2026-11-15-mls-unm-rcb",
+          "sourceTime": "2026-11-16T01:20:00Z",
+          "title": "Union Meridian beat Castlebridge Rovers 1-0",
+          "excerpt": "Union Meridian beat Castlebridge Rovers 1-0 on November 15. Sofia Marin scored 1 goals and had 2 shots on target."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Union Meridian 1, Castlebridge Rovers 0: Marin on the counter",
+        "narration": "Union Meridian 1, Castlebridge Rovers 0 in MLS Cup playoffs. Sofia Marin scored 1 goals and had 2 shots on target for the Meridian. Sofia Marin scored on a counter in the 58th minute to put Union Meridian ahead 1 to 0, and the Meridian closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Union Meridian 1, Castlebridge Rovers 0",
+            "value": [
+              1,
+              0
+            ],
+            "unit": "goals",
+            "subject": {
+              "team": "unm"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Sofia Marin",
+            "text": "Sofia Marin scored 1 goals and had 2 shots on target",
+            "value": [
+              1,
+              2
+            ],
+            "unit": "goals, shots on target",
+            "subject": {
+              "player": "Sofia Marin",
+              "team": "unm"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Union Meridian box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Sofia Marin scored on a counter in the 58th minute to put Union Meridian ahead 1 to 0",
+            "value": [
+              1,
+              0
+            ],
+            "unit": "goals",
+            "subject": {
+              "player": "Sofia Marin",
+              "team": "unm"
+            },
+            "period": 2,
+            "clock": "58th",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "second period, 58th"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    }
+  ],
+  "synthetic": true,
+  "notes": "Synthetic test slate dated by the morning it airs; the games tip the evening before. Teams, people, scores, clips and source URLs are fictional and use reserved example domains."
+}

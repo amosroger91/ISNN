@@ -1,0 +1,878 @@
+{
+  "name": "2026-11-13-contested-wire",
+  "title": "Contested wire report and a postponement",
+  "date": "2026-11-13",
+  "games": [
+    {
+      "id": "2026-11-12-cup-unm-atl",
+      "league": "Continental Cup",
+      "sport": "soccer",
+      "competition": "Continental Cup group stage",
+      "season": "2026-27",
+      "venue": "Meridian Stadium",
+      "home": {
+        "id": "unm",
+        "name": "Union Meridian",
+        "short": "UNM"
+      },
+      "away": {
+        "id": "atl",
+        "name": "Atlas FC",
+        "short": "ATL"
+      },
+      "startTime": "2026-11-12T20:00:00Z",
+      "finalAt": "2026-11-12T21:55:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": "1H",
+          "home": 1,
+          "away": 0
+        },
+        {
+          "period": "2H",
+          "home": 2,
+          "away": 1
+        }
+      ],
+      "plays": [
+        {
+          "period": 2,
+          "clock": "79th",
+          "description": "Sofia Marin volleyed in a cross in the 79th minute to put Union Meridian ahead 2 to 1",
+          "player": "Sofia Marin",
+          "team": "unm",
+          "home": 2,
+          "away": 1,
+          "at": "2026-11-12T21:49:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Sofia Marin",
+          "team": "unm",
+          "stats": {
+            "goals": 2,
+            "shots": 3
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "continental-cup-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/continental-cup/2026-11-12-cup-unm-atl/box",
+          "sourceTime": "2026-11-12T21:59:00Z",
+          "title": "Atlas FC at Union Meridian box score",
+          "excerpt": "Final: Atlas FC 1, Union Meridian 2. Sofia Marin scored 2 goals and had 3 shots on target.",
+          "payload": {
+            "final": {
+              "home": 2,
+              "away": 1
+            },
+            "leaders": [
+              {
+                "player": "Sofia Marin",
+                "team": "unm",
+                "stats": {
+                  "goals": 2,
+                  "shots": 3
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "continental-cup-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/continental-cup/2026-11-12-cup-unm-atl/pbp",
+          "sourceTime": "2026-11-12T21:49:00Z",
+          "title": "Atlas FC at Union Meridian play-by-play",
+          "excerpt": "2 79th: Sofia Marin volleyed in a cross in the 79th minute to put Union Meridian ahead 2 to 1. UNM 2, ATL 1.",
+          "payload": {
+            "plays": [
+              {
+                "period": 2,
+                "clock": "79th",
+                "player": "Sofia Marin",
+                "action": "volleyed in a cross",
+                "home": 2,
+                "away": 1
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/continental-cup/2026-11-12-cup-unm-atl",
+          "sourceTime": "2026-11-12T22:20:00Z",
+          "title": "Atlas FC beat Union Meridian 2-1",
+          "excerpt": "Atlas FC beat Union Meridian 2-1 on November 12. Sofia Marin scored 2 goals and had 3 shots on target."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Union Meridian 2, Atlas FC 1: Marin's volley in the 79th",
+        "narration": "Union Meridian 2, Atlas FC 1 in Continental Cup group stage. Sofia Marin scored 2 goals and had 3 shots on target for the Meridian. Sofia Marin volleyed in a cross in the 79th minute to put Union Meridian ahead 2 to 1, and the Meridian closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Union Meridian 2, Atlas FC 1",
+            "value": [
+              2,
+              1
+            ],
+            "unit": "goals",
+            "subject": {
+              "team": "unm"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "contradicts"
+              }
+            ]
+          },
+          {
+            "key": "leader:Sofia Marin",
+            "text": "Sofia Marin scored 2 goals and had 3 shots on target",
+            "value": [
+              2,
+              3
+            ],
+            "unit": "goals, shots on target",
+            "subject": {
+              "player": "Sofia Marin",
+              "team": "unm"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Union Meridian box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Sofia Marin volleyed in a cross in the 79th minute to put Union Meridian ahead 2 to 1",
+            "value": [
+              2,
+              1
+            ],
+            "unit": "goals",
+            "subject": {
+              "player": "Sofia Marin",
+              "team": "unm"
+            },
+            "period": 2,
+            "clock": "79th",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "second period, 79th"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [
+        "winnerSwap"
+      ],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-12-nba-rvs-spo",
+      "league": "NBA",
+      "sport": "basketball",
+      "competition": "NBA regular season",
+      "season": "2026-27",
+      "venue": "River Valley Arena",
+      "home": {
+        "id": "rvs",
+        "name": "River Valley Stags",
+        "short": "RVS"
+      },
+      "away": {
+        "id": "spo",
+        "name": "Summit Peak Owls",
+        "short": "SPO"
+      },
+      "startTime": "2026-11-13T00:00:00Z",
+      "finalAt": "2026-11-13T02:30:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 26,
+          "away": 22
+        },
+        {
+          "period": 2,
+          "home": 50,
+          "away": 49
+        },
+        {
+          "period": 3,
+          "home": 77,
+          "away": 74
+        },
+        {
+          "period": 4,
+          "home": 101,
+          "away": 99
+        }
+      ],
+      "plays": [
+        {
+          "period": 4,
+          "clock": "0:09",
+          "description": "Kenji Watanabe made two free throws with 0:09 left in the fourth to put the Stags ahead 101 to 99",
+          "player": "Kenji Watanabe",
+          "team": "rvs",
+          "home": 101,
+          "away": 99,
+          "at": "2026-11-13T02:24:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Kenji Watanabe",
+          "team": "rvs",
+          "stats": {
+            "points": 28,
+            "rebounds": 5,
+            "assists": 9
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nba-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nba/2026-11-12-nba-rvs-spo/box",
+          "sourceTime": "2026-11-13T02:34:00Z",
+          "title": "Summit Peak Owls at River Valley Stags box score",
+          "excerpt": "Final: Summit Peak Owls 99, River Valley Stags 101. Kenji Watanabe finished with 28 points, 5 rebounds and 9 assists.",
+          "payload": {
+            "final": {
+              "home": 101,
+              "away": 99
+            },
+            "leaders": [
+              {
+                "player": "Kenji Watanabe",
+                "team": "rvs",
+                "stats": {
+                  "points": 28,
+                  "rebounds": 5,
+                  "assists": 9
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nba-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nba/2026-11-12-nba-rvs-spo/pbp",
+          "sourceTime": "2026-11-13T02:24:00Z",
+          "title": "Summit Peak Owls at River Valley Stags play-by-play",
+          "excerpt": "4 0:09: Kenji Watanabe made two free throws with 0:09 left in the fourth to put the Stags ahead 101 to 99. RVS 101, SPO 99.",
+          "payload": {
+            "plays": [
+              {
+                "period": 4,
+                "clock": "0:09",
+                "player": "Kenji Watanabe",
+                "action": "made two free throws",
+                "home": 101,
+                "away": 99
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nba/2026-11-12-nba-rvs-spo",
+          "sourceTime": "2026-11-13T02:55:00Z",
+          "title": "River Valley Stags beat Summit Peak Owls 101-99",
+          "excerpt": "River Valley Stags beat Summit Peak Owls 101-99 on November 13. Kenji Watanabe finished with 28 points, 5 rebounds and 9 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "River Valley Stags 101, Summit Peak Owls 99: Watanabe seals it at the line",
+        "narration": "River Valley Stags 101, Summit Peak Owls 99 in NBA regular season. Kenji Watanabe finished with 28 points, 5 rebounds and 9 assists for the Stags. Kenji Watanabe made two free throws with 0:09 left in the fourth to put the Stags ahead 101 to 99, and the Stags closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score River Valley Stags 101, Summit Peak Owls 99",
+            "value": [
+              101,
+              99
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "rvs"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Kenji Watanabe",
+            "text": "Kenji Watanabe finished with 28 points, 5 rebounds and 9 assists",
+            "value": [
+              28,
+              5,
+              9
+            ],
+            "unit": "points, rebounds, assists",
+            "subject": {
+              "player": "Kenji Watanabe",
+              "team": "rvs"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "River Valley Stags box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Kenji Watanabe made two free throws with 0:09 left in the fourth to put the Stags ahead 101 to 99",
+            "value": [
+              101,
+              99
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Kenji Watanabe",
+              "team": "rvs"
+            },
+            "period": 4,
+            "clock": "0:09",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "fourth period, 0:09"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-12-nhl-hlb-sfp",
+      "league": "NHL",
+      "sport": "hockey",
+      "competition": "NHL regular season",
+      "season": "2026-27",
+      "venue": "Beacon Arena",
+      "home": {
+        "id": "hlb",
+        "name": "Harbor Light Beacons",
+        "short": "HLB"
+      },
+      "away": {
+        "id": "sfp",
+        "name": "Silver Fork Pike",
+        "short": "SFP"
+      },
+      "startTime": "2026-11-13T00:00:00Z",
+      "finalAt": "2026-11-13T02:30:00Z",
+      "status": "postponed",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 0,
+          "away": 0
+        }
+      ],
+      "plays": [],
+      "leaders": [],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nhl-official",
+          "kind": "statement",
+          "url": "https://scores.example/nhl/2026-11-12-nhl-hlb-sfp/statement",
+          "sourceTime": "2026-11-12T22:00:00Z",
+          "title": "Game postponed",
+          "excerpt": "The game was postponed because of an arena power failure and will be rescheduled."
+        }
+      ],
+      "corrections": [],
+      "scenario": [
+        "postponed"
+      ],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-12-mlb-crh-dcp",
+      "league": "MLB",
+      "sport": "baseball",
+      "competition": "MLB spring series",
+      "season": "2026",
+      "venue": "Canyon Field",
+      "home": {
+        "id": "crh",
+        "name": "Canyon Ridge Hawks",
+        "short": "CRH"
+      },
+      "away": {
+        "id": "dcp",
+        "name": "Delta City Pilots",
+        "short": "DCP"
+      },
+      "startTime": "2026-11-13T00:05:00Z",
+      "finalAt": "2026-11-13T02:55:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 0,
+          "away": 0
+        },
+        {
+          "period": 2,
+          "home": 0,
+          "away": 2
+        },
+        {
+          "period": 3,
+          "home": 0,
+          "away": 2
+        },
+        {
+          "period": 4,
+          "home": 1,
+          "away": 2
+        },
+        {
+          "period": 5,
+          "home": 1,
+          "away": 2
+        },
+        {
+          "period": 6,
+          "home": 4,
+          "away": 2
+        },
+        {
+          "period": 7,
+          "home": 4,
+          "away": 2
+        },
+        {
+          "period": 8,
+          "home": 4,
+          "away": 2
+        },
+        {
+          "period": 9,
+          "home": 4,
+          "away": 2
+        }
+      ],
+      "plays": [
+        {
+          "period": 6,
+          "clock": "B6",
+          "description": "Sam Decker hit a three-run home run in the 6th inning to put the Hawks ahead 4 to 2",
+          "player": "Sam Decker",
+          "team": "crh",
+          "home": 4,
+          "away": 2,
+          "at": "2026-11-13T02:49:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Luis Ortega",
+          "team": "crh",
+          "stats": {
+            "strikeouts": 8,
+            "innings": 7
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "mlb-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/mlb/2026-11-12-mlb-crh-dcp/box",
+          "sourceTime": "2026-11-13T02:59:00Z",
+          "title": "Delta City Pilots at Canyon Ridge Hawks box score",
+          "excerpt": "Final: Delta City Pilots 2, Canyon Ridge Hawks 4. Luis Ortega struck out 8 over 7 innings.",
+          "payload": {
+            "final": {
+              "home": 4,
+              "away": 2
+            },
+            "leaders": [
+              {
+                "player": "Luis Ortega",
+                "team": "crh",
+                "stats": {
+                  "strikeouts": 8,
+                  "innings": 7
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "mlb-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/mlb/2026-11-12-mlb-crh-dcp/pbp",
+          "sourceTime": "2026-11-13T02:49:00Z",
+          "title": "Delta City Pilots at Canyon Ridge Hawks play-by-play",
+          "excerpt": "6 B6: Sam Decker hit a three-run home run in the 6th inning to put the Hawks ahead 4 to 2. CRH 4, DCP 2.",
+          "payload": {
+            "plays": [
+              {
+                "period": 6,
+                "clock": "B6",
+                "player": "Sam Decker",
+                "action": "hit a three-run home run",
+                "home": 4,
+                "away": 2
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/mlb/2026-11-12-mlb-crh-dcp",
+          "sourceTime": "2026-11-13T03:20:00Z",
+          "title": "Canyon Ridge Hawks beat Delta City Pilots 4-2",
+          "excerpt": "Canyon Ridge Hawks beat Delta City Pilots 4-2 on November 13. Luis Ortega struck out 8 over 7 innings."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Canyon Ridge Hawks 4, Delta City Pilots 2: Decker's three-run shot",
+        "narration": "Canyon Ridge Hawks 4, Delta City Pilots 2 in MLB spring series. Luis Ortega struck out 8 over 7 innings for the Hawks. Sam Decker hit a three-run home run in the 6th inning to put the Hawks ahead 4 to 2, and the Hawks closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Canyon Ridge Hawks 4, Delta City Pilots 2",
+            "value": [
+              4,
+              2
+            ],
+            "unit": "runs",
+            "subject": {
+              "team": "crh"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Luis Ortega",
+            "text": "Luis Ortega struck out 8 over 7 innings",
+            "value": [
+              8,
+              7
+            ],
+            "unit": "strikeouts, innings",
+            "subject": {
+              "player": "Luis Ortega",
+              "team": "crh"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Canyon Ridge Hawks box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Sam Decker hit a three-run home run in the 6th inning to put the Hawks ahead 4 to 2",
+            "value": [
+              4,
+              2
+            ],
+            "unit": "runs",
+            "subject": {
+              "player": "Sam Decker",
+              "team": "crh"
+            },
+            "period": 6,
+            "clock": "B6",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "6th period, B6"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-12-ncaaf-stt-cam",
+      "league": "NCAAF",
+      "sport": "football",
+      "competition": "college football Week 11",
+      "season": "2026",
+      "venue": "Tech Stadium",
+      "home": {
+        "id": "stt",
+        "name": "State Tech",
+        "short": "STT"
+      },
+      "away": {
+        "id": "cam",
+        "name": "Coastal A&M",
+        "short": "CAM"
+      },
+      "startTime": "2026-11-13T00:30:00Z",
+      "finalAt": "2026-11-13T03:50:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 14,
+          "away": 7
+        },
+        {
+          "period": 2,
+          "home": 21,
+          "away": 21
+        },
+        {
+          "period": 3,
+          "home": 28,
+          "away": 24
+        },
+        {
+          "period": 4,
+          "home": 35,
+          "away": 31
+        }
+      ],
+      "plays": [
+        {
+          "period": 4,
+          "clock": "1:47",
+          "description": "Trey Holloway ran in from 3 yards with 1:47 left in the fourth to put the Tech ahead 35 to 31",
+          "player": "Trey Holloway",
+          "team": "stt",
+          "home": 35,
+          "away": 31,
+          "at": "2026-11-13T03:44:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Trey Holloway",
+          "team": "stt",
+          "stats": {
+            "passingYards": 341,
+            "touchdowns": 4
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "ncaaf-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/ncaaf/2026-11-12-ncaaf-stt-cam/box",
+          "sourceTime": "2026-11-13T03:54:00Z",
+          "title": "Coastal A&M at State Tech box score",
+          "excerpt": "Final: Coastal A&M 31, State Tech 35. Trey Holloway threw for 341 yards and 4 touchdowns.",
+          "payload": {
+            "final": {
+              "home": 35,
+              "away": 31
+            },
+            "leaders": [
+              {
+                "player": "Trey Holloway",
+                "team": "stt",
+                "stats": {
+                  "passingYards": 341,
+                  "touchdowns": 4
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "ncaaf-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/ncaaf/2026-11-12-ncaaf-stt-cam/pbp",
+          "sourceTime": "2026-11-13T03:44:00Z",
+          "title": "Coastal A&M at State Tech play-by-play",
+          "excerpt": "4 1:47: Trey Holloway ran in from 3 yards with 1:47 left in the fourth to put the Tech ahead 35 to 31. STT 35, CAM 31.",
+          "payload": {
+            "plays": [
+              {
+                "period": 4,
+                "clock": "1:47",
+                "player": "Trey Holloway",
+                "action": "ran in from 3 yards",
+                "home": 35,
+                "away": 31
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/ncaaf/2026-11-12-ncaaf-stt-cam",
+          "sourceTime": "2026-11-13T04:15:00Z",
+          "title": "State Tech beat Coastal A&M 35-31",
+          "excerpt": "State Tech beat Coastal A&M 35-31 on November 13. Trey Holloway threw for 341 yards and 4 touchdowns."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "State Tech 35, Coastal A&M 31: Holloway's fourth-quarter run",
+        "narration": "State Tech 35, Coastal A&M 31 in college football Week 11. Trey Holloway threw for 341 yards and 4 touchdowns for the Tech. Trey Holloway ran in from 3 yards with 1:47 left in the fourth to put the Tech ahead 35 to 31, and the Tech closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score State Tech 35, Coastal A&M 31",
+            "value": [
+              35,
+              31
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "stt"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Trey Holloway",
+            "text": "Trey Holloway threw for 341 yards and 4 touchdowns",
+            "value": [
+              341,
+              4
+            ],
+            "unit": "passing yards, touchdowns",
+            "subject": {
+              "player": "Trey Holloway",
+              "team": "stt"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "State Tech box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Trey Holloway ran in from 3 yards with 1:47 left in the fourth to put the Tech ahead 35 to 31",
+            "value": [
+              35,
+              31
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Trey Holloway",
+              "team": "stt"
+            },
+            "period": 4,
+            "clock": "1:47",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "fourth period, 1:47"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    }
+  ],
+  "synthetic": true,
+  "notes": "Synthetic test slate dated by the morning it airs; the games tip the evening before. Teams, people, scores, clips and source URLs are fictional and use reserved example domains."
+}

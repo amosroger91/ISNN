@@ -12,7 +12,9 @@ import { performance } from "node:perf_hooks";
 import { dataDir, ffmpegPath } from "../server/config.mjs";
 import { readJson } from "../server/storage.mjs";
 import { run } from "../server/process.mjs";
+import { ingestEpisodeFixture } from "../server/sports/evidence.mjs";
 import { listFixtures, loadFixture, placeholderNarrate } from "../server/sports/fixtures.mjs";
+import { EvidenceLedger } from "../server/sports/ledger.mjs";
 import { renderEpisode } from "../server/sports/produce.mjs";
 
 const { values } = parseArgs({ options: {
@@ -34,9 +36,16 @@ const placeholder = values.voice === "none";
 if (!placeholder) process.env.SPORTS_VOICE = values.voice;
 console.log(`Rendering ${fixture.name} (${fixture.segments.length} segments, ${placeholder ? "placeholder narrator" : `voice ${values.voice}`}) into ${output}`);
 
+// The fixture's claims pass through the evidence ledger first, so credits.json
+// carries claim and snapshot IDs and the render is refused if a number lacks evidence.
+const ledger = new EvidenceLedger(undefined, path.join(output, "ledger.json"));
+const { episode, revision } = ingestEpisodeFixture(ledger, fixture);
+await ledger.save();
+console.log(`Evidence ledger: ${ledger.claims.length} claims over ${ledger.snapshots.length} snapshots, revision ${revision.id} locked.`);
+
 const started = performance.now();
 let lastLine = "";
-const metadata = await renderEpisode(fixture, output, (percent, message) => {
+const metadata = await renderEpisode(episode, output, (percent, message) => {
   const line = `${String(percent).padStart(3)}% ${message}`;
   if (line !== lastLine) console.log(line);
   lastLine = line;
@@ -69,4 +78,4 @@ for (const out of qc.outputs) {
   console.log(`  ${out.file.padEnd(16)} ${out.width}x${out.height} ${out.duration.toFixed(2)}s  ${loud}  ${out.passed ? "ok" : "FAILED"}${out.checks.loudness ? "" : " (loudness warning)"}`);
 }
 if (qc.warnings.length) console.log(`Warnings:\n  ${qc.warnings.join("\n  ")}`);
-console.log("Files: episode.mp4, captions.srt, shorts/, timeline.json, credits.json, qc.json, benchmark.json, contact-sheet.jpg");
+console.log("Files: episode.mp4, captions.srt, shorts/, timeline.json, credits.json, ledger.json, qc.json, benchmark.json, contact-sheet.jpg");

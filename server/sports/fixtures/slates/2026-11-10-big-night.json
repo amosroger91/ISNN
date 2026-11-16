@@ -1,0 +1,1022 @@
+{
+  "name": "2026-11-10-big-night",
+  "title": "Big night: five finals across five sports",
+  "date": "2026-11-10",
+  "games": [
+    {
+      "id": "2026-11-09-nba-hcg-rvs",
+      "league": "NBA",
+      "sport": "basketball",
+      "competition": "NBA regular season",
+      "season": "2026-27",
+      "venue": "Harbor Arena",
+      "home": {
+        "id": "hcg",
+        "name": "Harbor City Gulls",
+        "short": "HCG"
+      },
+      "away": {
+        "id": "rvs",
+        "name": "River Valley Stags",
+        "short": "RVS"
+      },
+      "startTime": "2026-11-10T00:30:00Z",
+      "finalAt": "2026-11-10T03:00:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 28,
+          "away": 25
+        },
+        {
+          "period": 2,
+          "home": 55,
+          "away": 52
+        },
+        {
+          "period": 3,
+          "home": 81,
+          "away": 80
+        },
+        {
+          "period": 4,
+          "home": 112,
+          "away": 104
+        }
+      ],
+      "plays": [
+        {
+          "period": 4,
+          "clock": "0:41",
+          "description": "Mara Quill hit a corner three with 0:41 left in the fourth to put the Gulls ahead 108 to 104",
+          "player": "Mara Quill",
+          "team": "hcg",
+          "home": 108,
+          "away": 104,
+          "at": "2026-11-10T02:54:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Mara Quill",
+          "team": "hcg",
+          "stats": {
+            "points": 31,
+            "rebounds": 9,
+            "assists": 6
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nba-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nba/2026-11-09-nba-hcg-rvs/box",
+          "sourceTime": "2026-11-10T03:04:00Z",
+          "title": "River Valley Stags at Harbor City Gulls box score",
+          "excerpt": "Final: River Valley Stags 104, Harbor City Gulls 112. Mara Quill finished with 31 points, 9 rebounds and 6 assists.",
+          "payload": {
+            "final": {
+              "home": 112,
+              "away": 104
+            },
+            "leaders": [
+              {
+                "player": "Mara Quill",
+                "team": "hcg",
+                "stats": {
+                  "points": 31,
+                  "rebounds": 9,
+                  "assists": 6
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nba-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nba/2026-11-09-nba-hcg-rvs/pbp",
+          "sourceTime": "2026-11-10T02:54:00Z",
+          "title": "River Valley Stags at Harbor City Gulls play-by-play",
+          "excerpt": "4 0:41: Mara Quill hit a corner three with 0:41 left in the fourth to put the Gulls ahead 108 to 104. HCG 108, RVS 104.",
+          "payload": {
+            "plays": [
+              {
+                "period": 4,
+                "clock": "0:41",
+                "player": "Mara Quill",
+                "action": "hit a corner three",
+                "home": 108,
+                "away": 104
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nba/2026-11-09-nba-hcg-rvs",
+          "sourceTime": "2026-11-10T03:25:00Z",
+          "title": "Harbor City Gulls beat River Valley Stags 112-104",
+          "excerpt": "Harbor City Gulls beat River Valley Stags 112-104 on November 10. Mara Quill finished with 31 points, 9 rebounds and 6 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Harbor City Gulls 112, River Valley Stags 104: Quill's corner three settles it",
+        "narration": "Harbor City Gulls 112, River Valley Stags 104 in NBA regular season. Mara Quill finished with 31 points, 9 rebounds and 6 assists for the Gulls. Mara Quill hit a corner three with 0:41 left in the fourth to put the Gulls ahead 108 to 104, and the Gulls closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Harbor City Gulls 112, River Valley Stags 104",
+            "value": [
+              112,
+              104
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "hcg"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Mara Quill",
+            "text": "Mara Quill finished with 31 points, 9 rebounds and 6 assists",
+            "value": [
+              31,
+              9,
+              6
+            ],
+            "unit": "points, rebounds, assists",
+            "subject": {
+              "player": "Mara Quill",
+              "team": "hcg"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Harbor City Gulls box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Mara Quill hit a corner three with 0:41 left in the fourth to put the Gulls ahead 108 to 104",
+            "value": [
+              108,
+              104
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Mara Quill",
+              "team": "hcg"
+            },
+            "period": 4,
+            "clock": "0:41",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "fourth period, 0:41"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-09-nfl-ngf-rsm",
+      "league": "NFL",
+      "sport": "football",
+      "competition": "NFL Week 10",
+      "season": "2026",
+      "venue": "Northgate Field",
+      "home": {
+        "id": "ngf",
+        "name": "Northgate Foxes",
+        "short": "NGF"
+      },
+      "away": {
+        "id": "rsm",
+        "name": "Redstone Miners",
+        "short": "RSM"
+      },
+      "startTime": "2026-11-09T18:00:00Z",
+      "finalAt": "2026-11-09T21:10:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 7,
+          "away": 3
+        },
+        {
+          "period": 2,
+          "home": 14,
+          "away": 13
+        },
+        {
+          "period": 3,
+          "home": 17,
+          "away": 20
+        },
+        {
+          "period": 4,
+          "home": 23,
+          "away": 20
+        }
+      ],
+      "plays": [
+        {
+          "period": 4,
+          "clock": "0:38",
+          "description": "Ivo Lund kicked a 44-yard field goal with 0:38 left in the fourth to put the Foxes ahead 23 to 20",
+          "player": "Ivo Lund",
+          "team": "ngf",
+          "home": 23,
+          "away": 20,
+          "at": "2026-11-09T21:04:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Dez Arrington",
+          "team": "ngf",
+          "stats": {
+            "passingYards": 312,
+            "touchdowns": 2
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nfl-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nfl/2026-11-09-nfl-ngf-rsm/box",
+          "sourceTime": "2026-11-09T21:14:00Z",
+          "title": "Redstone Miners at Northgate Foxes box score",
+          "excerpt": "Final: Redstone Miners 20, Northgate Foxes 23. Dez Arrington threw for 312 yards and 2 touchdowns.",
+          "payload": {
+            "final": {
+              "home": 23,
+              "away": 20
+            },
+            "leaders": [
+              {
+                "player": "Dez Arrington",
+                "team": "ngf",
+                "stats": {
+                  "passingYards": 312,
+                  "touchdowns": 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nfl-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nfl/2026-11-09-nfl-ngf-rsm/pbp",
+          "sourceTime": "2026-11-09T21:04:00Z",
+          "title": "Redstone Miners at Northgate Foxes play-by-play",
+          "excerpt": "4 0:38: Ivo Lund kicked a 44-yard field goal with 0:38 left in the fourth to put the Foxes ahead 23 to 20. NGF 23, RSM 20.",
+          "payload": {
+            "plays": [
+              {
+                "period": 4,
+                "clock": "0:38",
+                "player": "Ivo Lund",
+                "action": "kicked a 44-yard field goal",
+                "home": 23,
+                "away": 20
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nfl/2026-11-09-nfl-ngf-rsm",
+          "sourceTime": "2026-11-09T21:35:00Z",
+          "title": "Northgate Foxes beat Redstone Miners 23-20",
+          "excerpt": "Northgate Foxes beat Redstone Miners 23-20 on November 9. Dez Arrington threw for 312 yards and 2 touchdowns."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Northgate Foxes 23, Redstone Miners 20: Lund from 44 as the clock ran out",
+        "narration": "Northgate Foxes 23, Redstone Miners 20 in NFL Week 10. Dez Arrington threw for 312 yards and 2 touchdowns for the Foxes. Ivo Lund kicked a 44-yard field goal with 0:38 left in the fourth to put the Foxes ahead 23 to 20, and the Foxes closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Northgate Foxes 23, Redstone Miners 20",
+            "value": [
+              23,
+              20
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "ngf"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Dez Arrington",
+            "text": "Dez Arrington threw for 312 yards and 2 touchdowns",
+            "value": [
+              312,
+              2
+            ],
+            "unit": "passing yards, touchdowns",
+            "subject": {
+              "player": "Dez Arrington",
+              "team": "ngf"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Northgate Foxes box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Ivo Lund kicked a 44-yard field goal with 0:38 left in the fourth to put the Foxes ahead 23 to 20",
+            "value": [
+              23,
+              20
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Ivo Lund",
+              "team": "ngf"
+            },
+            "period": 4,
+            "clock": "0:38",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "fourth period, 0:38"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-09-mlb-dcp-crh",
+      "league": "MLB",
+      "sport": "baseball",
+      "competition": "MLB spring series",
+      "season": "2026",
+      "venue": "Delta Park",
+      "home": {
+        "id": "dcp",
+        "name": "Delta City Pilots",
+        "short": "DCP"
+      },
+      "away": {
+        "id": "crh",
+        "name": "Canyon Ridge Hawks",
+        "short": "CRH"
+      },
+      "startTime": "2026-11-09T23:05:00Z",
+      "finalAt": "2026-11-10T02:00:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 0,
+          "away": 1
+        },
+        {
+          "period": 2,
+          "home": 0,
+          "away": 1
+        },
+        {
+          "period": 3,
+          "home": 2,
+          "away": 1
+        },
+        {
+          "period": 4,
+          "home": 2,
+          "away": 1
+        },
+        {
+          "period": 5,
+          "home": 2,
+          "away": 3
+        },
+        {
+          "period": 6,
+          "home": 2,
+          "away": 3
+        },
+        {
+          "period": 7,
+          "home": 2,
+          "away": 3
+        },
+        {
+          "period": 8,
+          "home": 5,
+          "away": 3
+        },
+        {
+          "period": 9,
+          "home": 5,
+          "away": 3
+        }
+      ],
+      "plays": [
+        {
+          "period": 8,
+          "clock": "B8",
+          "description": "Jon Pike hit a two-run home run in the 8th inning to put the Pilots ahead 5 to 3",
+          "player": "Jon Pike",
+          "team": "dcp",
+          "home": 5,
+          "away": 3,
+          "at": "2026-11-10T01:54:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Tomas Reyes",
+          "team": "dcp",
+          "stats": {
+            "strikeouts": 11,
+            "innings": 7
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "mlb-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/mlb/2026-11-09-mlb-dcp-crh/box",
+          "sourceTime": "2026-11-10T02:04:00Z",
+          "title": "Canyon Ridge Hawks at Delta City Pilots box score",
+          "excerpt": "Final: Canyon Ridge Hawks 3, Delta City Pilots 5. Tomas Reyes struck out 11 over 7 innings.",
+          "payload": {
+            "final": {
+              "home": 5,
+              "away": 3
+            },
+            "leaders": [
+              {
+                "player": "Tomas Reyes",
+                "team": "dcp",
+                "stats": {
+                  "strikeouts": 11,
+                  "innings": 7
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "mlb-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/mlb/2026-11-09-mlb-dcp-crh/pbp",
+          "sourceTime": "2026-11-10T01:54:00Z",
+          "title": "Canyon Ridge Hawks at Delta City Pilots play-by-play",
+          "excerpt": "8 B8: Jon Pike hit a two-run home run in the 8th inning to put the Pilots ahead 5 to 3. DCP 5, CRH 3.",
+          "payload": {
+            "plays": [
+              {
+                "period": 8,
+                "clock": "B8",
+                "player": "Jon Pike",
+                "action": "hit a two-run home run",
+                "home": 5,
+                "away": 3
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/mlb/2026-11-09-mlb-dcp-crh",
+          "sourceTime": "2026-11-10T02:25:00Z",
+          "title": "Delta City Pilots beat Canyon Ridge Hawks 5-3",
+          "excerpt": "Delta City Pilots beat Canyon Ridge Hawks 5-3 on November 9. Tomas Reyes struck out 11 over 7 innings."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Delta City Pilots 5, Canyon Ridge Hawks 3: Pike's eighth-inning homer",
+        "narration": "Delta City Pilots 5, Canyon Ridge Hawks 3 in MLB spring series. Tomas Reyes struck out 11 over 7 innings for the Pilots. Jon Pike hit a two-run home run in the 8th inning to put the Pilots ahead 5 to 3, and the Pilots closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Delta City Pilots 5, Canyon Ridge Hawks 3",
+            "value": [
+              5,
+              3
+            ],
+            "unit": "runs",
+            "subject": {
+              "team": "dcp"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Tomas Reyes",
+            "text": "Tomas Reyes struck out 11 over 7 innings",
+            "value": [
+              11,
+              7
+            ],
+            "unit": "strikeouts, innings",
+            "subject": {
+              "player": "Tomas Reyes",
+              "team": "dcp"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Delta City Pilots box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Jon Pike hit a two-run home run in the 8th inning to put the Pilots ahead 5 to 3",
+            "value": [
+              5,
+              3
+            ],
+            "unit": "runs",
+            "subject": {
+              "player": "Jon Pike",
+              "team": "dcp"
+            },
+            "period": 8,
+            "clock": "B8",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "8th period, B8"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-09-nhl-gbw-tml",
+      "league": "NHL",
+      "sport": "hockey",
+      "competition": "NHL regular season",
+      "season": "2026-27",
+      "venue": "Glacier Bay Centre",
+      "home": {
+        "id": "gbw",
+        "name": "Glacier Bay Wolves",
+        "short": "GBW"
+      },
+      "away": {
+        "id": "tml",
+        "name": "Tamarack Lynx",
+        "short": "TML"
+      },
+      "startTime": "2026-11-10T00:00:00Z",
+      "finalAt": "2026-11-10T02:35:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 1,
+          "away": 0
+        },
+        {
+          "period": 2,
+          "home": 2,
+          "away": 2
+        },
+        {
+          "period": 3,
+          "home": 4,
+          "away": 2
+        }
+      ],
+      "plays": [
+        {
+          "period": 3,
+          "clock": "14:22",
+          "description": "Nils Bergqvist scored on a breakaway at 14:22 of the third to put the Wolves ahead 3 to 2",
+          "player": "Nils Bergqvist",
+          "team": "gbw",
+          "home": 3,
+          "away": 2,
+          "at": "2026-11-10T02:29:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Nils Bergqvist",
+          "team": "gbw",
+          "stats": {
+            "goals": 2,
+            "assists": 1
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nhl-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nhl/2026-11-09-nhl-gbw-tml/box",
+          "sourceTime": "2026-11-10T02:39:00Z",
+          "title": "Tamarack Lynx at Glacier Bay Wolves box score",
+          "excerpt": "Final: Tamarack Lynx 2, Glacier Bay Wolves 4. Nils Bergqvist scored 2 goals and added 1 assists.",
+          "payload": {
+            "final": {
+              "home": 4,
+              "away": 2
+            },
+            "leaders": [
+              {
+                "player": "Nils Bergqvist",
+                "team": "gbw",
+                "stats": {
+                  "goals": 2,
+                  "assists": 1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nhl-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nhl/2026-11-09-nhl-gbw-tml/pbp",
+          "sourceTime": "2026-11-10T02:29:00Z",
+          "title": "Tamarack Lynx at Glacier Bay Wolves play-by-play",
+          "excerpt": "3 14:22: Nils Bergqvist scored on a breakaway at 14:22 of the third to put the Wolves ahead 3 to 2. GBW 3, TML 2.",
+          "payload": {
+            "plays": [
+              {
+                "period": 3,
+                "clock": "14:22",
+                "player": "Nils Bergqvist",
+                "action": "scored on a breakaway",
+                "home": 3,
+                "away": 2
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nhl/2026-11-09-nhl-gbw-tml",
+          "sourceTime": "2026-11-10T03:00:00Z",
+          "title": "Glacier Bay Wolves beat Tamarack Lynx 4-2",
+          "excerpt": "Glacier Bay Wolves beat Tamarack Lynx 4-2 on November 10. Nils Bergqvist scored 2 goals and added 1 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Glacier Bay Wolves 4, Tamarack Lynx 2: Bergqvist breaks the tie in the third",
+        "narration": "Glacier Bay Wolves 4, Tamarack Lynx 2 in NHL regular season. Nils Bergqvist scored 2 goals and added 1 assists for the Wolves. Nils Bergqvist scored on a breakaway at 14:22 of the third to put the Wolves ahead 3 to 2, and the Wolves closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Glacier Bay Wolves 4, Tamarack Lynx 2",
+            "value": [
+              4,
+              2
+            ],
+            "unit": "goals",
+            "subject": {
+              "team": "gbw"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Nils Bergqvist",
+            "text": "Nils Bergqvist scored 2 goals and added 1 assists",
+            "value": [
+              2,
+              1
+            ],
+            "unit": "goals, assists",
+            "subject": {
+              "player": "Nils Bergqvist",
+              "team": "gbw"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Glacier Bay Wolves box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Nils Bergqvist scored on a breakaway at 14:22 of the third to put the Wolves ahead 3 to 2",
+            "value": [
+              3,
+              2
+            ],
+            "unit": "goals",
+            "subject": {
+              "player": "Nils Bergqvist",
+              "team": "gbw"
+            },
+            "period": 3,
+            "clock": "14:22",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "third period, 14:22"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-09-mls-atl-unm",
+      "league": "MLS",
+      "sport": "soccer",
+      "competition": "MLS Cup playoffs",
+      "season": "2026",
+      "venue": "Atlas Park",
+      "home": {
+        "id": "atl",
+        "name": "Atlas FC",
+        "short": "ATL"
+      },
+      "away": {
+        "id": "unm",
+        "name": "Union Meridian",
+        "short": "UNM"
+      },
+      "startTime": "2026-11-10T01:30:00Z",
+      "finalAt": "2026-11-10T03:25:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": "1H",
+          "home": 1,
+          "away": 1
+        },
+        {
+          "period": "2H",
+          "home": 2,
+          "away": 1
+        }
+      ],
+      "plays": [
+        {
+          "period": 2,
+          "clock": "88th",
+          "description": "Renato Vidal scored from the penalty spot in the 88th minute to put Atlas FC ahead 2 to 1",
+          "player": "Renato Vidal",
+          "team": "atl",
+          "home": 2,
+          "away": 1,
+          "at": "2026-11-10T03:19:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Renato Vidal",
+          "team": "atl",
+          "stats": {
+            "goals": 2,
+            "shots": 4
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "mls-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/mls/2026-11-09-mls-atl-unm/box",
+          "sourceTime": "2026-11-10T03:29:00Z",
+          "title": "Union Meridian at Atlas FC box score",
+          "excerpt": "Final: Union Meridian 1, Atlas FC 2. Renato Vidal scored 2 goals and had 4 shots on target.",
+          "payload": {
+            "final": {
+              "home": 2,
+              "away": 1
+            },
+            "leaders": [
+              {
+                "player": "Renato Vidal",
+                "team": "atl",
+                "stats": {
+                  "goals": 2,
+                  "shots": 4
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "mls-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/mls/2026-11-09-mls-atl-unm/pbp",
+          "sourceTime": "2026-11-10T03:19:00Z",
+          "title": "Union Meridian at Atlas FC play-by-play",
+          "excerpt": "2 88th: Renato Vidal scored from the penalty spot in the 88th minute to put Atlas FC ahead 2 to 1. ATL 2, UNM 1.",
+          "payload": {
+            "plays": [
+              {
+                "period": 2,
+                "clock": "88th",
+                "player": "Renato Vidal",
+                "action": "scored from the penalty spot",
+                "home": 2,
+                "away": 1
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/mls/2026-11-09-mls-atl-unm",
+          "sourceTime": "2026-11-10T03:50:00Z",
+          "title": "Atlas FC beat Union Meridian 2-1",
+          "excerpt": "Atlas FC beat Union Meridian 2-1 on November 10. Renato Vidal scored 2 goals and had 4 shots on target."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Atlas FC 2, Union Meridian 1: Vidal from the spot in the 88th",
+        "narration": "Atlas FC 2, Union Meridian 1 in MLS Cup playoffs. Renato Vidal scored 2 goals and had 4 shots on target for the FC. Renato Vidal scored from the penalty spot in the 88th minute to put Atlas FC ahead 2 to 1, and the FC closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Atlas FC 2, Union Meridian 1",
+            "value": [
+              2,
+              1
+            ],
+            "unit": "goals",
+            "subject": {
+              "team": "atl"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Renato Vidal",
+            "text": "Renato Vidal scored 2 goals and had 4 shots on target",
+            "value": [
+              2,
+              4
+            ],
+            "unit": "goals, shots on target",
+            "subject": {
+              "player": "Renato Vidal",
+              "team": "atl"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Atlas FC box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Renato Vidal scored from the penalty spot in the 88th minute to put Atlas FC ahead 2 to 1",
+            "value": [
+              2,
+              1
+            ],
+            "unit": "goals",
+            "subject": {
+              "player": "Renato Vidal",
+              "team": "atl"
+            },
+            "period": 2,
+            "clock": "88th",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "second period, 88th"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    }
+  ],
+  "synthetic": true,
+  "notes": "Synthetic test slate dated by the morning it airs; the games tip the evening before. Teams, people, scores, clips and source URLs are fictional and use reserved example domains."
+}

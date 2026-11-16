@@ -1,0 +1,866 @@
+{
+  "name": "2026-11-12-late-west-coast",
+  "title": "Late West Coast finish and a source outage",
+  "date": "2026-11-12",
+  "games": [
+    {
+      "id": "2026-11-11-nba-csm-iwb",
+      "league": "NBA",
+      "sport": "basketball",
+      "competition": "NBA regular season",
+      "season": "2026-27",
+      "venue": "Mariner Pavilion",
+      "home": {
+        "id": "csm",
+        "name": "Coastal Mariners",
+        "short": "CSM"
+      },
+      "away": {
+        "id": "iwb",
+        "name": "Ironwood Bears",
+        "short": "IWB"
+      },
+      "startTime": "2026-11-12T03:30:00Z",
+      "finalAt": "2026-11-12T06:35:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 30,
+          "away": 27
+        },
+        {
+          "period": 2,
+          "home": 57,
+          "away": 55
+        },
+        {
+          "period": 3,
+          "home": 83,
+          "away": 86
+        },
+        {
+          "period": 4,
+          "home": 118,
+          "away": 115
+        }
+      ],
+      "plays": [
+        {
+          "period": 4,
+          "clock": "0:27",
+          "description": "Theo Marchetti hit a pull-up jumper with 0:27 left in the fourth to put the Mariners ahead 116 to 115",
+          "player": "Theo Marchetti",
+          "team": "csm",
+          "home": 116,
+          "away": 115,
+          "at": "2026-11-12T06:21:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Theo Marchetti",
+          "team": "csm",
+          "stats": {
+            "points": 34,
+            "rebounds": 8,
+            "assists": 7
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nba-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nba/2026-11-11-nba-csm-iwb/box",
+          "sourceTime": "2026-11-12T06:39:00Z",
+          "title": "Ironwood Bears at Coastal Mariners box score",
+          "excerpt": "Final: Ironwood Bears 115, Coastal Mariners 118. Theo Marchetti finished with 34 points, 8 rebounds and 7 assists.",
+          "payload": {
+            "final": {
+              "home": 118,
+              "away": 115
+            },
+            "leaders": [
+              {
+                "player": "Theo Marchetti",
+                "team": "csm",
+                "stats": {
+                  "points": 34,
+                  "rebounds": 8,
+                  "assists": 7
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nba-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nba/2026-11-11-nba-csm-iwb/pbp",
+          "sourceTime": "2026-11-12T06:21:00Z",
+          "title": "Ironwood Bears at Coastal Mariners play-by-play",
+          "excerpt": "4 0:27: Theo Marchetti hit a pull-up jumper with 0:27 left in the fourth to put the Mariners ahead 116 to 115. CSM 116, IWB 115.",
+          "payload": {
+            "plays": [
+              {
+                "period": 4,
+                "clock": "0:27",
+                "player": "Theo Marchetti",
+                "action": "hit a pull-up jumper",
+                "home": 116,
+                "away": 115
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nba/2026-11-11-nba-csm-iwb",
+          "sourceTime": "2026-11-12T07:00:00Z",
+          "title": "Coastal Mariners beat Ironwood Bears 118-115",
+          "excerpt": "Coastal Mariners beat Ironwood Bears 118-115 on November 12. Theo Marchetti finished with 34 points, 8 rebounds and 7 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Coastal Mariners 118, Ironwood Bears 115: Marchetti's late jumper",
+        "narration": "Coastal Mariners 118, Ironwood Bears 115 in NBA regular season. Theo Marchetti finished with 34 points, 8 rebounds and 7 assists for the Mariners. Theo Marchetti hit a pull-up jumper with 0:27 left in the fourth to put the Mariners ahead 116 to 115, and the Mariners closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Coastal Mariners 118, Ironwood Bears 115",
+            "value": [
+              118,
+              115
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "csm"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Theo Marchetti",
+            "text": "Theo Marchetti finished with 34 points, 8 rebounds and 7 assists",
+            "value": [
+              34,
+              8,
+              7
+            ],
+            "unit": "points, rebounds, assists",
+            "subject": {
+              "player": "Theo Marchetti",
+              "team": "csm"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Coastal Mariners box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Theo Marchetti hit a pull-up jumper with 0:27 left in the fourth to put the Mariners ahead 116 to 115",
+            "value": [
+              116,
+              115
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Theo Marchetti",
+              "team": "csm"
+            },
+            "period": 4,
+            "clock": "0:27",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "fourth period, 0:27"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [
+        "lateGame"
+      ],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-11-nhl-tml-gbw",
+      "league": "NHL",
+      "sport": "hockey",
+      "competition": "NHL regular season",
+      "season": "2026-27",
+      "venue": "Tamarack Arena",
+      "home": {
+        "id": "tml",
+        "name": "Tamarack Lynx",
+        "short": "TML"
+      },
+      "away": {
+        "id": "gbw",
+        "name": "Glacier Bay Wolves",
+        "short": "GBW"
+      },
+      "startTime": "2026-11-12T00:00:00Z",
+      "finalAt": "2026-11-12T02:30:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 1,
+          "away": 1
+        },
+        {
+          "period": 2,
+          "home": 1,
+          "away": 3
+        },
+        {
+          "period": 3,
+          "home": 2,
+          "away": 3
+        }
+      ],
+      "plays": [
+        {
+          "period": 2,
+          "clock": "9:14",
+          "description": "Nils Bergqvist scored on the power play at 9:14 of the second to put the Wolves ahead 3 to 1",
+          "player": "Nils Bergqvist",
+          "team": "gbw",
+          "home": 1,
+          "away": 3,
+          "at": "2026-11-12T02:24:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Nils Bergqvist",
+          "team": "gbw",
+          "stats": {
+            "goals": 1,
+            "assists": 2
+          }
+        }
+      ],
+      "reports": [],
+      "corrections": [],
+      "scenario": [
+        "outage"
+      ],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-11-nfl-rsm-pkg",
+      "league": "NFL",
+      "sport": "football",
+      "competition": "NFL Week 10",
+      "season": "2026",
+      "venue": "Redstone Stadium",
+      "home": {
+        "id": "rsm",
+        "name": "Redstone Miners",
+        "short": "RSM"
+      },
+      "away": {
+        "id": "pkg",
+        "name": "Prairie Kings",
+        "short": "PKG"
+      },
+      "startTime": "2026-11-12T01:15:00Z",
+      "finalAt": "2026-11-12T04:25:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 3,
+          "away": 7
+        },
+        {
+          "period": 2,
+          "home": 10,
+          "away": 14
+        },
+        {
+          "period": 3,
+          "home": 17,
+          "away": 14
+        },
+        {
+          "period": 4,
+          "home": 31,
+          "away": 14
+        }
+      ],
+      "plays": [
+        {
+          "period": 3,
+          "clock": "4:31",
+          "description": "Marcus Bell threw a 31-yard touchdown pass with 4:31 left in the third to put the Miners ahead 17 to 14",
+          "player": "Marcus Bell",
+          "team": "rsm",
+          "home": 17,
+          "away": 14,
+          "at": "2026-11-12T04:19:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Marcus Bell",
+          "team": "rsm",
+          "stats": {
+            "passingYards": 265,
+            "touchdowns": 3
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nfl-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nfl/2026-11-11-nfl-rsm-pkg/box",
+          "sourceTime": "2026-11-12T04:29:00Z",
+          "title": "Prairie Kings at Redstone Miners box score",
+          "excerpt": "Final: Prairie Kings 14, Redstone Miners 31. Marcus Bell threw for 265 yards and 3 touchdowns.",
+          "payload": {
+            "final": {
+              "home": 31,
+              "away": 14
+            },
+            "leaders": [
+              {
+                "player": "Marcus Bell",
+                "team": "rsm",
+                "stats": {
+                  "passingYards": 265,
+                  "touchdowns": 3
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nfl-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nfl/2026-11-11-nfl-rsm-pkg/pbp",
+          "sourceTime": "2026-11-12T04:19:00Z",
+          "title": "Prairie Kings at Redstone Miners play-by-play",
+          "excerpt": "3 4:31: Marcus Bell threw a 31-yard touchdown pass with 4:31 left in the third to put the Miners ahead 17 to 14. RSM 17, PKG 14.",
+          "payload": {
+            "plays": [
+              {
+                "period": 3,
+                "clock": "4:31",
+                "player": "Marcus Bell",
+                "action": "threw a 31-yard touchdown pass",
+                "home": 17,
+                "away": 14
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nfl/2026-11-11-nfl-rsm-pkg",
+          "sourceTime": "2026-11-12T04:50:00Z",
+          "title": "Redstone Miners beat Prairie Kings 31-14",
+          "excerpt": "Redstone Miners beat Prairie Kings 31-14 on November 12. Marcus Bell threw for 265 yards and 3 touchdowns."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Redstone Miners 31, Prairie Kings 14: Bell's second half",
+        "narration": "Redstone Miners 31, Prairie Kings 14 in NFL Week 10. Marcus Bell threw for 265 yards and 3 touchdowns for the Miners. Marcus Bell threw a 31-yard touchdown pass with 4:31 left in the third to put the Miners ahead 17 to 14, and the Miners closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Redstone Miners 31, Prairie Kings 14",
+            "value": [
+              31,
+              14
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "rsm"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Marcus Bell",
+            "text": "Marcus Bell threw for 265 yards and 3 touchdowns",
+            "value": [
+              265,
+              3
+            ],
+            "unit": "passing yards, touchdowns",
+            "subject": {
+              "player": "Marcus Bell",
+              "team": "rsm"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Redstone Miners box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Marcus Bell threw a 31-yard touchdown pass with 4:31 left in the third to put the Miners ahead 17 to 14",
+            "value": [
+              17,
+              14
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Marcus Bell",
+              "team": "rsm"
+            },
+            "period": 3,
+            "clock": "4:31",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "third period, 4:31"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-11-mls-rcb-sph",
+      "league": "MLS",
+      "sport": "soccer",
+      "competition": "MLS Cup playoffs",
+      "season": "2026",
+      "venue": "Castlebridge Ground",
+      "home": {
+        "id": "rcb",
+        "name": "Castlebridge Rovers",
+        "short": "RCB"
+      },
+      "away": {
+        "id": "sph",
+        "name": "Sporting Halden",
+        "short": "SPH"
+      },
+      "startTime": "2026-11-12T00:30:00Z",
+      "finalAt": "2026-11-12T02:25:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": "1H",
+          "home": 0,
+          "away": 0
+        },
+        {
+          "period": "2H",
+          "home": 1,
+          "away": 0
+        }
+      ],
+      "plays": [
+        {
+          "period": 2,
+          "clock": "71st",
+          "description": "Ewan Blake headed in a corner in the 71st minute to put Castlebridge Rovers ahead 1 to 0",
+          "player": "Ewan Blake",
+          "team": "rcb",
+          "home": 1,
+          "away": 0,
+          "at": "2026-11-12T02:19:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Ewan Blake",
+          "team": "rcb",
+          "stats": {
+            "goals": 1,
+            "shots": 3
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "mls-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/mls/2026-11-11-mls-rcb-sph/box",
+          "sourceTime": "2026-11-12T02:29:00Z",
+          "title": "Sporting Halden at Castlebridge Rovers box score",
+          "excerpt": "Final: Sporting Halden 0, Castlebridge Rovers 1. Ewan Blake scored 1 goals and had 3 shots on target.",
+          "payload": {
+            "final": {
+              "home": 1,
+              "away": 0
+            },
+            "leaders": [
+              {
+                "player": "Ewan Blake",
+                "team": "rcb",
+                "stats": {
+                  "goals": 1,
+                  "shots": 3
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "mls-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/mls/2026-11-11-mls-rcb-sph/pbp",
+          "sourceTime": "2026-11-12T02:19:00Z",
+          "title": "Sporting Halden at Castlebridge Rovers play-by-play",
+          "excerpt": "2 71st: Ewan Blake headed in a corner in the 71st minute to put Castlebridge Rovers ahead 1 to 0. RCB 1, SPH 0.",
+          "payload": {
+            "plays": [
+              {
+                "period": 2,
+                "clock": "71st",
+                "player": "Ewan Blake",
+                "action": "headed in a corner",
+                "home": 1,
+                "away": 0
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/mls/2026-11-11-mls-rcb-sph",
+          "sourceTime": "2026-11-12T02:50:00Z",
+          "title": "Castlebridge Rovers beat Sporting Halden 1-0",
+          "excerpt": "Castlebridge Rovers beat Sporting Halden 1-0 on November 12. Ewan Blake scored 1 goals and had 3 shots on target."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Castlebridge Rovers 1, Sporting Halden 0: Blake's header in the 71st",
+        "narration": "Castlebridge Rovers 1, Sporting Halden 0 in MLS Cup playoffs. Ewan Blake scored 1 goals and had 3 shots on target for the Rovers. Ewan Blake headed in a corner in the 71st minute to put Castlebridge Rovers ahead 1 to 0, and the Rovers closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Castlebridge Rovers 1, Sporting Halden 0",
+            "value": [
+              1,
+              0
+            ],
+            "unit": "goals",
+            "subject": {
+              "team": "rcb"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Ewan Blake",
+            "text": "Ewan Blake scored 1 goals and had 3 shots on target",
+            "value": [
+              1,
+              3
+            ],
+            "unit": "goals, shots on target",
+            "subject": {
+              "player": "Ewan Blake",
+              "team": "rcb"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Castlebridge Rovers box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Ewan Blake headed in a corner in the 71st minute to put Castlebridge Rovers ahead 1 to 0",
+            "value": [
+              1,
+              0
+            ],
+            "unit": "goals",
+            "subject": {
+              "player": "Ewan Blake",
+              "team": "rcb"
+            },
+            "period": 2,
+            "clock": "71st",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "second period, 71st"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-11-ncaab-prg-mtu",
+      "league": "NCAAB",
+      "sport": "basketball",
+      "competition": "college basketball opening week",
+      "season": "2026-27",
+      "venue": "Pine Ridge Fieldhouse",
+      "home": {
+        "id": "prg",
+        "name": "Pine Ridge",
+        "short": "PRG"
+      },
+      "away": {
+        "id": "mtu",
+        "name": "Metro University",
+        "short": "MTU"
+      },
+      "startTime": "2026-11-12T00:00:00Z",
+      "finalAt": "2026-11-12T02:30:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": "1H",
+          "home": 35,
+          "away": 31
+        },
+        {
+          "period": "2H",
+          "home": 72,
+          "away": 69
+        }
+      ],
+      "plays": [
+        {
+          "period": 2,
+          "clock": "0:19",
+          "description": "Jalen Okafor made two free throws with 0:19 left in the second to put the Ridge ahead 72 to 69",
+          "player": "Jalen Okafor",
+          "team": "prg",
+          "home": 72,
+          "away": 69,
+          "at": "2026-11-12T02:24:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Jalen Okafor",
+          "team": "prg",
+          "stats": {
+            "points": 24,
+            "rebounds": 10,
+            "assists": 2
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "ncaab-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/ncaab/2026-11-11-ncaab-prg-mtu/box",
+          "sourceTime": "2026-11-12T02:34:00Z",
+          "title": "Metro University at Pine Ridge box score",
+          "excerpt": "Final: Metro University 69, Pine Ridge 72. Jalen Okafor finished with 24 points, 10 rebounds and 2 assists.",
+          "payload": {
+            "final": {
+              "home": 72,
+              "away": 69
+            },
+            "leaders": [
+              {
+                "player": "Jalen Okafor",
+                "team": "prg",
+                "stats": {
+                  "points": 24,
+                  "rebounds": 10,
+                  "assists": 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "ncaab-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/ncaab/2026-11-11-ncaab-prg-mtu/pbp",
+          "sourceTime": "2026-11-12T02:24:00Z",
+          "title": "Metro University at Pine Ridge play-by-play",
+          "excerpt": "2 0:19: Jalen Okafor made two free throws with 0:19 left in the second to put the Ridge ahead 72 to 69. PRG 72, MTU 69.",
+          "payload": {
+            "plays": [
+              {
+                "period": 2,
+                "clock": "0:19",
+                "player": "Jalen Okafor",
+                "action": "made two free throws",
+                "home": 72,
+                "away": 69
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/ncaab/2026-11-11-ncaab-prg-mtu",
+          "sourceTime": "2026-11-12T02:55:00Z",
+          "title": "Pine Ridge beat Metro University 72-69",
+          "excerpt": "Pine Ridge beat Metro University 72-69 on November 12. Jalen Okafor finished with 24 points, 10 rebounds and 2 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Pine Ridge 72, Metro University 69: Okafor at the line",
+        "narration": "Pine Ridge 72, Metro University 69 in college basketball opening week. Jalen Okafor finished with 24 points, 10 rebounds and 2 assists for the Ridge. Jalen Okafor made two free throws with 0:19 left in the second to put the Ridge ahead 72 to 69, and the Ridge closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Pine Ridge 72, Metro University 69",
+            "value": [
+              72,
+              69
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "prg"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Jalen Okafor",
+            "text": "Jalen Okafor finished with 24 points, 10 rebounds and 2 assists",
+            "value": [
+              24,
+              10,
+              2
+            ],
+            "unit": "points, rebounds, assists",
+            "subject": {
+              "player": "Jalen Okafor",
+              "team": "prg"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Pine Ridge box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Jalen Okafor made two free throws with 0:19 left in the second to put the Ridge ahead 72 to 69",
+            "value": [
+              72,
+              69
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Jalen Okafor",
+              "team": "prg"
+            },
+            "period": 2,
+            "clock": "0:19",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "second period, 0:19"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    }
+  ],
+  "synthetic": true,
+  "notes": "Synthetic test slate dated by the morning it airs; the games tip the evening before. Teams, people, scores, clips and source URLs are fictional and use reserved example domains."
+}

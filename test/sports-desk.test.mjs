@@ -5,12 +5,16 @@ import path from "node:path";
 import request from "supertest";
 import { createApp } from "../server/app.mjs";
 import { root } from "../server/config.mjs";
-import { SportsDesk, localClock } from "../server/sports/desk.mjs";
+import { SportsDesk, localClock, zonedTime } from "../server/sports/desk.mjs";
+import { FixtureEvidenceAdapter } from "../server/sports/evidence.mjs";
+import { loadTrendFixture } from "../server/sports/fixtures.mjs";
+import { FixtureTrendAdapter } from "../server/sports/trend.mjs";
 
 const midnight = "2026-11-16T06:00:00Z";
 const airTime = "2026-11-16T14:00:00Z";
 const date = "2026-11-16";
-const topic = { id: "story", title: "Lead story", summary: "Editor notes", take: "", selected: true, sources: [] };
+const report = { title: "Lead story report", publisher: "League report", url: "https://league.example/reports/lead", excerpt: "The lead story as the league reported it, with 2 late goals." };
+const topic = { id: "story", title: "Lead story", summary: "Editor notes", take: "", selected: true, sources: [report] };
 
 async function fixture(t, overrides = {}) {
   await mkdir(path.join(root, "data"), { recursive: true });
@@ -22,7 +26,8 @@ async function fixture(t, overrides = {}) {
     directory, timezone: "America/Chicago", publishEnabled: true,
     canResearch: () => true, canUpload: () => true, now: () => time, rebuildDelay: 60_000,
     research: async () => [topic],
-    write: async ({ topics }) => ({ title: topics[0].title, description: "Episode", segments: [{ headline: topics[0].title, narration: "Example script." }] }),
+    write: async ({ topics }) => ({ title: topics[0].title, description: "Episode", segments: [{ headline: topics[0].title, narration: "Example script with 2 late goals.", sources: topics[0].sources }] }),
+    trend: [],
     render: async (_episode, output) => {
       await writeFile(path.join(output, "episode.mp4"), "placeholder for video bytes");
       return { duration: 25 };

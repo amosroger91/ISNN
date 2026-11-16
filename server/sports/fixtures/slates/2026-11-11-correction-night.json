@@ -1,0 +1,1085 @@
+{
+  "name": "2026-11-11-correction-night",
+  "title": "Correction night: a stat review and syndicated duplicates",
+  "date": "2026-11-11",
+  "games": [
+    {
+      "id": "2026-11-10-nba-spo-blc",
+      "league": "NBA",
+      "sport": "basketball",
+      "competition": "NBA regular season",
+      "season": "2026-27",
+      "venue": "Summit Center",
+      "home": {
+        "id": "spo",
+        "name": "Summit Peak Owls",
+        "short": "SPO"
+      },
+      "away": {
+        "id": "blc",
+        "name": "Bayline Comets",
+        "short": "BLC"
+      },
+      "startTime": "2026-11-11T01:00:00Z",
+      "finalAt": "2026-11-11T03:30:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 24,
+          "away": 30
+        },
+        {
+          "period": 2,
+          "home": 51,
+          "away": 58
+        },
+        {
+          "period": 3,
+          "home": 79,
+          "away": 84
+        },
+        {
+          "period": 4,
+          "home": 107,
+          "away": 110
+        }
+      ],
+      "plays": [
+        {
+          "period": 4,
+          "clock": "1:12",
+          "description": "Owen Castellano drove for a layup with 1:12 left in the fourth to put the Comets ahead 108 to 105",
+          "player": "Owen Castellano",
+          "team": "blc",
+          "home": 105,
+          "away": 108,
+          "at": "2026-11-11T03:24:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Owen Castellano",
+          "team": "blc",
+          "stats": {
+            "points": 31,
+            "rebounds": 7,
+            "assists": 5
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nba-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nba/2026-11-10-nba-spo-blc/box",
+          "sourceTime": "2026-11-11T03:34:00Z",
+          "title": "Bayline Comets at Summit Peak Owls box score",
+          "excerpt": "Final: Bayline Comets 110, Summit Peak Owls 107. Owen Castellano finished with 31 points, 7 rebounds and 5 assists.",
+          "payload": {
+            "final": {
+              "home": 107,
+              "away": 110
+            },
+            "leaders": [
+              {
+                "player": "Owen Castellano",
+                "team": "blc",
+                "stats": {
+                  "points": 31,
+                  "rebounds": 7,
+                  "assists": 5
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nba-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nba/2026-11-10-nba-spo-blc/pbp",
+          "sourceTime": "2026-11-11T03:24:00Z",
+          "title": "Bayline Comets at Summit Peak Owls play-by-play",
+          "excerpt": "4 1:12: Owen Castellano drove for a layup with 1:12 left in the fourth to put the Comets ahead 108 to 105. SPO 105, BLC 108.",
+          "payload": {
+            "plays": [
+              {
+                "period": 4,
+                "clock": "1:12",
+                "player": "Owen Castellano",
+                "action": "drove for a layup",
+                "home": 105,
+                "away": 108
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nba/2026-11-10-nba-spo-blc",
+          "sourceTime": "2026-11-11T03:55:00Z",
+          "title": "Bayline Comets beat Summit Peak Owls 110-107",
+          "excerpt": "Bayline Comets beat Summit Peak Owls 110-107 on November 11. Owen Castellano finished with 31 points, 7 rebounds and 5 assists."
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nba-official",
+          "kind": "correction",
+          "url": "https://scores.example/nba/2026-11-10-nba-spo-blc/box?rev=2",
+          "version": "2",
+          "sourceTime": "2026-11-11T05:05:00Z",
+          "title": "Stat correction",
+          "excerpt": "Stat correction: Owen Castellano credited with 29 points, not 31. A fourth-quarter basket was reassigned to Luis Ferreira."
+        }
+      ],
+      "corrections": [
+        {
+          "at": "2026-11-11T05:05:00Z",
+          "report": 3,
+          "key": "leader:Owen Castellano",
+          "value": [
+            29,
+            7,
+            5
+          ],
+          "text": "Owen Castellano finished with 29 points, 7 rebounds and 5 assists",
+          "reason": "The official scorer reassigned a fourth-quarter basket after review."
+        }
+      ],
+      "story": {
+        "headline": "Bayline Comets 110, Summit Peak Owls 107: Castellano's drive holds off the Owls",
+        "narration": "Bayline Comets 110, Summit Peak Owls 107 in NBA regular season. Owen Castellano finished with 31 points, 7 rebounds and 5 assists for the Comets. Owen Castellano drove for a layup with 1:12 left in the fourth to put the Comets ahead 108 to 105, and the Comets closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Bayline Comets 110, Summit Peak Owls 107",
+            "value": [
+              110,
+              107
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "blc"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Owen Castellano",
+            "text": "Owen Castellano finished with 31 points, 7 rebounds and 5 assists",
+            "value": [
+              31,
+              7,
+              5
+            ],
+            "unit": "points, rebounds, assists",
+            "subject": {
+              "player": "Owen Castellano",
+              "team": "blc"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Bayline Comets box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Owen Castellano drove for a layup with 1:12 left in the fourth to put the Comets ahead 108 to 105",
+            "value": [
+              105,
+              108
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Owen Castellano",
+              "team": "blc"
+            },
+            "period": 4,
+            "clock": "1:12",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "fourth period, 1:12"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [
+        "lateCorrection"
+      ],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-10-nfl-pkg-lsh",
+      "league": "NFL",
+      "sport": "football",
+      "competition": "NFL Week 10",
+      "season": "2026",
+      "venue": "Prairie Dome",
+      "home": {
+        "id": "pkg",
+        "name": "Prairie Kings",
+        "short": "PKG"
+      },
+      "away": {
+        "id": "lsh",
+        "name": "Lakeshore Herons",
+        "short": "LSH"
+      },
+      "startTime": "2026-11-10T01:15:00Z",
+      "finalAt": "2026-11-10T04:30:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 10,
+          "away": 0
+        },
+        {
+          "period": 2,
+          "home": 13,
+          "away": 7
+        },
+        {
+          "period": 3,
+          "home": 20,
+          "away": 14
+        },
+        {
+          "period": 4,
+          "home": 27,
+          "away": 24
+        }
+      ],
+      "plays": [
+        {
+          "period": 4,
+          "clock": "2:04",
+          "description": "Caleb Oyelaran threw a 12-yard touchdown pass with 2:04 left in the fourth to put the Kings ahead 27 to 24",
+          "player": "Caleb Oyelaran",
+          "team": "pkg",
+          "home": 27,
+          "away": 24,
+          "at": "2026-11-10T04:24:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Caleb Oyelaran",
+          "team": "pkg",
+          "stats": {
+            "passingYards": 288,
+            "touchdowns": 3
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nfl-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nfl/2026-11-10-nfl-pkg-lsh/box",
+          "sourceTime": "2026-11-10T04:34:00Z",
+          "title": "Lakeshore Herons at Prairie Kings box score",
+          "excerpt": "Final: Lakeshore Herons 24, Prairie Kings 27. Caleb Oyelaran threw for 288 yards and 3 touchdowns.",
+          "payload": {
+            "final": {
+              "home": 27,
+              "away": 24
+            },
+            "leaders": [
+              {
+                "player": "Caleb Oyelaran",
+                "team": "pkg",
+                "stats": {
+                  "passingYards": 288,
+                  "touchdowns": 3
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nfl-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nfl/2026-11-10-nfl-pkg-lsh/pbp",
+          "sourceTime": "2026-11-10T04:24:00Z",
+          "title": "Lakeshore Herons at Prairie Kings play-by-play",
+          "excerpt": "4 2:04: Caleb Oyelaran threw a 12-yard touchdown pass with 2:04 left in the fourth to put the Kings ahead 27 to 24. PKG 27, LSH 24.",
+          "payload": {
+            "plays": [
+              {
+                "period": 4,
+                "clock": "2:04",
+                "player": "Caleb Oyelaran",
+                "action": "threw a 12-yard touchdown pass",
+                "home": 27,
+                "away": 24
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nfl/2026-11-10-nfl-pkg-lsh",
+          "sourceTime": "2026-11-10T04:55:00Z",
+          "title": "Prairie Kings beat Lakeshore Herons 27-24",
+          "excerpt": "Prairie Kings beat Lakeshore Herons 27-24 on November 10. Caleb Oyelaran threw for 288 yards and 3 touchdowns."
+        },
+        {
+          "provider": "regional-paper-a",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://regional-a.example/sports/kings-herons",
+          "sourceTime": "2026-11-10T05:10:00Z",
+          "title": "Prairie Kings beat Lakeshore Herons 27-24",
+          "excerpt": "Prairie Kings beat Lakeshore Herons 27-24 on November 10. Caleb Oyelaran threw for 288 yards and 3 touchdowns."
+        },
+        {
+          "provider": "regional-paper-b",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://regional-b.example/nfl/kings-herons-recap",
+          "sourceTime": "2026-11-10T05:25:00Z",
+          "title": "Prairie Kings beat Lakeshore Herons 27-24",
+          "excerpt": "Prairie Kings beat Lakeshore Herons 27-24 on November 10. Caleb Oyelaran threw for 288 yards and 3 touchdowns."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Prairie Kings 27, Lakeshore Herons 24: Oyelaran's third touchdown pass",
+        "narration": "Prairie Kings 27, Lakeshore Herons 24 in NFL Week 10. Caleb Oyelaran threw for 288 yards and 3 touchdowns for the Kings. Caleb Oyelaran threw a 12-yard touchdown pass with 2:04 left in the fourth to put the Kings ahead 27 to 24, and the Kings closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Prairie Kings 27, Lakeshore Herons 24",
+            "value": [
+              27,
+              24
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "pkg"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Caleb Oyelaran",
+            "text": "Caleb Oyelaran threw for 288 yards and 3 touchdowns",
+            "value": [
+              288,
+              3
+            ],
+            "unit": "passing yards, touchdowns",
+            "subject": {
+              "player": "Caleb Oyelaran",
+              "team": "pkg"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Prairie Kings box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Caleb Oyelaran threw a 12-yard touchdown pass with 2:04 left in the fourth to put the Kings ahead 27 to 24",
+            "value": [
+              27,
+              24
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Caleb Oyelaran",
+              "team": "pkg"
+            },
+            "period": 4,
+            "clock": "2:04",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "fourth period, 2:04"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [
+        "duplicateReports"
+      ],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-10-nhl-sfp-hlb",
+      "league": "NHL",
+      "sport": "hockey",
+      "competition": "NHL regular season",
+      "season": "2026-27",
+      "venue": "Silver Fork Arena",
+      "home": {
+        "id": "sfp",
+        "name": "Silver Fork Pike",
+        "short": "SFP"
+      },
+      "away": {
+        "id": "hlb",
+        "name": "Harbor Light Beacons",
+        "short": "HLB"
+      },
+      "startTime": "2026-11-11T00:00:00Z",
+      "finalAt": "2026-11-11T02:30:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 0,
+          "away": 1
+        },
+        {
+          "period": 2,
+          "home": 1,
+          "away": 1
+        },
+        {
+          "period": 3,
+          "home": 1,
+          "away": 1
+        },
+        {
+          "period": "OT",
+          "home": 2,
+          "away": 1
+        }
+      ],
+      "plays": [
+        {
+          "period": "OT",
+          "clock": "2:48",
+          "description": "Pavel Horak scored on a two-on-one at 2:48 of the overtime to put the Pike ahead 2 to 1",
+          "player": "Pavel Horak",
+          "team": "sfp",
+          "home": 2,
+          "away": 1,
+          "at": "2026-11-11T02:24:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Pavel Horak",
+          "team": "sfp",
+          "stats": {
+            "goals": 1,
+            "assists": 1
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "nhl-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/nhl/2026-11-10-nhl-sfp-hlb/box",
+          "sourceTime": "2026-11-11T02:34:00Z",
+          "title": "Harbor Light Beacons at Silver Fork Pike box score",
+          "excerpt": "Final: Harbor Light Beacons 1, Silver Fork Pike 2. Pavel Horak scored 1 goals and added 1 assists.",
+          "payload": {
+            "final": {
+              "home": 2,
+              "away": 1
+            },
+            "leaders": [
+              {
+                "player": "Pavel Horak",
+                "team": "sfp",
+                "stats": {
+                  "goals": 1,
+                  "assists": 1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "nhl-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/nhl/2026-11-10-nhl-sfp-hlb/pbp",
+          "sourceTime": "2026-11-11T02:24:00Z",
+          "title": "Harbor Light Beacons at Silver Fork Pike play-by-play",
+          "excerpt": "OT 2:48: Pavel Horak scored on a two-on-one at 2:48 of the overtime to put the Pike ahead 2 to 1. SFP 2, HLB 1.",
+          "payload": {
+            "plays": [
+              {
+                "period": "OT",
+                "clock": "2:48",
+                "player": "Pavel Horak",
+                "action": "scored on a two-on-one",
+                "home": 2,
+                "away": 1
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/nhl/2026-11-10-nhl-sfp-hlb",
+          "sourceTime": "2026-11-11T02:55:00Z",
+          "title": "Silver Fork Pike beat Harbor Light Beacons 2-1",
+          "excerpt": "Silver Fork Pike beat Harbor Light Beacons 2-1 on November 11. Pavel Horak scored 1 goals and added 1 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Silver Fork Pike 2, Harbor Light Beacons 1: Horak in overtime",
+        "narration": "Silver Fork Pike 2, Harbor Light Beacons 1 in NHL regular season. Pavel Horak scored 1 goals and added 1 assists for the Pike. Pavel Horak scored on a two-on-one at 2:48 of the overtime to put the Pike ahead 2 to 1, and the Pike closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Silver Fork Pike 2, Harbor Light Beacons 1",
+            "value": [
+              2,
+              1
+            ],
+            "unit": "goals",
+            "subject": {
+              "team": "sfp"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Pavel Horak",
+            "text": "Pavel Horak scored 1 goals and added 1 assists",
+            "value": [
+              1,
+              1
+            ],
+            "unit": "goals, assists",
+            "subject": {
+              "player": "Pavel Horak",
+              "team": "sfp"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Silver Fork Pike box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Pavel Horak scored on a two-on-one at 2:48 of the overtime to put the Pike ahead 2 to 1",
+            "value": [
+              2,
+              1
+            ],
+            "unit": "goals",
+            "subject": {
+              "player": "Pavel Horak",
+              "team": "sfp"
+            },
+            "period": "OT",
+            "clock": "2:48",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "overtime period, 2:48"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-10-mlb-paa-wff",
+      "league": "MLB",
+      "sport": "baseball",
+      "competition": "MLB spring series",
+      "season": "2026",
+      "venue": "Anchor Yards",
+      "home": {
+        "id": "paa",
+        "name": "Port Allen Anchors",
+        "short": "PAA"
+      },
+      "away": {
+        "id": "wff",
+        "name": "Westfield Foundry",
+        "short": "WFF"
+      },
+      "startTime": "2026-11-10T23:10:00Z",
+      "finalAt": "2026-11-11T01:55:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 1,
+          "away": 0
+        },
+        {
+          "period": 2,
+          "home": 1,
+          "away": 0
+        },
+        {
+          "period": 3,
+          "home": 1,
+          "away": 2
+        },
+        {
+          "period": 4,
+          "home": 1,
+          "away": 2
+        },
+        {
+          "period": 5,
+          "home": 3,
+          "away": 2
+        },
+        {
+          "period": 6,
+          "home": 3,
+          "away": 2
+        },
+        {
+          "period": 7,
+          "home": 3,
+          "away": 2
+        },
+        {
+          "period": 8,
+          "home": 3,
+          "away": 2
+        },
+        {
+          "period": 9,
+          "home": 3,
+          "away": 2
+        }
+      ],
+      "plays": [
+        {
+          "period": 5,
+          "clock": "B5",
+          "description": "Aiden Cole doubled home two runs in the 5th inning to put the Anchors ahead 3 to 2",
+          "player": "Aiden Cole",
+          "team": "paa",
+          "home": 3,
+          "away": 2,
+          "at": "2026-11-11T01:49:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Mikel Osei",
+          "team": "paa",
+          "stats": {
+            "strikeouts": 9,
+            "innings": 6
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "mlb-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/mlb/2026-11-10-mlb-paa-wff/box",
+          "sourceTime": "2026-11-11T01:59:00Z",
+          "title": "Westfield Foundry at Port Allen Anchors box score",
+          "excerpt": "Final: Westfield Foundry 2, Port Allen Anchors 3. Mikel Osei struck out 9 over 6 innings.",
+          "payload": {
+            "final": {
+              "home": 3,
+              "away": 2
+            },
+            "leaders": [
+              {
+                "player": "Mikel Osei",
+                "team": "paa",
+                "stats": {
+                  "strikeouts": 9,
+                  "innings": 6
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "mlb-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/mlb/2026-11-10-mlb-paa-wff/pbp",
+          "sourceTime": "2026-11-11T01:49:00Z",
+          "title": "Westfield Foundry at Port Allen Anchors play-by-play",
+          "excerpt": "5 B5: Aiden Cole doubled home two runs in the 5th inning to put the Anchors ahead 3 to 2. PAA 3, WFF 2.",
+          "payload": {
+            "plays": [
+              {
+                "period": 5,
+                "clock": "B5",
+                "player": "Aiden Cole",
+                "action": "doubled home two runs",
+                "home": 3,
+                "away": 2
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/mlb/2026-11-10-mlb-paa-wff",
+          "sourceTime": "2026-11-11T02:20:00Z",
+          "title": "Port Allen Anchors beat Westfield Foundry 3-2",
+          "excerpt": "Port Allen Anchors beat Westfield Foundry 3-2 on November 10. Mikel Osei struck out 9 over 6 innings."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Port Allen Anchors 3, Westfield Foundry 2: Cole's fifth-inning double",
+        "narration": "Port Allen Anchors 3, Westfield Foundry 2 in MLB spring series. Mikel Osei struck out 9 over 6 innings for the Anchors. Aiden Cole doubled home two runs in the 5th inning to put the Anchors ahead 3 to 2, and the Anchors closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Port Allen Anchors 3, Westfield Foundry 2",
+            "value": [
+              3,
+              2
+            ],
+            "unit": "runs",
+            "subject": {
+              "team": "paa"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Mikel Osei",
+            "text": "Mikel Osei struck out 9 over 6 innings",
+            "value": [
+              9,
+              6
+            ],
+            "unit": "strikeouts, innings",
+            "subject": {
+              "player": "Mikel Osei",
+              "team": "paa"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Port Allen Anchors box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Aiden Cole doubled home two runs in the 5th inning to put the Anchors ahead 3 to 2",
+            "value": [
+              3,
+              2
+            ],
+            "unit": "runs",
+            "subject": {
+              "player": "Aiden Cole",
+              "team": "paa"
+            },
+            "period": 5,
+            "clock": "B5",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "5th period, B5"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    },
+    {
+      "id": "2026-11-10-wnba-mcf-tws",
+      "league": "WNBA",
+      "sport": "basketball",
+      "competition": "WNBA exhibition",
+      "season": "2026",
+      "venue": "Monarch Hall",
+      "home": {
+        "id": "mcf",
+        "name": "Monarch City Falcons",
+        "short": "MCF"
+      },
+      "away": {
+        "id": "tws",
+        "name": "Tidewater Sirens",
+        "short": "TWS"
+      },
+      "startTime": "2026-11-11T00:00:00Z",
+      "finalAt": "2026-11-11T02:30:00Z",
+      "status": "final",
+      "scoreStates": [
+        {
+          "period": 1,
+          "home": 20,
+          "away": 18
+        },
+        {
+          "period": 2,
+          "home": 41,
+          "away": 39
+        },
+        {
+          "period": 3,
+          "home": 60,
+          "away": 61
+        },
+        {
+          "period": 4,
+          "home": 84,
+          "away": 79
+        }
+      ],
+      "plays": [
+        {
+          "period": 4,
+          "clock": "1:58",
+          "description": "Dana Whitlock scored on a putback with 1:58 left in the fourth to put the Falcons ahead 80 to 79",
+          "player": "Dana Whitlock",
+          "team": "mcf",
+          "home": 80,
+          "away": 79,
+          "at": "2026-11-11T02:24:00Z"
+        }
+      ],
+      "leaders": [
+        {
+          "player": "Dana Whitlock",
+          "team": "mcf",
+          "stats": {
+            "points": 26,
+            "rebounds": 12,
+            "assists": 3
+          }
+        }
+      ],
+      "reports": [
+        {
+          "provider": "league-official",
+          "originGroup": "wnba-official",
+          "kind": "boxscore",
+          "url": "https://scores.example/wnba/2026-11-10-wnba-mcf-tws/box",
+          "sourceTime": "2026-11-11T02:34:00Z",
+          "title": "Tidewater Sirens at Monarch City Falcons box score",
+          "excerpt": "Final: Tidewater Sirens 79, Monarch City Falcons 84. Dana Whitlock finished with 26 points, 12 rebounds and 3 assists.",
+          "payload": {
+            "final": {
+              "home": 84,
+              "away": 79
+            },
+            "leaders": [
+              {
+                "player": "Dana Whitlock",
+                "team": "mcf",
+                "stats": {
+                  "points": 26,
+                  "rebounds": 12,
+                  "assists": 3
+                }
+              }
+            ]
+          }
+        },
+        {
+          "provider": "league-official",
+          "originGroup": "wnba-official",
+          "kind": "play-by-play",
+          "url": "https://scores.example/wnba/2026-11-10-wnba-mcf-tws/pbp",
+          "sourceTime": "2026-11-11T02:24:00Z",
+          "title": "Tidewater Sirens at Monarch City Falcons play-by-play",
+          "excerpt": "4 1:58: Dana Whitlock scored on a putback with 1:58 left in the fourth to put the Falcons ahead 80 to 79. MCF 80, TWS 79.",
+          "payload": {
+            "plays": [
+              {
+                "period": 4,
+                "clock": "1:58",
+                "player": "Dana Whitlock",
+                "action": "scored on a putback",
+                "home": 80,
+                "away": 79
+              }
+            ]
+          }
+        },
+        {
+          "provider": "wire-service",
+          "originGroup": "wire-service",
+          "kind": "wire",
+          "url": "https://wire.example/wnba/2026-11-10-wnba-mcf-tws",
+          "sourceTime": "2026-11-11T02:55:00Z",
+          "title": "Monarch City Falcons beat Tidewater Sirens 84-79",
+          "excerpt": "Monarch City Falcons beat Tidewater Sirens 84-79 on November 11. Dana Whitlock finished with 26 points, 12 rebounds and 3 assists."
+        }
+      ],
+      "corrections": [],
+      "story": {
+        "headline": "Monarch City Falcons 84, Tidewater Sirens 79: Whitlock's putback starts the closing run",
+        "narration": "Monarch City Falcons 84, Tidewater Sirens 79 in WNBA exhibition. Dana Whitlock finished with 26 points, 12 rebounds and 3 assists for the Falcons. Dana Whitlock scored on a putback with 1:58 left in the fourth to put the Falcons ahead 80 to 79, and the Falcons closed it out from there.",
+        "claims": [
+          {
+            "key": "final-score",
+            "text": "Final score Monarch City Falcons 84, Tidewater Sirens 79",
+            "value": [
+              84,
+              79
+            ],
+            "unit": "points",
+            "subject": {
+              "team": "mcf"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Line score"
+              },
+              {
+                "report": 2,
+                "locator": "Lede",
+                "stance": "supports"
+              }
+            ]
+          },
+          {
+            "key": "leader:Dana Whitlock",
+            "text": "Dana Whitlock finished with 26 points, 12 rebounds and 3 assists",
+            "value": [
+              26,
+              12,
+              3
+            ],
+            "unit": "points, rebounds, assists",
+            "subject": {
+              "player": "Dana Whitlock",
+              "team": "mcf"
+            },
+            "asOf": "final",
+            "evidence": [
+              {
+                "report": 0,
+                "locator": "Monarch City Falcons box score"
+              }
+            ]
+          },
+          {
+            "key": "decisive-play",
+            "text": "Dana Whitlock scored on a putback with 1:58 left in the fourth to put the Falcons ahead 80 to 79",
+            "value": [
+              80,
+              79
+            ],
+            "unit": "points",
+            "subject": {
+              "player": "Dana Whitlock",
+              "team": "mcf"
+            },
+            "period": 4,
+            "clock": "1:58",
+            "asOf": "in-game",
+            "evidence": [
+              {
+                "report": 1,
+                "locator": "fourth period, 1:58"
+              }
+            ]
+          }
+        ]
+      },
+      "scenario": [],
+      "media": {
+        "assets": [],
+        "grants": []
+      }
+    }
+  ],
+  "synthetic": true,
+  "notes": "Synthetic test slate dated by the morning it airs; the games tip the evening before. Teams, people, scores, clips and source URLs are fictional and use reserved example domains."
+}

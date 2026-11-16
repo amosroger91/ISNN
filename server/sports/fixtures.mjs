@@ -31,6 +31,91 @@ export const fixtureSchema = z.object({
   })).min(1).max(12),
 });
 
+// Game evidence slates: credential-free, replayable evidence for the desk and
+// its tests. A slate is one night across several sports; each game carries the
+// reports an adapter would retrieve, the story the desk would pitch, and the
+// claims that bind every number in that story to a report and a locator.
+const team = z.object({ id: z.string().regex(/^[a-z0-9-]+$/u), name: z.string().min(2).max(60), short: z.string().min(2).max(5) });
+const report = z.object({
+  provider: z.string().min(1), originGroup: z.string().min(1),
+  kind: z.enum(["boxscore", "play-by-play", "wire", "statement", "injury-report", "correction"]),
+  url: z.url({ protocol: /^https?$/ }), sourceTime: z.iso.datetime(), version: z.string().optional(),
+  title: z.string().optional(), excerpt: z.string().optional(), payload: z.record(z.string(), z.unknown()).optional(),
+});
+const claimEvidence = z.object({ report: z.number().int().nonnegative(), locator: z.string().min(1), stance: z.enum(["supports", "contradicts"]).optional() });
+export const gameClaimSchema = z.object({
+  key: z.string().min(1), text: z.string().min(3), value: z.unknown().optional(), unit: z.string().optional(),
+  subject: z.object({ team: z.string().optional(), player: z.string().optional() }).optional(),
+  period: z.union([z.number(), z.string()]).optional(), clock: z.string().optional(),
+  asOf: z.enum(["final", "in-game", "announced"]).default("final"),
+  evidence: z.array(claimEvidence).min(1),
+});
+const scoreState = z.object({ period: z.union([z.number().int(), z.string()]), home: z.number().nonnegative(), away: z.number().nonnegative(), at: z.iso.datetime().optional() });
+const play = z.object({
+  period: z.union([z.number().int(), z.string()]), clock: z.string(), description: z.string().min(3), player: z.string().optional(),
+  team: z.string().optional(), home: z.number(), away: z.number(), at: z.iso.datetime().optional(),
+});
+export const mediaAssetSchema = z.object({
+  id: z.string().min(1), providerId: z.string().min(1), providerVersion: z.string().default("1"), eventId: z.string().min(1), people: z.array(z.string()).default([]),
+  captureTime: z.iso.datetime(), duration: z.number().positive().optional(), width: z.number().int().positive().optional(), height: z.number().int().positive().optional(),
+  focalArea: z.string().optional(), credit: z.string().min(1), grantId: z.string().min(1), grantVersion: z.number().int().positive().default(1),
+  sha256: z.string().regex(/^[a-f0-9]{64}$/u), status: z.enum(["available", "revoked", "quarantined"]).default("available"),
+  sourceIn: z.string().optional(), sourceOut: z.string().optional(), eventClock: z.string().optional(), audio: z.boolean().default(false),
+});
+export const rightsGrantSchema = z.object({
+  id: z.string().min(1), version: z.number().int().positive().default(1), licensor: z.string().min(1), status: z.enum(["active", "revoked", "expired"]).default("active"),
+  components: z.array(z.enum(["video", "audio", "stills"])).min(1), channels: z.array(z.string().min(1)).min(1),
+  surfaces: z.array(z.enum(["episode", "short", "thumbnail", "still"])).min(1), territories: z.array(z.string().min(2)).min(1),
+  window: z.object({ embargoUntil: z.iso.datetime().optional(), expiresAt: z.iso.datetime().optional() }).default({}),
+  alterations: z.object({ reframe: z.boolean().default(true), overlays: z.boolean().default(true), freezeFrame: z.boolean().default(false), speedChange: z.boolean().default(false) }).default({}),
+  retention: z.string().default("archive while the grant is active"), aiProcessing: z.boolean().default(false),
+  credit: z.string().min(1), claimContact: z.string().min(1), evidenceRef: z.string().min(1),
+});
+export const gameSchema = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/u), league: z.string().min(2).max(40), sport: z.enum(["basketball", "football", "baseball", "hockey", "soccer"]),
+  competition: z.string().min(2).max(90), season: z.string().min(4).max(12), venue: z.string().optional(),
+  home: team, away: team, startTime: z.iso.datetime(), finalAt: z.iso.datetime().optional(), status: z.enum(["scheduled", "in-progress", "final", "postponed"]),
+  scoreStates: z.array(scoreState), plays: z.array(play).default([]),
+  leaders: z.array(z.object({ player: z.string(), team: z.string(), stats: z.record(z.string(), z.number()) })).default([]),
+  reports: z.array(report),
+  corrections: z.array(z.object({ at: z.iso.datetime(), report: z.number().int().nonnegative(), key: z.string().min(1), value: z.unknown(), text: z.string().min(3), reason: z.string().min(3) })).default([]),
+  story: z.object({ headline: z.string().min(3).max(140), narration: z.string().min(20).max(750), claims: z.array(gameClaimSchema).min(1), diagram: diagram.optional() }).optional(),
+  scenario: z.array(z.string()).default([]),
+  media: z.object({ assets: z.array(mediaAssetSchema).default([]), grants: z.array(rightsGrantSchema).default([]) }).default({ assets: [], grants: [] }),
+});
+export const slateSchema = z.object({
+  name: z.string().regex(/^[a-z0-9-]+$/u), title: z.string().min(3).max(120), date: z.iso.date(), synthetic: z.boolean().default(true),
+  notes: z.string().optional(), games: z.array(gameSchema).min(1).max(12),
+});
+const slateDirectory = path.join(directory, "slates");
+
+export async function listSlates() {
+  return (await readdir(slateDirectory)).filter((file) => file.endsWith(".json")).map((file) => file.replace(/\.json$/u, "")).sort();
+}
+
+export async function loadSlate(name) {
+  const file = /[\\/]/u.test(name) ? path.resolve(name) : path.join(slateDirectory, `${name}.json`);
+  const slate = slateSchema.parse(JSON.parse(await readFile(file, "utf8")));
+  const ids = new Set();
+  for (const game of slate.games) {
+    if (ids.has(game.id)) throw new Error(`Slate ${slate.name} repeats game ${game.id}.`);
+    ids.add(game.id);
+    for (const claim of game.story?.claims || []) {
+      if (claim.evidence.some(({ report }) => report >= game.reports.length)) throw new Error(`${game.id}: claim "${claim.text}" cites a report outside its list.`);
+    }
+    if (game.corrections.some(({ report }) => report >= game.reports.length)) throw new Error(`${game.id}: a correction cites a report outside its list.`);
+  }
+  return slate;
+}
+
+export async function loadAllSlates() {
+  return Promise.all((await listSlates()).map((name) => loadSlate(name)));
+}
+
+export async function loadTrendFixture(name = "overtime-trend-scenarios") {
+  return JSON.parse(await readFile(path.join(directory, "trends", `${name}.json`), "utf8"));
+}
+
 export const wordCount = (text) => text.trim().split(/\s+/u).length;
 
 export async function listFixtures() {
