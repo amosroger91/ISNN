@@ -64,7 +64,9 @@ test("a scanned slate becomes pitches with ledger claims, the trend desk clears 
   assert.equal(stories.length, 3);
   const core = stories.find(({ eventId }) => eventId === "2026-11-15-nba-hcg-rvs");
   assert.ok(core.claimIds.length === 3 && core.selected && core.script.narration.includes("33 points"));
-  for (const practice of edition.topics.filter(({ eventId }) => !eventId)) await desk.changeTopic(practice.id, { selected: false }, "2026-11-16");
+  const placeholders = edition.topics.filter(({ eventId }) => !eventId);
+  assert.equal(placeholders.length, 3);
+  assert.ok(placeholders.every(({ selected, practice }) => practice && !selected), "evergreen practice topics are benched once real recaps exist");
 
   const checked = await desk.checkTrend(core.id, { aliases: ["Mara Quill", "Gulls Stags"] }, "2026-11-16");
   const card = checked.edition.topics.find(({ id }) => id === core.id).trend;
@@ -118,8 +120,7 @@ test("a scanned slate becomes pitches with ledger claims, the trend desk clears 
 
 test("a correction published by the source between scans withdraws the dependent cut", async (t) => {
   const { desk, built } = await newsroom(t, { now: "2026-11-11T06:00:00Z" });
-  const { edition } = await desk.scanSlate("2026-11-11", { asOf: "2026-11-11T04:30:00Z" });
-  for (const practice of edition.topics.filter(({ eventId }) => !eventId)) await desk.changeTopic(practice.id, { selected: false }, "2026-11-11");
+  await desk.scanSlate("2026-11-11", { asOf: "2026-11-11T04:30:00Z" });
   await desk.run("build", "2026-11-11");
   await desk.work.done;
   const ready = (await desk.view()).edition;

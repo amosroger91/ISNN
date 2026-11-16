@@ -591,6 +591,14 @@ export class SportsDesk {
         topic.sources = [...new Map([...topic.sources, ...result.snapshots.map((snapshot) => ({ publisher: snapshot.provider, title: snapshot.title || snapshot.type, url: snapshot.sourceUrl }))]
           .filter(({ url }) => url).map((source) => [source.url, source])).values()].slice(0, 6);
       }
+      // Once the scan has produced a verified recap, the evergreen practice
+      // placeholders leave the lineup so the practice cut is the show, not tips.
+      if (results.some(({ coverage }) => coverage === "covered")) {
+        const placeholders = new Set(sampleTopics().map(({ id }) => id));
+        for (const topic of edition.topics) {
+          if (!topic.eventId && (topic.practice || placeholders.has(topic.id))) topic.selected = false;
+        }
+      }
       for (const correction of ledger.corrections.filter(({ id }) => !known.has(id))) this.applyCorrection(edition, correction, ledger);
       return this.saveEdits(edition, before);
     });

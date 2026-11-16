@@ -22,8 +22,10 @@ const topics = [
   },
 ];
 
+// Evergreen placeholders for a desk with no research model. They are benched
+// automatically once a slate scan pitches a verified recap.
 export function sampleTopics() {
-  return structuredClone(topics);
+  return structuredClone(topics).map((topic) => ({ ...topic, practice: true }));
 }
 
 // The practice edition: scripted stories from scanned evidence render as
