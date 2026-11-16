@@ -14,7 +14,7 @@ const report = { title: "Lead story report", publisher: "League report", url: "h
 const topic = { id: "story", title: "Lead story", summary: "Editor notes", take: "", selected: true, sources: [report] };
 
 // The practice desk over the evidence slates and a fixture attention feed.
-async function newsroom(t, { now, observations = [], failures = false, live = false, write } = {}) {
+async function newsroom(t, { now, observations = [], failures = false, live = false, write, anchor } = {}) {
   await mkdir(path.join(root, "data"), { recursive: true });
   const directory = await mkdtemp(path.join(root, "data", "sports-newsroom-"));
   t.after(() => rm(directory, { recursive: true, force: true }));
@@ -22,7 +22,7 @@ async function newsroom(t, { now, observations = [], failures = false, live = fa
   const built = [];
   const desk = new SportsDesk({
     directory, timezone: "America/Chicago", publishEnabled: false, canResearch: () => live, canUpload: () => false, now: () => time, rebuildDelay: 60_000,
-    research: async () => [topic], write,
+    research: async () => [topic], write, anchor,
     evidence: new FixtureEvidenceAdapter(),
     trend: [new FixtureTrendAdapter(failures ? () => { throw new Error("HTTP 503"); } : observations)],
     render: async (episode, output) => {
@@ -122,6 +122,45 @@ test("a scanned slate becomes pitches with ledger claims, the trend desk clears 
   assert.equal(rebuilt.status, "ready", rebuilt.error);
   assert.match(built.at(-1).segments[0].narration, /31 points/u);
   assert.ok((await desk.ledgerView()).revisions.some(({ status }) => status === "invalidated"));
+});
+
+test("in a live edition the anchor pass voices scanned stories, is rechecked against the ledger, cached, and falls back on bad numbers", async (t) => {
+  const asked = [];
+  const { desk, built } = await newsroom(t, {
+    now: "2026-11-16T12:30:00Z", live: true,
+    write: async () => { throw new Error("the model writer must not see scripted stories"); },
+    anchor: async ({ segments }) => {
+      asked.push(segments.map(({ id, position }) => [id, position]));
+      return segments.map((segment) => ({
+        id: segment.id,
+        narration: segment.league === "MLB"
+          ? `Next, to baseball, where the Foundry edged the Anchors 2 to 1 for their 9th win in a row.`
+          : `Our lead story this morning: Mara Quill's corner three with 0:41 left carried the Gulls past the Stags, 112 to 104, and she finished with 33 points.`,
+      }));
+    },
+  });
+  await desk.scanSlate("2026-11-16");
+  await desk.run("build", "2026-11-16");
+  await desk.work.done;
+  const ready = (await desk.view()).edition;
+  assert.equal(ready.status, "ready", ready.error);
+  assert.deepEqual(asked, [[["2026-11-15-nba-hcg-rvs", "lead story"], ["2026-11-15-mlb-wff-paa", "last story"]]]);
+  const episode = built.at(-1);
+  assert.match(episode.segments[0].narration, /^Our lead story this morning/u);
+  assert.match(episode.segments[0].draft, /^Harbor City Gulls 112/u);
+  assert.match(episode.segments[1].narration, /^Westfield Foundry 2, Port Allen Anchors 1/u, "a rewrite with a number outside the evidence falls back to the factual draft");
+  assert.deepEqual(ready.render.anchor.segments.map(({ status }) => status), ["written", "fallback"]);
+  assert.match(ready.render.anchor.issues[0], /9/u);
+  assert.equal(ready.anchorCache, undefined, "the cache stays out of the editor API");
+
+  const mlb = ready.topics.find(({ league }) => league === "MLB");
+  await desk.changeTopic(mlb.id, { selected: false }, "2026-11-16");
+  clearTimeout(desk.rebuildTimer);
+  await desk.run("build", "2026-11-16");
+  await desk.work.done;
+  assert.equal((await desk.view()).edition.status, "ready");
+  assert.equal(asked.length, 1, "unchanged copy comes from the cache without asking the model again");
+  assert.equal((await desk.view()).edition.render.anchor.segments[0].status, "cached");
 });
 
 test("a correction published by the source between scans withdraws the dependent cut", async (t) => {

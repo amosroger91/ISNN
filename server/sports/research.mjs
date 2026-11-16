@@ -370,6 +370,33 @@ Write one compact segment for each reported story in the supplied order. Open on
   return { title: draft.title, description: draft.description, segments, ...(topicSources.length && { topicSources }) };
 }
 
+const anchorDraft = z.object({
+  segments: z.array(z.object({ id: field(120), narration: field(900) })).min(1).max(12),
+});
+
+// The anchor pass: natural broadcast copy for stories scanned from evidence.
+// The model writes from the claims and the factual draft; it may not add a
+// fact or change a number, and the caller checks every number against the
+// ledger before the copy reaches the narrator.
+export async function writeAnchorScript({ date, segments }, options = {}) {
+  const draft = await askModel(
+    `You are the anchor of "Overtime Desk", a morning sports recap. Reply with JSON only {"segments":[{"id":string,"narration":string}]}.
+${groundRules}
+Rewrite each story's factual draft as spoken anchor copy, one entry per story in the supplied order, using the exact id given. Sound like a person telling the audience what happened and why it matters: a natural opening line for the lead story ("Our lead story this morning…"), a short spoken transition into each later story ("Next, to college basketball, where…"), and a closing beat for the last one. Name the teams and players the way an anchor would, vary sentence length, and explain the decisive moment in plain words. Keep every number exactly as it appears in the claims and draft, in the same unit, and never add a fact, statistic, quote, injury, motive, streak or comparison that is not in the claims. Use Isaac's take only as attributed opinion ("Isaac's view…") when it is supplied. Aim for 55 to 95 spoken words per story. No show intro before the lead story, no calls to subscribe, no hype clichés, no rhetorical questions.`,
+    { date, stories: segments },
+    anchorDraft, "writing the anchor script", options,
+  );
+  const byId = new Map(draft.segments.map(({ id, narration }) => [id, narration]));
+  if (segments.some(({ id }) => !byId.has(id))) throw new Error("The anchor script did not cover every story.");
+  await verifyCopy({
+    stories: segments.map((segment) => ({
+      headline: segment.headline, narration: byId.get(segment.id),
+      sources: segment.claims.map((claim, index) => ({ id: index + 1, title: claim.text, excerpt: claim.text })),
+    })),
+  }, "verifying the anchor script", options);
+  return segments.map(({ id }) => ({ id, narration: byId.get(id) }));
+}
+
 export async function editTopics(edition, message, topicId, options = {}) {
   const result = await askModel(
     `Apply Isaac's editorial instructions to a sports rundown. Reply with JSON only {"reply":string,"edits":[{"id"?:string,"title"?:string,"summary"?:string,"take"?:string,"selected"?:boolean,"url"?:string}]}.

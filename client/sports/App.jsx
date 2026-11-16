@@ -510,6 +510,26 @@ function Shots({ shots }) {
   );
 }
 
+// What the anchor actually said in this cut, per story, with how it was produced.
+function AnchorScript({ anchor }) {
+  if (!anchor?.segments?.length) return null;
+  const label = { written: "anchor copy", cached: "anchor copy", fallback: "factual draft" };
+  return (
+    <details className="od-anchor">
+      <summary><FileText size={14} /> Anchor script · {anchor.segments.length} {anchor.segments.length === 1 ? "story" : "stories"}{anchor.status === "fallback" ? " · model unavailable, drafts aired" : ""} <ChevronDown size={13} /></summary>
+      {anchor.issues?.length > 0 && <p className="od-anchor-issue">{anchor.issues.join(" ")}</p>}
+      <ol>
+        {anchor.segments.map((segment) => (
+          <li key={segment.id}>
+            <strong>{segment.headline}</strong> <span className={`od-anchor-status is-${segment.status}`}>{label[segment.status] || segment.status}</span>
+            <p>{segment.narration}</p>
+          </li>
+        ))}
+      </ol>
+    </details>
+  );
+}
+
 function Episode({ edition, settings, pending, locked, onBuild }) {
   const building = edition?.status === "building";
   const render = edition?.render;
@@ -558,6 +578,7 @@ function Episode({ edition, settings, pending, locked, onBuild }) {
                 ))}
               </ul>
             )}
+            <AnchorScript anchor={render.anchor} />
             <Shots shots={render.shots} />
           </>
         ) : (

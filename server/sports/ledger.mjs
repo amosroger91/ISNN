@@ -213,6 +213,14 @@ export class EvidenceLedger {
     return numbers;
   }
 
+  // Every number a set of supported claims (and their events) licenses in copy.
+  licensedNumbers(claimIds) {
+    const claims = claimIds.map((id) => this.data.claims[id]).filter((claim) => claim?.disposition === "supported");
+    const numbers = new Set(claims.flatMap((claim) => [...this.allowances(claim)]));
+    for (const id of new Set(claims.map((claim) => claim.eventId).filter(Boolean))) for (const number of this.eventAllowances(this.data.events[id])) numbers.add(number);
+    return numbers;
+  }
+
   // Checks one story against its claims: every number in a factual block or the
   // headline must be licensed by a supported claim or the event, each block gets
   // its citation list, and bound claims must be supported.

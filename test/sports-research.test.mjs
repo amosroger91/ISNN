@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { editTopics, researchEdition, writeEpisode } from "../server/sports/research.mjs";
+import { editTopics, researchEdition, writeAnchorScript, writeEpisode } from "../server/sports/research.mjs";
 
 const now = new Date("2026-11-16T06:00:00Z");
 const date = "2026-11-16";
@@ -99,6 +99,38 @@ test("the default feeds and the research prompt follow the coverage scope", asyn
   assert.ok(feeds.some((url) => url.includes("/nba")) && feeds.some((url) => url.includes("/mlb")) && feeds.some((url) => url.includes("college-football")) && feeds.some((url) => url.includes("college-basketball")));
   assert.ok(!feeds.some((url) => url.includes("/nfl") || url.includes("bbci")));
   assert.match(prompt, /limited to NCAA, NBA, MLB/u);
+});
+
+test("the anchor pass writes spoken copy from the claims and is audited before it airs", async (t) => {
+  settings(t);
+  const story = {
+    id: "2026-11-15-nba-hcg-rvs", position: "lead story", headline: "Harbor City Gulls 112, River Valley Stags 104: Quill's corner three", draft: "Harbor City Gulls 112, River Valley Stags 104 in NBA regular season.",
+    sport: "basketball", league: "NBA", teams: ["River Valley Stags", "Harbor City Gulls"], take: null,
+    claims: [{ text: "Final score Harbor City Gulls 112, River Valley Stags 104", value: [112, 104], unit: "points" }],
+  };
+  const calls = [];
+  const result = await writeAnchorScript({ date, segments: [story] }, {
+    fetchImpl: async (url, request) => {
+      const body = JSON.parse(request.body);
+      calls.push(body.messages[0].content.slice(0, 40));
+      const input = JSON.parse(body.messages[1].content);
+      if (calls.length === 1) {
+        assert.equal(input.stories[0].claims[0].value[0], 112);
+        assert.match(body.messages[0].content, /never add a fact/u);
+        return modelResponse({ segments: [{ id: story.id, narration: "Our lead story this morning: the Gulls held off the Stags 112 to 104 at home." }] });
+      }
+      assert.equal(input.stories[0].sources[0].excerpt, story.claims[0].text, "the audit checks the copy against the claims");
+      return modelResponse(issueCheck);
+    },
+  });
+  assert.equal(calls.length, 2);
+  assert.match(result[0].narration, /^Our lead story/u);
+  await assert.rejects(writeAnchorScript({ date, segments: [story] }, { fetchImpl: async () => modelResponse({ segments: [{ id: "other", narration: "Some copy for another story entirely." }] }) }), /did not cover every story/u);
+  await assert.rejects(writeAnchorScript({ date, segments: [story] }, { fetchImpl: async (_url, request) => {
+    return JSON.parse(request.body).messages[0].content.startsWith("You are the anchor")
+      ? modelResponse({ segments: [{ id: story.id, narration: "The Gulls won their fifth straight behind Quill." }] })
+      : modelResponse({ approved: false, issues: ["The winning streak is not in the evidence."] });
+  } }), /winning streak/u);
 });
 
 test("a local Ollama model is asked through its native API with thinking off and JSON forced", async (t) => {

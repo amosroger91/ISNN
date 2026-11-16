@@ -7,7 +7,7 @@ import { dataDir } from "../config.mjs";
 import { readJson, saveJson } from "../storage.mjs";
 import { FixtureEvidenceAdapter, scanSlate } from "./evidence.mjs";
 import { EvidenceLedger, LedgerError, fingerprint, numbersIn } from "./ledger.mjs";
-import { editTopics, researchConfigured, researchEdition, writeEpisode } from "./research.mjs";
+import { editTopics, researchConfigured, researchEdition, writeAnchorScript, writeEpisode } from "./research.mjs";
 import { planShots } from "./rights.mjs";
 import { coverageScope, inScope } from "./scope.mjs";
 import { sampleEpisode, sampleTopics, scriptedSegment } from "./sample.mjs";
@@ -74,7 +74,8 @@ function createEdition(date, sample = false) {
 function publicView(edition, settings, progress) {
   const { sessionUrl, ...publication } = edition.publication;
   const { episode, ...render } = edition.render || {};
-  return { edition: { ...edition, render: edition.render ? render : null, publication, locked: publicationLocked(edition), progress }, settings };
+  const { anchorCache, ...visible } = edition;
+  return { edition: { ...visible, render: edition.render ? render : null, publication, locked: publicationLocked(edition), progress }, settings };
 }
 
 const publicationLocked = ({ publication }) => Boolean(publication.sessionUrl || ["uploading", "published", "uncertain"].includes(publication.status));
@@ -179,6 +180,7 @@ export class SportsDesk {
     now = () => new Date(),
     research = researchEdition,
     write = writeEpisode,
+    anchor = writeAnchorScript,
     chat = editTopics,
     render = isolatedRender,
     upload = uploadEpisode,
@@ -199,6 +201,7 @@ export class SportsDesk {
     this.now = now;
     this.research = research;
     this.write = write;
+    this.anchor = anchor;
     this.ask = chat;
     this.render = render;
     this.upload = upload;
@@ -414,10 +417,63 @@ export class SportsDesk {
       ? await this.write({ ...snapshot, topics: unscripted })
       : { title: `Overtime Desk | ${snapshot.date}`, description: "The overnight recap with every number bound to its evidence.", segments: [] };
     const byTopic = new Map(unscripted.map((topic, index) => [topic.id, written.segments[index]]));
-    return {
-      ...written,
-      segments: selected.map((topic) => topic.script ? scriptedSegment(topic) : byTopic.get(topic.id) && { ...byTopic.get(topic.id), topicId: topic.id }).filter(Boolean),
-    };
+    const segments = selected.map((topic) => topic.script ? scriptedSegment(topic) : byTopic.get(topic.id) && { ...byTopic.get(topic.id), topicId: topic.id }).filter(Boolean);
+    return { ...written, segments: await this.voiceScripted(snapshot, segments) };
+  }
+
+  // The anchor pass for scripted stories: the model turns each factual draft
+  // into spoken copy, every number is rechecked against the ledger, and a
+  // rewrite that fails falls back to the draft. Accepted copy is cached by the
+  // draft and its claims so an unrelated edit does not re-ask the model.
+  async voiceScripted(snapshot, segments) {
+    const scripted = segments.map((segment, index) => ({ segment, index, topic: snapshot.topics.find(({ id }) => id === segment.topicId) }))
+      .filter(({ topic }) => topic?.script && topic.claimIds?.length);
+    if (!scripted.length || !this.settings.researchConfigured) return segments;
+    const ledger = await this.ledgerFor(snapshot);
+    const cache = snapshot.anchorCache || {};
+    const position = (index) => index === 0 ? "lead story" : index === segments.length - 1 ? "last story" : `story ${index + 1} of ${segments.length}`;
+    const keyed = scripted.map((item) => ({ ...item, key: fingerprint({ draft: item.topic.script.narration, claims: item.topic.claimIds, position: position(item.index), take: item.topic.take?.trim() || null }) }));
+    const pending = keyed.filter(({ key }) => !cache[key]);
+    const voiced = new Map();
+    let outcome = { status: "cached", issues: [] };
+    if (pending.length) {
+      try {
+        this.work.progress = { percent: 3, message: "Writing the anchor script…" };
+        const written = await this.anchor({ date: snapshot.date, segments: pending.map(({ segment, index, topic }) => ({
+          id: segment.id || topic.eventId, position: position(index), headline: topic.script.headline, draft: topic.script.narration,
+          sport: topic.sport, league: topic.league, teams: topic.teams, take: topic.take?.trim() || null,
+          claims: ledger.publicClaims(topic.claimIds).filter(({ disposition }) => disposition === "supported").map(({ text, value, unit, subject, period, clock }) => ({ text, value, unit, subject, period, clock })),
+        })) });
+        for (const { id, narration } of written) voiced.set(id, narration);
+        outcome = { status: "written", issues: [] };
+      } catch (error) {
+        outcome = { status: "fallback", issues: [error.message] };
+      }
+    }
+    const anchor = [];
+    for (const { segment, topic, key } of keyed) {
+      const id = segment.id || topic.eventId;
+      let narration = cache[key] || voiced.get(id) || null;
+      let status = cache[key] ? "cached" : narration ? "written" : "fallback";
+      if (narration) {
+        const licensed = ledger.licensedNumbers(topic.claimIds);
+        const uncovered = [...new Set(numbersIn(narration).filter((number) => !licensed.has(number)))];
+        if (uncovered.length) {
+          outcome.issues.push(`${topic.script.headline}: the anchor copy used numbers outside the evidence (${uncovered.join(", ")}); the factual draft aired instead.`);
+          narration = null;
+          status = "fallback";
+        } else {
+          cache[key] = narration;
+        }
+      }
+      const body = narration || topic.script.narration;
+      segment.draft = topic.script.narration;
+      segment.narration = [body, topic.take?.trim() && `Isaac’s take. ${topic.take.trim()}`].filter(Boolean).join("\n\n");
+      anchor.push({ id, headline: topic.script.headline, status, narration: body });
+    }
+    snapshot.anchorCache = Object.fromEntries(Object.entries(cache).slice(-60));
+    snapshot.anchor = { ...outcome, segments: anchor, at: this.now().toISOString() };
+    return segments;
   }
 
   async produce(snapshot) {
@@ -458,8 +514,9 @@ export class SportsDesk {
         if (topic) topic.sources = [...new Map([...topic.sources, ...sources].map((source) => [source.url, source])).values()];
       }
       const base = `/api/sports/video/${snapshot.date}/${snapshot.revision}`;
+      if (snapshot.anchorCache) current.anchorCache = snapshot.anchorCache;
       current.render = {
-        title: episode.title, duration: metadata.duration, revisionId: revision.id,
+        title: episode.title, duration: metadata.duration, revisionId: revision.id, anchor: snapshot.anchor || null,
         episode: { ...episode, chapters: metadata.chapters, duration: metadata.duration }, revision: snapshot.revision,
         createdAt: this.now().toISOString(), url: base, qc: metadata.qc || null, shots: metadata.shots || null,
         shorts: (metadata.shorts || []).map((short) => ({ ...short, url: `${base}/short/${short.segment}` })),
