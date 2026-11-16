@@ -80,9 +80,13 @@ export function mountSports(app, desk) {
     const { date, message, topicId } = chatInput.parse(req.body);
     res.json(await desk.postChat(message, topicId, date, (edits) => chatEdits.parse(edits)));
   });
+  const revisionNumber = z.coerce.number().int().nonnegative().safe();
   router.get("/video/:date/:revision", async (req, res) => {
-    const revision = z.coerce.number().int().nonnegative().safe().parse(req.params.revision);
-    res.type("mp4").sendFile(await desk.videoPath(date.parse(req.params.date), revision));
+    res.type("mp4").sendFile(await desk.videoPath(date.parse(req.params.date), revisionNumber.parse(req.params.revision)));
+  });
+  router.get("/video/:date/:revision/short/:segment", async (req, res) => {
+    const segment = z.coerce.number().int().positive().max(12).parse(req.params.segment);
+    res.type("mp4").sendFile(await desk.videoPath(date.parse(req.params.date), revisionNumber.parse(req.params.revision), segment));
   });
   app.use("/api/sports", router);
 }

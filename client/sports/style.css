@@ -281,3 +281,12 @@ body:has(.od) { margin: 0; background: #101210; }
 @media (prefers-reduced-motion: reduce) {
   .od-spin { animation: none; }
 }
+
+.od-shorts { list-style: none; margin: 0; padding: 0 16px 6px; border-top: 1px solid var(--od-line); }
+.od-shorts li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--od-line); font-size: 13px; }
+.od-shorts li:last-child { border-bottom: 0; }
+.od-short-number { font-weight: 700; color: var(--od-accent); }
+.od-short-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.od-short-length { color: var(--od-muted); font-variant-numeric: tabular-nums; }
+.od-shorts a { display: inline-flex; align-items: center; gap: 5px; color: inherit; text-decoration: none; font-weight: 700; }
+.od-shorts a:hover { color: var(--od-accent); }

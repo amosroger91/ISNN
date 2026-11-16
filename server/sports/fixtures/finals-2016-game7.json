@@ -1,0 +1,73 @@
+{
+  "name": "finals-2016-game7",
+  "title": "Overtime Desk | 2016 NBA Finals Game 7: Cleveland 93, Golden State 89",
+  "description": "Frozen historical fixture for the offline proof of the show: the final score, the block and the three from Game 7 of the 2016 NBA Finals, with sources.",
+  "date": "2016-06-19",
+  "game": { "league": "NBA", "competition": "2016 NBA Finals, Game 7", "venue": "Oracle Arena, Oakland", "home": "Golden State Warriors", "away": "Cleveland Cavaliers", "final": { "Cleveland": 93, "Golden State": 89 } },
+  "notes": "Play diagrams are original recreations drawn from the public play-by-play. No game footage, stills or audio are used. Facts are frozen as of the sources' box score and play-by-play pages.",
+  "segments": [
+    {
+      "id": "final-score",
+      "headline": "Cavaliers 93, Warriors 89: Cleveland finishes the comeback from 3–1 down",
+      "narration": "Game 7 of the 2016 NBA Finals, June 19 at Oracle Arena in Oakland. The Cavaliers beat the Warriors 93 to 89 and became the first team to win the Finals after trailing three games to one. LeBron James finished with 27 points, 11 rebounds and 11 assists. Kyrie Irving scored 26. Draymond Green led Golden State with 32 points, 15 rebounds and 9 assists.",
+      "sources": [
+        { "publisher": "Basketball-Reference", "title": "Cavaliers 93, Warriors 89 box score, June 19, 2016", "url": "https://www.basketball-reference.com/boxscores/201606190GSW.html" },
+        { "publisher": "NBA.com", "title": "Cavaliers vs. Warriors, 2016 Finals Game 7", "url": "https://www.nba.com/game/cle-vs-gsw-0041500407" }
+      ],
+      "claims": [
+        { "text": "Final score Cleveland 93, Golden State 89", "value": [93, 89], "unit": "points", "asOf": "final", "evidence": "https://www.basketball-reference.com/boxscores/201606190GSW.html", "locator": "Line score" },
+        { "text": "LeBron James 27 points, 11 rebounds, 11 assists", "value": [27, 11, 11], "unit": "points, rebounds, assists", "player": "LeBron James", "evidence": "https://www.basketball-reference.com/boxscores/201606190GSW.html", "locator": "Cleveland basic box score" },
+        { "text": "Kyrie Irving 26 points", "value": 26, "unit": "points", "player": "Kyrie Irving", "evidence": "https://www.basketball-reference.com/boxscores/201606190GSW.html", "locator": "Cleveland basic box score" },
+        { "text": "Draymond Green 32 points, 15 rebounds, 9 assists", "value": [32, 15, 9], "unit": "points, rebounds, assists", "player": "Draymond Green", "evidence": "https://www.basketball-reference.com/boxscores/201606190GSW.html", "locator": "Golden State basic box score" },
+        { "text": "First team to win the Finals after trailing 3–1", "value": true, "unit": "record", "evidence": "https://www.nba.com/game/cle-vs-gsw-0041500407", "locator": "Game summary" }
+      ]
+    },
+    {
+      "id": "the-block",
+      "headline": "The block: tied at 89 with 1:50 to play",
+      "narration": "Tied at 89 with under two minutes left, Golden State ran a two-on-one break. Andre Iguodala took the return pass from Stephen Curry and went up for the layup. LeBron James came from behind and pinned the ball on the glass with one minute fifty to play. Neither team had scored in more than two and a half minutes, and the game stayed tied.",
+      "sources": [
+        { "publisher": "Basketball-Reference", "title": "Game 7 play-by-play, fourth quarter", "url": "https://www.basketball-reference.com/boxscores/pbp/201606190GSW.html" }
+      ],
+      "claims": [
+        { "text": "LeBron James blocks Andre Iguodala's layup", "period": 4, "clock": "1:50", "score": [89, 89], "evidence": "https://www.basketball-reference.com/boxscores/pbp/201606190GSW.html", "locator": "4th quarter, 1:50" },
+        { "text": "Game tied at 89 from 4:39 until Irving's three at 0:53", "period": 4, "clock": "4:39–0:53", "score": [89, 89], "evidence": "https://www.basketball-reference.com/boxscores/pbp/201606190GSW.html", "locator": "4th quarter scoring" }
+      ],
+      "diagram": {
+        "sport": "basketball",
+        "caption": "Half court, Golden State attacking. Original recreation from the play-by-play.",
+        "markers": [
+          { "n": 1, "x": 0.30, "y": 0.86, "role": "offense", "label": "Curry pushes the ball up the left side on a two-on-one" },
+          { "n": 2, "x": 0.70, "y": 0.68, "role": "offense", "label": "Iguodala fills the right lane" },
+          { "n": 3, "x": 0.50, "y": 0.42, "role": "defense", "label": "J.R. Smith is the lone defender back" },
+          { "n": 4, "x": 0.58, "y": 0.16, "role": "offense", "label": "Iguodala takes the return pass and rises for the layup" },
+          { "n": 5, "x": 0.64, "y": 0.30, "role": "defense", "label": "LeBron James arrives from behind and pins it on the glass" }
+        ],
+        "paths": [[1, 2], [2, 4], [5, 4]]
+      }
+    },
+    {
+      "id": "the-three",
+      "headline": "Kyrie's step-back over Curry: 92–89 with 53 seconds left",
+      "narration": "With 53 seconds left and the score still 89 all, Kyrie Irving isolated against Stephen Curry on the right wing. He stepped back behind the arc and made the three for a 92 to 89 lead. Kevin Love then stayed in front of Curry on the next possession, and the three missed. LeBron James split two free throws with 10.6 seconds left for the final margin, 93 to 89.",
+      "sources": [
+        { "publisher": "Basketball-Reference", "title": "Game 7 play-by-play, fourth quarter", "url": "https://www.basketball-reference.com/boxscores/pbp/201606190GSW.html" },
+        { "publisher": "NBA.com", "title": "Cavaliers vs. Warriors, 2016 Finals Game 7", "url": "https://www.nba.com/game/cle-vs-gsw-0041500407" }
+      ],
+      "claims": [
+        { "text": "Kyrie Irving three-point field goal, 92–89", "period": 4, "clock": "0:53", "score": [92, 89], "player": "Kyrie Irving", "evidence": "https://www.basketball-reference.com/boxscores/pbp/201606190GSW.html", "locator": "4th quarter, 0:53" },
+        { "text": "LeBron James makes 1 of 2 free throws, 93–89", "period": 4, "clock": "0:10.6", "score": [93, 89], "player": "LeBron James", "evidence": "https://www.basketball-reference.com/boxscores/pbp/201606190GSW.html", "locator": "4th quarter, 0:10.6" }
+      ],
+      "diagram": {
+        "sport": "basketball",
+        "caption": "Half court, Cleveland attacking. Original recreation from the play-by-play.",
+        "markers": [
+          { "n": 1, "x": 0.78, "y": 0.50, "role": "offense", "label": "Irving isolates on the right wing" },
+          { "n": 2, "x": 0.73, "y": 0.44, "role": "defense", "label": "Curry defends the isolation" },
+          { "n": 3, "x": 0.86, "y": 0.62, "role": "offense", "label": "Step-back three from the right wing: 92–89" }
+        ],
+        "paths": [[1, 3]]
+      }
+    }
+  ]
+}

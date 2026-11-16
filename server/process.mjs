@@ -9,6 +9,8 @@ export function run(
     timeout = 180000,
     maxBytes = 20 * 1024 * 1024,
     binary = false,
+    // Resolve with the (tail of the) stderr log instead; FFmpeg prints measurements there.
+    stderr = false,
   } = {},
 ) {
   return new Promise((resolve, reject) => {
@@ -43,7 +45,7 @@ export function run(
       else chunks.push(chunk);
     });
     child.stderr.on("data", (chunk) => {
-      errorText = (errorText + chunk.toString()).slice(-4000);
+      errorText = (errorText + chunk.toString()).slice(stderr ? -64000 : -4000);
     });
     child.on("error", (error) => {
       failure = error;
@@ -58,6 +60,7 @@ export function run(
             errorText.trim() || `Media command exited with code ${code}.`,
           ),
         );
+      if (stderr) return resolve(errorText);
       const buffer = Buffer.concat(chunks);
       resolve(binary ? buffer : buffer.toString("utf8"));
     });

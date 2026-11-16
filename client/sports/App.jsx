@@ -311,6 +311,18 @@ function Episode({ edition, settings, pending, locked, onBuild }) {
               </div>
               <a className="od-button" href={render.url} download><ArrowDownToLine size={15} /> MP4</a>
             </div>
+            {render.shorts?.length > 0 && (
+              <ul className="od-shorts" aria-label="Shorts, one per segment">
+                {render.shorts.map((short) => (
+                  <li key={short.segment}>
+                    <span className="od-short-number">{String(short.segment).padStart(2, "0")}</span>
+                    <span className="od-short-title">{short.headline}</span>
+                    <span className="od-short-length">{Math.floor(short.duration / 60)}:{String(Math.round(short.duration) % 60).padStart(2, "0")}</span>
+                    <a href={short.url} download><ArrowDownToLine size={14} /> Short</a>
+                  </li>
+                ))}
+              </ul>
+            )}
           </>
         ) : (
           <div className="od-preview-empty">

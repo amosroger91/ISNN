@@ -254,10 +254,12 @@ export class SportsDesk {
         const topic = current.topics.find((topic) => topic.id === id);
         if (topic) topic.sources = [...new Map([...topic.sources, ...sources].map((source) => [source.url, source])).values()];
       }
+      const base = `/api/sports/video/${snapshot.date}/${snapshot.revision}`;
       current.render = {
         title: episode.title, duration: metadata.duration,
         episode: { ...episode, chapters: metadata.chapters, duration: metadata.duration }, revision: snapshot.revision,
-        createdAt: this.now().toISOString(), url: `/api/sports/video/${snapshot.date}/${snapshot.revision}`,
+        createdAt: this.now().toISOString(), url: base, qc: metadata.qc || null,
+        shorts: (metadata.shorts || []).map((short) => ({ ...short, url: `${base}/short/${short.segment}` })),
       };
       current.status = "ready";
       await this.save(current);
@@ -408,11 +410,15 @@ export class SportsDesk {
     });
   }
 
-  videoPath(date, revision) {
+  videoPath(date, revision, segment) {
     return this.serialized(async () => {
       const edition = await this.load(date);
       if (edition.render?.revision !== revision) throw deskError(404, "Sports preview not found.");
-      return path.join(this.directoryFor(edition), String(revision), "episode.mp4");
+      const directory = path.join(this.directoryFor(edition), String(revision));
+      if (segment === undefined) return path.join(directory, "episode.mp4");
+      const short = (edition.render.shorts || []).find((short) => short.segment === segment);
+      if (!short) throw deskError(404, "Short not found.");
+      return path.join(directory, short.file);
     });
   }
 }
