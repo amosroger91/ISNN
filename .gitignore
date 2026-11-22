@@ -16,3 +16,8 @@ certs/
 .DS_Store
 data/sports/assets/
 data/sports/cache/
+
+# Game footage and the licensed Wellspring library stay on the desk PC: too big
+# for GitHub (over 100 MB) and not ours to redistribute in a public repo.
+assets/sports/footage/**/*.mp4
+__pycache__/

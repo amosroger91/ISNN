@@ -1,5 +1,5 @@
-import { spawn } from "node:child_process";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { execFile, spawn } from "node:child_process";
+import { access, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { env } from "@huggingface/transformers";
@@ -54,11 +54,11 @@ function soften(samples) {
 }
 
 // Narrates a list of parts in order and records where each spoken part sits.
-export async function narrateParts(parts, voice, file, report = () => {}, signal, { speed = SPEED, prepareText = (text) => text } = {}) {
-  if (voice === "isaac" || process.env.SPORTS_TTS === "qwen") return narrateIsaac(parts, file, report, signal, { prepareText });
+export async function narrateParts(parts, voice, file, report = () => {}, signal, { speed = SPEED, prepareText = (text) => text, openingVoice, openingLead, closingTail } = {}) {
+  if (voice === "isaac" || process.env.SPORTS_TTS === "qwen") return narrateIsaac(parts, file, report, signal, { prepareText, openingVoice, openingLead, closingTail });
   if (!Object.hasOwn(VOICES, voice)) voice = DEFAULT_VOICE;
   const tts = await loadVoice(report);
-  const lead = Math.round(RATE * 0.15);
+  const lead = Math.round(RATE * (openingLead ?? 0.15));
   const pieces = [new Float32Array(lead)];
   const segments = [];
   let cursor = lead;
@@ -69,7 +69,7 @@ export async function narrateParts(parts, voice, file, report = () => {}, signal
       const audio = await tts.generate(prepareText(part.text), { voice, speed });
       const samples = soften(Float32Array.from(audio.audio));
       segments.push({ kind: part.kind, text: part.text, start: cursor / RATE, end: (cursor + samples.length) / RATE });
-      const silence = new Float32Array(Math.round(RATE * (index === parts.length - 1 ? 0.3 : part.pause ?? PAUSE_BETWEEN_CHUNKS)));
+      const silence = new Float32Array(Math.round(RATE * (index === parts.length - 1 ? closingTail ?? 0.3 : part.pause ?? PAUSE_BETWEEN_CHUNKS)));
       pieces.push(samples, silence);
       cursor += samples.length + silence.length;
     }
@@ -91,33 +91,49 @@ export async function narrateParts(parts, voice, file, report = () => {}, signal
 const ISAAC_MODEL = process.env.SPORTS_TTS_MODEL || path.join(modelCacheDir, "..", "qwen3-tts-0.6B-Base");
 const ISAAC_REF = process.env.SPORTS_VOICE_REF || path.join(dataDir, "sports", "voice", "isaac.wav");
 const ISAAC_TEXT = process.env.SPORTS_VOICE_REF_TEXT || path.join(dataDir, "sports", "voice", "isaac.txt");
+const ANNOUNCER = {
+  refAudio: process.env.SPORTS_INTRO_REF || path.join(dataDir, "sports", "voice", "lafontaine.wav"),
+  refText: process.env.SPORTS_INTRO_REF_TEXT || path.join(dataDir, "sports", "voice", "lafontaine.txt"),
+};
 
 // One Python process speaks every part, so the clone loads once per episode.
-async function narrateIsaac(parts, file, report, signal, { prepareText = (text) => text } = {}) {
+async function narrateIsaac(parts, file, report, signal, { prepareText, openingVoice, openingLead, closingTail }) {
   signal?.throwIfAborted();
   const directory = await mkdtemp(path.join(tmpdir(), "isaac-narration-"));
   try {
     const job = path.join(directory, "job.json");
+    const partVoices = parts.map(({ kind, voice }) => voice === "lafontaine" || (kind === -1 && openingVoice === "lafontaine") ? "lafontaine" : "isaac");
+    const announcerAvailable = partVoices.includes("lafontaine")
+      && await Promise.all([access(ANNOUNCER.refAudio), access(ANNOUNCER.refText)]).then(() => true, () => false);
     await writeFile(job, JSON.stringify({
       model: ISAAC_MODEL,
       refAudio: ISAAC_REF,
       refText: ISAAC_TEXT,
       outDir: directory,
+      // Finished takes survive a killed or retried render, so a rerun resumes.
+      cacheDir: path.join(dataDir, "sports", "voice-cache"),
+      // Lines spoken together in one pass; halved automatically if the GPU runs short.
+      batchSize: Number(process.env.SPORTS_TTS_BATCH) || 4,
       parts: parts.map((part) => prepareText(part.text)),
+      ...(announcerAvailable && {
+        profiles: { lafontaine: ANNOUNCER },
+        partVoices,
+      }),
     }));
     signal?.throwIfAborted();
     report("Loading Isaac's voice…");
+    await stopOrphanNarrator();
     await runIsaac(job, report, signal);
     const { rate, files, pacing } = JSON.parse(await readFile(path.join(directory, "result.json"), "utf8"));
     if (rate !== RATE) throw new Error(`Isaac's voice returned ${rate} Hz audio. The desk expects ${RATE} Hz.`);
-    const lead = Math.round(RATE * 0.10);
+    const lead = Math.round(RATE * (openingLead ?? 0.10));
     const pieces = [new Float32Array(lead)];
     const segments = [];
     let cursor = lead;
     for (const [index, part] of parts.entries()) {
       const samples = soften(await readWav(path.join(directory, files[index])));
       segments.push({ kind: part.kind, text: part.text, start: cursor / RATE, end: (cursor + samples.length) / RATE });
-      const silence = new Float32Array(Math.round(RATE * (index === parts.length - 1 ? 0.22 : part.pause ?? PAUSE_BETWEEN_CHUNKS)));
+      const silence = new Float32Array(Math.round(RATE * (index === parts.length - 1 ? closingTail ?? 0.22 : part.pause ?? PAUSE_BETWEEN_CHUNKS)));
       pieces.push(samples, silence);
       cursor += samples.length + silence.length;
     }
@@ -128,7 +144,9 @@ async function narrateIsaac(parts, file, report, signal, { prepareText = (text) 
       offset += piece.length;
     }
     await writeFile(file, wav(total, RATE));
-    return { file, voice: "isaac", engine: "qwen3-tts-0.6b-base", rate: RATE, duration: total.length / RATE, segments, pacing };
+    return { file, voice: "isaac", engine: "qwen3-tts-0.6b-base", rate: RATE, duration: total.length / RATE, segments, pacing,
+      ...(announcerAvailable && parts.some(({ kind }, index) => kind === -1 && partVoices[index] === "lafontaine") && { openingVoice: "lafontaine" }),
+      ...(announcerAvailable && parts.some(({ voice }) => voice === "lafontaine") && { closingVoice: "lafontaine" }) };
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
@@ -138,13 +156,39 @@ function isaacFailure(errorText, code) {
   const text = String(errorText || "");
   const cause = text.match(/CUDA error:[^\n]+|AcceleratorError:[^\n]+|RuntimeError:[^\n]+/);
   if (cause) return cause[0].replace(/^AcceleratorError:\s*/u, "").trim();
-  const useful = text.split("\n").map((line) => line.trim()).filter((line) => line && !/sox|SoX|sourceforge|path variables|LOADING|PART \d|RETAKE \d|pad_token_id|^\^+\s*$/iu.test(line));
+  const useful = text.split("\n").map((line) => line.trim()).filter((line) => line && !/sox|SoX|sourceforge|path variables|LOADING|PART \d|RETAKE \d|SPLIT \d|BATCH \d|pad_token_id|^\^+\s*$/iu.test(line));
   return useful.at(-1) || `Isaac's voice exited ${code}.`;
+}
+
+// The narrator's process id, so a narrator orphaned by a killed render (which
+// would keep the GPU busy and slow every later attempt) is stopped first.
+const NARRATOR_PID = path.join(dataDir, "sports", "narrator.pid");
+
+export async function stopOrphanNarrator() {
+  const pid = Number(await readFile(NARRATOR_PID, "utf8").catch(() => ""));
+  if (!pid || pid === process.pid) return;
+  try {
+    process.kill(pid, 0);
+  } catch {
+    return;
+  }
+  // Only a Python process: a reused id must never stop something unrelated.
+  if (process.platform === "win32") {
+    const listing = await new Promise((resolve) => execFile("tasklist", ["/FI", `PID eq ${pid}`, "/FO", "CSV", "/NH"], { windowsHide: true }, (error, stdout) => resolve(error ? "" : stdout)));
+    if (!/python/iu.test(listing)) return;
+  }
+  try {
+    process.kill(pid);
+    console.warn(`[sports voice] stopped a narrator left running by an earlier render (pid ${pid}).`);
+  } catch {
+    // Already gone, or not ours to stop.
+  }
 }
 
 function runIsaac(job, report, signal) {
   const once = () => new Promise((resolve, reject) => {
     const child = spawn(process.env.SPORTS_TTS_PYTHON || "python", [path.join(root, "scripts", "isaac-narrate.py"), job], { stdio: ["ignore", "ignore", "pipe"] });
+    writeFile(NARRATOR_PID, String(child.pid)).catch(() => {});
     let errorText = "";
     const stop = () => child.kill();
     signal?.addEventListener("abort", stop, { once: true });
@@ -155,9 +199,12 @@ function runIsaac(job, report, signal) {
       if (match) report(`Recording Isaac (${match[1]} of ${match[2]})…`);
       const retake = line.match(/RETAKE (\d+)/);
       if (retake) report(`Retaking Isaac’s narration (phrase ${retake[1]})…`);
+      const split = line.match(/SPLIT (\d+)/);
+      if (split) report(`Isaac stuttered on phrase ${split[1]}. Recording it in two halves…`);
     });
     child.on("error", reject);
     child.on("close", (code) => {
+      rm(NARRATOR_PID, { force: true }).catch(() => {});
       signal?.removeEventListener("abort", stop);
       if (signal?.aborted) reject(signal.reason);
       else if (code === 0) resolve();

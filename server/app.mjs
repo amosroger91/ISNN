@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 import { ffmpegPath, ffprobePath, host, publicUrl } from "./config.mjs";
 import { SportsDesk } from "./sports/desk.mjs";
 import { mountSports } from "./sports/routes.mjs";
+import { tunnelHost } from "./tunnel.mjs";
 
 export async function createApp({ sports = new SportsDesk() } = {}) {
   const app = express();
@@ -11,11 +12,14 @@ export async function createApp({ sports = new SportsDesk() } = {}) {
   app.use((req, res, next) => {
     const allowed = new Set(["localhost", "127.0.0.1", "[::1]", host]);
     if (publicUrl) allowed.add(new URL(publicUrl).hostname);
-    if (!allowed.has(req.hostname)) return res.status(403).json({ error: "This app accepts local requests only." });
+    // The quick tunnel's current link; cloudflared terminates HTTPS in front of it.
+    const tunneled = Boolean(tunnelHost()) && req.hostname === tunnelHost();
+    if (!allowed.has(req.hostname) && !tunneled) return res.status(403).json({ error: "This app accepts local requests only." });
     res.set("X-Content-Type-Options", "nosniff");
     res.set("Referrer-Policy", "no-referrer");
     const origin = req.get("origin");
-    if (origin && !["GET", "HEAD"].includes(req.method) && origin !== `${req.protocol}://${req.get("host")}` && origin !== publicUrl)
+    const sameOrigin = origin === `${req.protocol}://${req.get("host")}` || (tunneled && origin === `https://${req.get("host")}`);
+    if (origin && !["GET", "HEAD"].includes(req.method) && !sameOrigin && origin !== publicUrl)
       return res.status(403).json({ error: "Cross-origin requests are not allowed." });
     next();
   });

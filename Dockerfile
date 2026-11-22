@@ -11,8 +11,11 @@ RUN npm run build
 FROM node:24-bookworm-slim
 WORKDIR /app
 ENV ONNXRUNTIME_NODE_INSTALL_CUDA=skip NODE_ENV=production HOST=0.0.0.0 PORT=4320 DATA_DIR=/data MODEL_CACHE_DIR=/models
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates python3 python3-venv \
+    && python3 -m venv /opt/ytdlp \
+    && /opt/ytdlp/bin/pip install --no-cache-dir 'yt-dlp[default]' \
     && rm -rf /var/lib/apt/lists/*
+ENV SPORTS_YTDLP=/opt/ytdlp/bin/yt-dlp
 COPY package.json package-lock.json ./
 # ffprobe-static ships every platform's binary; keep only linux/x64. The
 # browser ONNX runtime is unused on the server.
@@ -24,6 +27,7 @@ RUN npm ci --omit=dev \
 COPY --from=build /app/dist ./dist
 COPY assets ./assets
 COPY server ./server
+COPY shared ./shared
 COPY scripts ./scripts
 VOLUME ["/data", "/models"]
 EXPOSE 4320

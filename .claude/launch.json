@@ -1,6 +1,14 @@
 {
   "version": "0.0.1",
   "configurations": [
-    { "name": "isnn", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "port": 4320 }
+    {
+      "name": "isnn",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "port": 4320
+    }
   ]
 }

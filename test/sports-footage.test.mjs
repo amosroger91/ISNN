@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
+import { access } from "node:fs/promises";
 import test from "node:test";
-import { classifyFootage, CommonsFootage, commonsVideo, footageCue, footageQueries } from "../server/sports/footage.mjs";
+import { archiveCandidates, classifyFootage, CommonsFootage, commonsVideo, footageCue, footageQueries, footageSubjects, sportClip } from "../server/sports/footage.mjs";
 
 const segment = {
   headline: "Garrett Cooper hits a home run as the Miami Marlins face the New York Mets",
@@ -60,7 +61,7 @@ test("searches team aliases from the rundown even if the on-air copy omits them"
   };
   assert.ok(footageQueries(story).includes('filetype:video "toronto blue jays" baseball pitch'));
   assert.ok(footageQueries(story).includes('filetype:video "blue jays" baseball batting'));
-  assert.ok(footageQueries(story).every((query) => query.includes("pitch") || query.includes("batting") || query.includes("home run") || query.includes("strikeout")));
+  assert.ok(footageQueries(story).includes('filetype:video "toronto blue jays" baseball'));
   const clip = {
     title: "Pitch and Bat", description: "A 2014 Blue Jay baseball game", categories: "2014 Toronto Blue Jays season",
   };
@@ -108,7 +109,7 @@ test("football b-roll has to be the team playing, not a crowd at the stadium", (
     categories: "LSU Tigers football",
   }), null);
   assert.ok(footageQueries(lsu).includes('filetype:video "lsu tigers" football touchdown'));
-  assert.ok(footageQueries(lsu).every((query) => /touchdown|tackle|quarterback|interception/u.test(query)));
+  assert.ok(footageQueries(lsu).includes('filetype:video "lane kiffin" football'));
 });
 
 test("recognizes Commons Ogg video metadata while excluding audio files", () => {
@@ -118,4 +119,83 @@ test("recognizes Commons Ogg video metadata while excluding audio files", () => 
   assert.ok(commonsVideo(page));
   page.title = "File:Radio commentary.oga";
   assert.equal(commonsVideo(page), null);
+});
+
+test("an explicitly pinned ShareAlike archive clip can appear as relevant B-roll in a local preview", async () => {
+  const page = commonsPage({ license: "CC BY-SA 3.0", date: "2014-04-18" });
+  const clipUrl = page.imageinfo[0].descriptionurl;
+  const finder = new CommonsFootage("unused", async () => Response.json({ query: { pages: [page] } }));
+  const pinned = { ...segment, footage: { ...segment.footage, clipUrl } };
+  const [clip] = await finder.candidates(pinned, false);
+  assert.equal(clip.type, "broll");
+  assert.equal(clip.previewOnly, true);
+  assert.deepEqual(await finder.candidates(segment, true), []);
+  assert.deepEqual(await finder.candidates({ ...pinned, footage: { ...pinned.footage, sport: "football" } }, false), []);
+});
+
+test("the reviewed archive matches teams or named players without requiring a clip pin", async () => {
+  for (const [sport, teams, headline, expected] of [
+    ["football", ["LSU", "Texas"], "Lane Kiffin and Texas", "archive-texas-tennessee-2026"],
+    ["basketball", ["Michigan State", "Duke"], "Michigan State climbs", "archive-michigan-state-gonzaga-2022"],
+    ["basketball", ["Knicks"], "The Knicks and Josh Hart", "archive-knicks-spurs-finals-2026"],
+    ["baseball", ["Blue Jays"], "The market for power bats", "archive-blue-jays-red-sox-2014"],
+  ]) {
+    const story = { headline, footage: { sport, teams } };
+    const [clip] = archiveCandidates(story, true);
+    assert.equal(clip.id, expected);
+    assert.equal(clip.type, "broll");
+    await access(clip.file);
+  }
+  const hart = { headline: "Josh Hart struggles", footage: { sport: "basketball", people: ["Josh Hart"] } };
+  assert.equal(archiveCandidates(hart)[0].id, "archive-knicks-spurs-finals-2026");
+  assert.ok(footageQueries(hart).includes('filetype:video "josh hart" basketball'));
+  assert.deepEqual(archiveCandidates({ footage: { sport: "basketball", teams: ["Duke"] } }), []);
+  assert.deepEqual(archiveCandidates({ footage: { sport: "baseball", teams: ["Blue Jays"] } }), []);
+});
+
+test("a story names its teams from the copy, and a game title counts as play", () => {
+  const story = {
+    headline: "Tennessee tops No. 2 Michigan State",
+    narration: "The Volunteers smothered the Spartans.",
+    footage: { sport: "basketball" },
+  };
+  assert.ok(footageSubjects(story).some((subject) => subject.aliases.includes("michigan state")));
+  assert.equal(classifyFootage(story, {
+    title: "Michigan State vs Gonzaga",
+    description: "Michigan State and Gonzaga play a basketball game.",
+    categories: "Basketball games",
+  }), "broll");
+  assert.equal(classifyFootage({
+    headline: "Fans outside the stadium",
+    footage: { sport: "football", teams: ["LSU", "Texas"] },
+  }, {
+    title: "Outside Tiger Stadium",
+    description: "Fans gather at LSU before the football game against Texas.",
+    categories: "LSU Tigers football",
+  }), null);
+});
+
+test("public-domain game film is usable and a highlight rip is not", () => {
+  const film = commonsPage({
+    license: "Public domain", credit: "Library of Congress", artist: "Library of Congress",
+    title: "Princeton vs Yale football game 1903", pageid: 44,
+  });
+  film.imageinfo[0].size = 54_000_000;
+  const kept = commonsVideo(film);
+  assert.equal(kept.license, "Public domain");
+  assert.equal(kept.transcode, true);
+  assert.equal(commonsVideo(commonsPage({ license: "Public domain", credit: "YouTube : FOX COLLEGE FOOTBALL HIGHLIGHTS" })), null);
+  assert.equal(commonsVideo(commonsPage({ license: "CC BY 4.0", credit: "ESPN broadcast" })), null);
+  assert.equal(commonsVideo(commonsPage({ license: "CC BY 2.5" })).license, "CC BY 2.5");
+});
+
+test("a story with no matching team never gets another team's archive game", async () => {
+  const duke = sportClip({ headline: "Duke falls to Illinois at home", league: "NCAAB", footage: { sport: "basketball" } });
+  assert.equal(duke, null);
+  const nba = sportClip({ headline: "The Sparks sale talks continue", league: "NBA", footage: { sport: "basketball" } });
+  assert.equal(nba, null);
+  const state = sportClip({ headline: "Tennessee tops No. 2 Michigan State", footage: { sport: "basketball" } });
+  assert.equal(state.id, "archive-michigan-state-gonzaga-2022");
+  assert.equal(state.sportFallback, undefined);
+  assert.equal(sportClip({ headline: "A thin market", footage: { sport: "baseball", teams: ["Blue Jays"] } }), null);
 });

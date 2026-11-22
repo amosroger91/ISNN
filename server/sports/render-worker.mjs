@@ -1,14 +1,20 @@
 import { renderEpisode } from "./produce.mjs";
 
-process.once("message", async ({ episode, directory }) => {
+const controller = new AbortController();
+let started = false;
+process.on("disconnect", () => controller.abort());
+process.on("message", async ({ episode, directory, cancel }) => {
+  if (cancel) { controller.abort(); return; }
+  if (started) return;
+  started = true;
   let result;
   try {
     const metadata = await renderEpisode(episode, directory, (percent, message) => {
-      process.send({ progress: { percent, message } });
-    });
+      if (process.connected) process.send({ progress: { percent, message } });
+    }, controller.signal);
     result = { metadata };
   } catch (error) {
     result = { error: error.message };
   }
-  process.send(result, () => process.disconnect());
+  if (process.connected) process.send(result, () => process.disconnect());
 });

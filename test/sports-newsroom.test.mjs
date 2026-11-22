@@ -23,7 +23,7 @@ async function newsroom(t, { now, observations = [], failures = false, live = fa
   const built = [];
   const desk = new SportsDesk({
     directory, timezone: "America/Chicago", publishEnabled: false, canResearch: () => live, canUpload: () => false, now: () => time, rebuildDelay: 60_000,
-    research: async () => [topic], write, anchor,
+    research: async () => [topic], write, anchor, listing: async () => null,
     evidence: evidence || new FixtureEvidenceAdapter(),
     trend: [new FixtureTrendAdapter(failures ? () => { throw new Error("HTTP 503"); } : observations)],
     render: async (episode, output) => {
@@ -53,6 +53,30 @@ test("the live writer's numbers must appear in a cited source or the build is re
 test("8 a.m. Central is resolved to the right UTC instant on both sides of daylight saving", () => {
   assert.equal(zonedTime("2026-11-16", 8, "America/Chicago"), "2026-11-16T14:00:00.000Z");
   assert.equal(zonedTime("2026-07-04", 8, "America/Chicago"), "2026-07-04T13:00:00.000Z");
+});
+
+test("Other news accepts a non-sports story, builds its segment and survives a sports slate scan", async (t) => {
+  const { desk, built } = await newsroom(t, {
+    now: "2026-11-16T12:30:00Z", live: true,
+    write: async ({ topics }) => ({ title: "NASA completes engine test", description: "An update on the engine test.", segments: topics.map((topic) => ({ headline: topic.title, narration: "NASA completed an engine test for the mission.", sources: topic.sources })) }),
+  });
+  const added = await desk.changeTopic(null, {
+    title: "NASA completes engine test", sport: "other", url: "https://news.example/mission", excerpt: "NASA completed an engine test for the mission.", teams: ["An irrelevant sports tag"],
+  }, "2026-11-16");
+  const topic = added.edition.topics[0];
+  assert.equal(topic.league, "Other news");
+  assert.deepEqual(topic.teams, []);
+  assert.ok(added.settings.scope.options.some(({ league, sport }) => league === "Other news" && sport === "other"));
+  await desk.run("build", "2026-11-16");
+  await desk.work.done;
+  const ready = (await desk.view()).edition;
+  assert.equal(ready.status, "ready", ready.error);
+  assert.equal(built.at(-1).segments[0].league, "Other news");
+  assert.equal(built.at(-1).segments[0].footage.sport, "other");
+  assert.equal(built.at(-1).segments[0].bumper, "We start with the other news.");
+  const scanned = (await desk.scanSlate("2026-11-16")).edition.topics.find(({ id }) => id === topic.id);
+  assert.equal(scanned.selected, true);
+  assert.notEqual(scanned.coverage, "out of scope");
 });
 
 test("a scanned slate becomes pitches with ledger claims, the trend desk clears one angle, and the cut carries both", async (t) => {
@@ -183,6 +207,10 @@ test("a correction published by the source between scans withdraws the dependent
 test("an unverified pitch never earns a trend segment, a feed outage is shown as signal unavailable, and the API exposes the controls", async (t) => {
   const trendFixture = await loadTrendFixture();
   const { desk, built } = await newsroom(t, { now: "2026-11-16T12:30:00Z", observations: trendFixture.scenarios.rumor });
+  // A desk password in the operator's .env would put this local API behind the login.
+  const password = process.env.SPORTS_DESK_PASSWORD;
+  delete process.env.SPORTS_DESK_PASSWORD;
+  t.after(() => { if (password !== undefined) process.env.SPORTS_DESK_PASSWORD = password; });
   const { app } = await createApp({ sports: desk });
   const browser = request(app);
   const scanned = await browser.post("/api/sports/evidence/scan").send({ date: "2026-11-16" }).expect(200);
@@ -191,12 +219,12 @@ test("an unverified pitch never earns a trend segment, a feed outage is shown as
   const rumor = (await browser.post("/api/sports/topics").send({ date: "2026-11-16", title: "Mara Quill trade rumor", take: "I would not read anything into it yet.", sport: "basketball", league: "NBA", teams: ["Harbor City Gulls"] }).expect(201)).body.edition.topics.at(-1);
   assert.deepEqual([rumor.sport, rumor.league, rumor.teams], ["basketball", "NBA", ["Harbor City Gulls"]]);
   const general = (await browser.post("/api/sports/topics").send({ date: "2026-11-16", title: "What to watch this weekend", take: "Three games worth the early alarm.", sport: "other", league: null, teams: [] }).expect(201)).body.edition.topics.at(-1);
-  assert.deepEqual([general.sport, general.league, general.teams], ["other", null, []], "a general topic can carry no league and no team");
+  assert.deepEqual([general.sport, general.league, general.teams], ["other", "Other news", []], "a general topic gets its own news category without a team");
   await browser.patch(`/api/sports/topics/${general.id}`).send({ date: "2026-11-16", selected: false }).expect(200);
   await browser.post("/api/sports/topics").send({ date: "2026-11-16", title: "Bad tag", sport: "curling" }).expect(400);
   await browser.post("/api/sports/topics").send({ date: "2026-11-16", title: "Out of scope", sport: "hockey", league: "NHL" }).expect(409);
   const college = (await browser.post("/api/sports/topics").send({ date: "2026-11-16", title: "Pine Ridge opens at home", sport: "basketball", league: "NCAAB", teams: ["Pine Ridge"] }).expect(201)).body;
-  assert.equal(college.settings.scope.label, "NCAA, NBA, MLB");
+  assert.equal(college.settings.scope.label, "NCAA, NBA, MLB, UFC");
   assert.ok(college.settings.scope.options.some(({ league }) => league === "NCAAB"));
   await browser.patch(`/api/sports/topics/${college.edition.topics.at(-1).id}`).send({ date: "2026-11-16", selected: false }).expect(200);
   const onAir = "I would wait for confirmation before drawing a conclusion.";

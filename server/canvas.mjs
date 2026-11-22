@@ -7,6 +7,7 @@ import { root } from "./config.mjs";
 const faces = [
   ["atkinson-hyperlegible-400-normal.ttf", "Atkinson Hyperlegible"],
   ["atkinson-hyperlegible-700-normal.ttf", "Atkinson Hyperlegible"],
+  ["anton/Anton-Regular.ttf", "Anton"],
 ];
 for (const [file, family] of faces)
   GlobalFonts.registerFromPath(path.join(root, "assets/fonts", file), family);

@@ -1,4 +1,4 @@
-import { open } from "node:fs/promises";
+import { open, readFile } from "node:fs/promises";
 import { setTimeout as pause } from "node:timers/promises";
 
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -38,6 +38,10 @@ async function httpError(response, context) {
 function withTimeout(signal, milliseconds) {
   const timeout = AbortSignal.timeout(milliseconds);
   return signal ? AbortSignal.any([signal, timeout]) : timeout;
+}
+
+export async function youtubeAccessToken(fetchImpl = fetch, signal) {
+  return getAccessToken(fetchImpl, signal);
 }
 
 async function getAccessToken(fetchImpl, signal) {
@@ -92,36 +96,101 @@ function chapterText(episode) {
   return `\n\nChapters\n${chapters.map(({ start }, index) => `${formatTimestamp(Math.floor(start))} ${labels[index]}`).join("\n")}`;
 }
 
+// The whole description stays short enough to read: the hook and show line,
+// chapters, the synthetic-voice note, footage licence credits (required for
+// Creative Commons clips), then hashtags. Reporting-source links are left out.
+export const DESCRIPTION_CHARACTERS = 1500;
+const characters = (text) => Array.from(text).length;
+
 function videoDescription(episode) {
-  const lines = new Map();
-  for (const segment of episode.segments || []) {
-    for (const source of segment.sources || []) {
-      try {
-        const url = new URL(source.url);
-        if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) continue;
-        const publisher = metadataText(source.publisher ?? url.hostname).replace(/\s+/g, " ");
-        lines.set(url.href, `${publisher}\n${url.href}`);
-      } catch {
-        continue;
-      }
-    }
-  }
-  let credits = `${chapterText(episode)}\n\nNarration uses a synthetic voice.`;
+  // Hashtags go last; YouTube shows the first three above the title.
+  const hashtags = (episode.hashtags || []).filter((tag) => /^#[A-Za-z][A-Za-z0-9]{1,29}$/.test(tag)).slice(0, 15).join(" ");
+  const closing = hashtags ? `\n\n${hashtags}` : "";
+  const body = metadataText(episode.description);
+  let tail = `${chapterText(episode)}\n\nNarration uses a synthetic voice.`;
+  // Licence credits may not be squeezed out by a long hook: the body is
+  // counted at no more than 600 characters while they are placed.
+  const room = () => DESCRIPTION_CHARACTERS - Math.min(characters(body), 600) - characters(tail) - characters(closing);
   if (episode.footageCredits?.length) {
-    credits += "\n\nFootage credits";
+    let credits = "\n\nFootage credits";
     for (const clip of episode.footageCredits) {
-      const line = metadataText(`${clip.title} — ${clip.creator} (${clip.license}, excerpt, muted)\n${clip.url}\n${clip.licenseUrl}`);
-      if (Buffer.byteLength(`${credits}\n${line}`) <= 4400) credits += `\n${line}`;
+      const note = clip.type === "photo" ? clip.license : `${clip.license}, excerpt, muted`;
+      const line = metadataText(`${clip.title} — ${clip.creator} (${note})\n${clip.url}\n${clip.licenseUrl}`);
+      if (characters(`${credits}\n${line}`) <= room()) credits += `\n${line}`;
     }
+    if (credits !== "\n\nFootage credits") tail += credits;
   }
-  if (lines.size) {
-    credits += "\n\nReporting sources";
-    for (const line of lines.values()) {
-      if (Buffer.byteLength(`${credits}\n${line}`) <= 3500) credits += `\n${line}`;
-    }
+  // The body gives way last: trimmed only if chapters and credits overflow.
+  const fit = Array.from(body).slice(0, Math.max(0, DESCRIPTION_CHARACTERS - characters(tail) - characters(closing))).join("");
+  const description = limitUtf8(fit, 5000 - Buffer.byteLength(tail) - Buffer.byteLength(closing)).trimEnd();
+  return `${description}${tail}${closing}`.trim();
+}
+
+const TITLE_LIMIT = 100;
+
+function rundownDate(date) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date || "")) return "";
+  const stamp = new Date(`${date}T12:00:00Z`);
+  if (Number.isNaN(stamp.getTime())) return "";
+  return new Intl.DateTimeFormat("en-US", {
+    month: "long", day: "numeric", year: "numeric", timeZone: "UTC",
+  }).format(stamp);
+}
+
+// Episode and Short titles share one prefix so a day's uploads read as one show.
+export function youtubeTitle({ date, headline } = {}) {
+  const when = rundownDate(date);
+  const base = when ? `The Rundown | ${when}` : "The Rundown";
+  const story = metadataText(headline).replace(/\s+/g, " ").trim();
+  const full = story ? `${base} | ${story}` : base;
+  return Array.from(full).slice(0, TITLE_LIMIT).join("").trimEnd() || "The Rundown";
+}
+
+function cueSeconds(value) {
+  const match = /(\d+):(\d{2}):(\d{2})/.exec(String(value || ""));
+  if (!match) return null;
+  return Number(match[1]) * 3600 + Number(match[2]) * 60 + Number(match[3]);
+}
+
+export function srtCues(text) {
+  const cues = [];
+  for (const block of String(text || "").replace(/^\uFEFF/, "").split(/\r?\n\s*\r?\n/)) {
+    const lines = block.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    const timingIndex = lines.findIndex((line) => line.includes("-->"));
+    if (timingIndex < 0) continue;
+    const start = cueSeconds(lines[timingIndex].split("-->")[0]);
+    const label = lines.slice(timingIndex + 1).join(" ").replace(/\s+/g, " ").trim();
+    if (start === null || !label) continue;
+    cues.push({ start, label });
   }
-  const description = limitUtf8(metadataText(episode.description), 5000 - Buffer.byteLength(credits)).trimEnd();
-  return `${description}${credits}`.trim();
+  return cues;
+}
+
+function timestampLines(entries) {
+  if (!entries?.length) return "";
+  const lines = [];
+  for (const entry of entries) {
+    if (!Number.isFinite(entry?.start) || entry.start < 0) continue;
+    const label = limitUtf8(metadataText(entry.label).replace(/\s+/g, " "), 100).trimEnd();
+    if (!label) continue;
+    lines.push(`${formatTimestamp(Math.floor(entry.start))} ${label}`);
+  }
+  return lines.join("\n");
+}
+
+// Chapter lines stay in videoDescription when YouTube can use them. Otherwise
+// the same timestamps are written into the description body. The hook leads;
+// the show line follows it, since YouTube previews only the first lines.
+export function youtubeDescription({ date, entries, episode } = {}) {
+  const when = rundownDate(date || episode?.date);
+  const showLine = when
+    ? `The Rundown · ${when} · Wellspring Media Sports with Isaac Doss`
+    : "The Rundown · Wellspring Media Sports with Isaac Doss";
+  const original = metadataText(episode?.description);
+  const body = original.includes(showLine) ? original : [original, showLine].filter(Boolean).join("\n\n");
+  if (chapterText(episode || {})) return body;
+  const lines = timestampLines(entries);
+  return lines ? `${body}\n\n${lines}` : body;
 }
 
 async function initiateUpload(request, episode, total, privacyStatus) {
@@ -135,8 +204,12 @@ async function initiateUpload(request, episode, total, privacyStatus) {
       "X-Upload-Content-Type": "video/mp4",
     },
     body: JSON.stringify({
-      snippet: { title, description: videoDescription(episode), categoryId: "17", defaultAudioLanguage: "en" },
-      status: { privacyStatus },
+      snippet: {
+        title, description: videoDescription(episode), categoryId: "17", defaultAudioLanguage: "en",
+        ...(episode.tags?.length && { tags: episode.tags.map((tag) => metadataText(tag).replace(/[",]/g, "").slice(0, 60)).filter(Boolean) }),
+      },
+      // Sports news for a general audience: never declared made for kids.
+      status: { privacyStatus, selfDeclaredMadeForKids: false },
     }),
   }, 30_000);
   if (!response.ok) throw await httpError(response, "Could not start the YouTube upload");
@@ -207,6 +280,42 @@ async function resumeUpload({ request, session, total, handle, onSession, signal
     probe = true;
     await pause(1000 * 2 ** (recoveryAttempts - 1), undefined, { signal });
   }
+}
+
+// A thumbnail failure is not an upload failure. Quota stops the rest of the
+// edition's thumbnails; a phone-verification 403 is "unavailable".
+export function classifyThumbnailError(error) {
+  const message = String(error?.message || error || "");
+  if (/quotaExceeded|uploadLimitExceeded|dailyLimitExceeded|rateLimitExceeded/iu.test(message)) {
+    return { status: "failed", halt: "quota" };
+  }
+  if (/HTTP\s+403\b/iu.test(message) && /forbidden|custom thumbnail|verif/iu.test(message)) {
+    return { status: "unavailable", halt: "unavailable" };
+  }
+  return { status: "failed", halt: null };
+}
+
+export async function setThumbnail({ videoId, file, signal, fetchImpl = fetch }) {
+  if (!/^[\w-]{11}$/u.test(String(videoId || ""))) throw new Error("YouTube video id is not valid.");
+  if (!youtubeConfigured()) throw new Error("Configure the YouTube channel's offline OAuth credentials first.");
+  const bytes = await readFile(file);
+  const token = await getAccessToken(fetchImpl, signal);
+  const response = await fetchImpl(
+    `https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId=${encodeURIComponent(videoId)}&uploadType=media`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "image/jpeg",
+        "Content-Length": String(bytes.length),
+      },
+      body: bytes,
+      redirect: "error",
+      signal: withTimeout(signal, 60_000),
+    },
+  );
+  if (!response.ok) throw await httpError(response, "YouTube refused the thumbnail");
+  return response.json().catch(() => ({}));
 }
 
 export async function uploadEpisode({ file, episode, sessionUrl, onSession, signal, fetchImpl = fetch }) {

@@ -2,6 +2,7 @@ import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
+import { MAX_EPISODE_STORIES } from "../../shared/sports-limits.mjs";
 import { wav } from "../voice.mjs";
 
 const directory = fileURLToPath(new URL("./fixtures/", import.meta.url));
@@ -28,7 +29,7 @@ export const fixtureSchema = z.object({
     sources: z.array(source).min(1).max(3),
     claims: z.array(z.object({ text: z.string().min(3), evidence: z.url(), locator: z.string().min(1) }).loose()).min(1),
     diagram: diagram.optional(),
-  })).min(1).max(12),
+  })).min(1).max(MAX_EPISODE_STORIES),
 });
 
 // Game evidence slates: credential-free, replayable evidence for the desk and
