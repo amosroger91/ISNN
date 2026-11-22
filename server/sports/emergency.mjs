@@ -29,6 +29,33 @@ export function emergencyContext(root) {
   ].join("\n");
 }
 
+// Started by the desk itself when the 8 a.m. episode is not on YouTube. Here
+// the agent is told to upload: that is the whole point of the run.
+export function uploadEmergencyBrief(root, { date, state }) {
+  return [
+    "You are the on-call engineer for the Wellspring Media Sports desk (ISNN). Nobody started this chat: the desk started it automatically",
+    `because the ${date} episode was not on YouTube by 8:15 a.m. The owner may be asleep or away. Work alone until the episode is published.`,
+    `Repository: ${root}. Node ESM server, React client. Tests: npm test (they must pass before any restart).`,
+    "The live desk is the Windows scheduled task \"ISNN Desk\" (scripts/windows/run-desk.cmd), serving http://127.0.0.1:4320. Its log is data/logs/desk.log.",
+    `The edition is data/sports/editions/${date}/edition.json (status, error, generationRetry, buildAttempts, publication, youtube).`,
+    "The desk API needs Basic auth: user SPORTS_DESK_USER (default Isaac) and SPORTS_DESK_PASSWORD from .env. Useful calls:",
+    "  GET  /api/sports/edition                       current edition with status and progress",
+    `  POST /api/sports/build   {"date":"${date}"}           start or restart the build`,
+    `  POST /api/sports/youtube {"date":"${date}","target":"episode"}   upload the finished episode`,
+    "To restart the desk after a code fix: powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/restart-desk.ps1 . You run outside the desk, so the restart does not stop you. A restart stops any build in progress: start it again with the build call afterwards.",
+    "Your job, in order:",
+    "1. Find why the episode is not up (build failed, still building, upload failed or held). Read the edition and the end of desk.log.",
+    "2. If code is broken: reproduce it, fix the cause, add a test, run npm test, restart the desk, start the build again.",
+    "3. MONITOR the build until it is ready. Starting a build is not success. Check every few minutes (sleep between checks) until status is ready, and if it fails, go back to step 1.",
+    "4. Check the finished cut: qc.json in the newest cut folder must say passed.",
+    "5. Upload the episode with the youtube call above, then keep checking until publication.status or youtube.episode.status is published. If YouTube refuses (quota, auth), stop and say exactly why.",
+    "The desk uploads the Shorts by itself until 10:59 a.m. once the episode is up. Do not upload anything for other dates, do not change publishing or privacy settings, do not delete editions or footage, do not commit or push.",
+    "Keep each message short; the owner reads this on a phone. End with one line: PUBLISHED, or BLOCKED and the reason.",
+    "",
+    `State when this started: ${state}`,
+  ].join("\n");
+}
+
 // Turns Claude's stream-json lines into what the chat shows.
 export function readEvents(text) {
   const items = [];
@@ -133,7 +160,9 @@ export class EmergencyDesk {
     return { enabled: this.enabled, chat: { id, createdAt: meta.createdAt, sessionId, running, turns } };
   }
 
-  async send(message, id) {
+  // brief replaces the standard instructions on a new chat (the desk's own
+  // 8 a.m. trigger); the owner's chats always get emergencyContext.
+  async send(message, id, { brief } = {}) {
     if (!this.enabled) throw Object.assign(new Error("The emergency agent is switched off (SPORTS_EMERGENCY_AGENT)."), { status: 403 });
     const text = String(message || "").trim().slice(0, MAX_MESSAGE);
     if (!text) throw Object.assign(new Error("Write what is wrong first."), { status: 400 });
@@ -147,13 +176,13 @@ export class EmergencyDesk {
     const meta = fresh ? { id: chatId, createdAt: new Date().toISOString(), turns: [] } : this.meta(chatId);
     const n = meta.turns.length + 1;
     const prompt = path.join(folder, `prompt-${n}.txt`);
-    writeFileSync(prompt, fresh ? `${emergencyContext(this.root)}\n\nThe owner writes:\n${text}` : text);
+    writeFileSync(prompt, fresh ? (brief ? `${brief}\n\n${text}` : `${emergencyContext(this.root)}\n\nThe owner writes:\n${text}`) : text);
     const resume = current?.sessionId ? ` --resume ${current.sessionId}` : "";
     const quote = (value) => `"${value}"`;
     const commandLine = `cmd.exe /d /s /c "${quote(this.claude)} -p --output-format stream-json --verbose --dangerously-skip-permissions${resume}`
       + ` < ${quote(prompt)} > ${quote(path.join(folder, `turn-${n}.jsonl`))} 2> ${quote(path.join(folder, `turn-${n}.err`))}"`;
     const pid = await this.launch(commandLine, this.root);
-    meta.turns.push({ n, at: new Date().toISOString(), message: text, pid });
+    meta.turns.push({ n, at: new Date().toISOString(), message: text, pid, ...(brief ? { automatic: true } : {}) });
     writeFileSync(path.join(folder, "meta.json"), JSON.stringify(meta, null, 2));
     return this.view(chatId);
   }

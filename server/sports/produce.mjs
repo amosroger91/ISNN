@@ -923,22 +923,18 @@ async function pruneCutCache() {
 export async function cachedCut(file, range, format, signal) {
   const info = await stat(file);
   const key = createHash("sha256").update(JSON.stringify([
-    path.resolve(file), info.size, Math.round(info.mtimeMs), range.start, range.duration, format.width, format.height, FPS, Boolean(range.loop), "fit-2",
+    path.resolve(file), info.size, Math.round(info.mtimeMs), range.start, range.duration, format.width, format.height, FPS, Boolean(range.loop), "cover-3",
   ])).digest("hex").slice(0, 32);
   const cut = path.join(CUT_CACHE, `${key}.mp4`);
   if (await access(cut).then(() => true, () => false)) return cut;
   await mkdir(CUT_CACHE, { recursive: true });
   const staged = path.join(CUT_CACHE, `${key}.partial.mp4`);
-  // A clip shot the other way round (a phone video in the 16:9 episode) is
-  // shown whole over a blurred fill of itself instead of cropped to a sliver.
-  const source = (await probe(file, signal)).streams.find((stream) => stream.codec_type === "video");
-  const rotated = Math.abs(Number(source?.tags?.rotate || source?.side_data_list?.find((item) => item.rotation != null)?.rotation || 0)) % 180 === 90;
-  const sourceWide = rotated ? source?.height > source?.width : source?.width > source?.height;
-  const mismatched = source && sourceWide !== format.width > format.height;
+  // Every cut fills the frame. Fitting a clip shot the other way round into a
+  // band over a blurred copy of itself (tried 2026-11-20) left only that band
+  // moving: ordinary motion, like players lining up for a tip-off, then read
+  // as a still picture, and the 11-22 build failed the motion check on a Short.
   const { width: w, height: h } = format;
-  const fit = mismatched
-    ? `fps=${FPS},split[back][front];[back]scale=${Math.round(w / 4)}:${Math.round(h / 4)}:force_original_aspect_ratio=increase,crop=${Math.round(w / 4)}:${Math.round(h / 4)},boxblur=12:2,scale=${w}:${h},eq=brightness=-0.12[bg];[front]scale=${w}:${h}:force_original_aspect_ratio=decrease:force_divisible_by=2[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1`
-    : `fps=${FPS},scale=${w}:${h}:force_original_aspect_ratio=increase,crop=${w}:${h},setsar=1`;
+  const fit = `fps=${FPS},scale=${w}:${h}:force_original_aspect_ratio=increase,crop=${w}:${h},setsar=1`;
   await run(ffmpegPath, [
     "-hide_banner", "-loglevel", "error", "-y", ...(range.loop ? ["-stream_loop", "-1"] : []), "-ss", String(range.start), "-i", file,
     "-t", range.duration.toFixed(6), "-vf", fit,

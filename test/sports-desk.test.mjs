@@ -979,3 +979,74 @@ test("a failed thumbnail is retried once after four minutes", async (t) => {
   await settle();
   assert.equal(thumbs, 2);
 });
+
+// 2026-11-21: the build failed overnight and nothing was on YouTube at 8 a.m.
+// From 8:15 the desk starts the Emergency fix agent itself, once per edition.
+test("the desk starts the Emergency fix agent when the 8 a.m. episode is not on YouTube by 8:15", async (t) => {
+  const sent = [];
+  const emergency = {
+    root: "C:/repo",
+    send: async (message, id, options) => { sent.push({ message, id, brief: options?.brief }); return { chat: { id: "2026-11-16-abcd1234" } }; },
+  };
+  const { desk, clock } = await fixture(t, { emergency });
+  const edition = await desk.load(date);
+  edition.status = "failed";
+  edition.error = "The sports episode did not pass output validation. segment-06.mp4 was still for 5.5s.";
+  await desk.save(edition);
+
+  clock("2026-11-16T14:05:00Z"); // 8:05 a.m.: the normal upload still has time
+  await desk.tick();
+  assert.equal(sent.length, 0);
+
+  clock("2026-11-16T14:15:00Z"); // 8:15 a.m.
+  await desk.tick();
+  assert.equal(sent.length, 1);
+  assert.equal(sent[0].id, undefined, "a new chat, not the owner's last one");
+  assert.match(sent[0].message, /2026-11-16 episode is not on YouTube: the build is failed: .*still for 5\.5s/u);
+  assert.match(sent[0].brief, /MONITOR the build until it is ready\. Starting a build is not success/u);
+  assert.match(sent[0].brief, /POST \/api\/sports\/youtube \{"date":"2026-11-16","target":"episode"\}/u);
+  assert.match(sent[0].brief, /PUBLISHED, or BLOCKED/u);
+  const recorded = (await desk.load(date)).uploadEmergency;
+  assert.equal(recorded.chat, "2026-11-16-abcd1234");
+
+  clock("2026-11-16T14:30:00Z"); // the agent restarts the desk; ticks go on
+  await desk.tick();
+  assert.equal(sent.length, 1, "started once per edition");
+});
+
+test("no Emergency fix run once the episode is published, outside the morning, or without the agent", async (t) => {
+  const sent = [];
+  const emergency = { root: "C:/repo", send: async () => { sent.push(1); return { chat: { id: "x-123456" } }; } };
+  const { desk, clock } = await fixture(t, { emergency });
+  const edition = await desk.load(date);
+  edition.publication = { status: "published", id: "abc" };
+  await desk.save(edition);
+  clock("2026-11-16T14:20:00Z");
+  await desk.tick();
+  assert.equal(sent.length, 0);
+
+  edition.publication = { status: "failed", error: "quota" };
+  await desk.save(edition);
+  clock("2026-11-16T17:30:00Z"); // 11:30 a.m.: past the morning upload window
+  await desk.tick();
+  assert.equal(sent.length, 0);
+
+  const { desk: plain, clock: plainClock } = await fixture(t);
+  const other = await plain.load(date);
+  other.status = "failed";
+  await plain.save(other);
+  plainClock("2026-11-16T14:20:00Z");
+  await plain.tick();
+  assert.equal((await plain.load(date)).uploadEmergency, undefined);
+});
+
+test("a failure to start the agent is recorded on the edition and not retried every minute", async (t) => {
+  const emergency = { root: "C:/repo", send: async () => { throw new Error("'claude' is not recognized"); } };
+  const { desk, clock } = await fixture(t, { emergency });
+  const edition = await desk.load(date);
+  edition.status = "failed";
+  await desk.save(edition);
+  clock("2026-11-16T14:16:00Z");
+  await desk.tick();
+  assert.match((await desk.load(date)).uploadEmergency.error, /not recognized/u);
+});

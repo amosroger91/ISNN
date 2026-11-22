@@ -47,6 +47,9 @@ const uploadRetry = 4 * 60_000;
 const shortsUntilHour = 10;
 const quotaSpent = /quotaExceeded|uploadLimitExceeded|dailyLimitExceeded|rateLimitExceeded/u;
 const airHour = 8;
+// If the episode is not on YouTube this long after air time, the desk starts
+// the Emergency fix agent once for that day (see uploadEmergency).
+const uploadEmergencyAfter = 15 * 60_000;
 const workerFile = fileURLToPath(new URL("./render-worker.mjs", import.meta.url));
 const sentenceSplitter = new Intl.Segmenter("en-US", { granularity: "sentence" });
 
@@ -326,6 +329,7 @@ export class SportsDesk {
     scope = coverageScope(),
     rebuildDelay = 2500,
     generationRetryDelay = 10_000,
+    emergency = null,
   } = {}) {
     this.directory = directory;
     this.scope = scope;
@@ -351,6 +355,9 @@ export class SportsDesk {
     this.catalog = catalog;
     this.rebuildDelay = rebuildDelay;
     this.generationRetryDelay = generationRetryDelay;
+    // The Emergency fix agent (emergency.mjs). Production only: tests and
+    // sandboxes leave it null, so nothing is ever launched from them.
+    this.emergency = emergency;
     this.tail = Promise.resolve();
     this.commentWork = null;
   }
@@ -1845,6 +1852,41 @@ export class SportsDesk {
     });
   }
 
+  // 8:15 a.m. and the episode is not on YouTube (the build failed or is still
+  // running, or the upload failed or is held): start the Emergency fix agent,
+  // told to fix whatever is wrong, watch the build until it is ready and
+  // upload the episode. Once per edition, recorded on it, so a desk restart by
+  // the agent does not start a second one. Called inside tick's serialization.
+  async uploadEmergency(edition) {
+    if (!this.emergency || !this.settings.publishEnabled || edition.sample || edition.uploadEmergency) return false;
+    if (this.now().getTime() < Date.parse(this.airTimeFor(edition.date)) + uploadEmergencyAfter) return false;
+    const published = edition.publication?.status === "published" || edition.youtube?.episode?.status === "published";
+    const uploading = ["uploading"].includes(edition.publication?.status) || edition.youtube?.episode?.status === "uploading";
+    if (published || (uploading && ["publish", "youtube"].includes(this.work?.task))) return false;
+    const reason = edition.status !== "ready"
+      ? `the build is ${edition.status}${edition.error ? `: ${edition.error}` : ""}`
+      : `the upload is ${edition.publication?.status || "not started"}${edition.publication?.error ? `: ${edition.publication.error}` : ""}`;
+    const state = JSON.stringify({
+      status: edition.status, error: edition.error || null, generationRetry: edition.generationRetry || null,
+      buildAttempts: edition.buildAttempts || 0, running: this.work ? `${this.work.task} ${this.work.date}` : null,
+      publication: edition.publication || null, episodeSlot: edition.youtube?.episode || null,
+    });
+    const record = { at: this.now().toISOString(), reason };
+    try {
+      const { uploadEmergencyBrief } = await import("./emergency.mjs");
+      const view = await this.emergency.send(`The ${edition.date} episode is not on YouTube: ${reason}. Fix it, watch the build until it is ready, and upload the episode.`,
+        undefined, { brief: uploadEmergencyBrief(this.emergency.root, { date: edition.date, state }) });
+      record.chat = view.chat?.id || null;
+      console.warn(`[sports emergency] ${edition.date}: the episode missed its upload (${reason}); started the Emergency fix agent (chat ${record.chat}).`);
+    } catch (error) {
+      record.error = error.message;
+      console.error(`[sports emergency] ${edition.date}: could not start the Emergency fix agent: ${error.message}`);
+    }
+    edition.uploadEmergency = record;
+    await this.save(edition);
+    return true;
+  }
+
   tick() {
     return this.serialized(async () => {
       const { date, hour } = this.clock();
@@ -1857,6 +1899,7 @@ export class SportsDesk {
         this.work.controller.abort();
         return;
       }
+      if (this.emergency && hour >= airHour && hour <= shortsUntilHour && await this.uploadEmergency(await this.load(date))) return;
       if (this.work || hour > shortsUntilHour) return;
       const edition = await this.load(date);
       // A replacement cut is an editorial draft; publishing it is a separate,
