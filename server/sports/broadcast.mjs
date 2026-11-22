@@ -50,6 +50,33 @@ function checkMark(ctx, x, y, size, color) {
   ctx.stroke();
 }
 
+// The spoken sign-off, set under the buttons as part of the card.
+export function drawSignoffLine(ctx, width, top, elapsed) {
+  const enter = Math.min(1, Math.max(0, (elapsed - 0.9) / 0.5));
+  if (!enter) return;
+  const y = top + (1 - enter) * 24;
+  const lead = "subscribe to ";
+  const brand = "Wellspring.";
+  ctx.save();
+  ctx.globalAlpha = enter;
+  ctx.textBaseline = "top";
+  ctx.textAlign = "center";
+  ctx.fillStyle = WHITE;
+  ctx.font = `600 44px "${FONT}"`;
+  ctx.fillText("For more daily sports updates,", width / 2, y);
+  const leadWidth = ctx.measureText(lead).width;
+  ctx.font = `700 44px "${FONT}"`;
+  const brandWidth = ctx.measureText(brand).width;
+  const start = width / 2 - (leadWidth + brandWidth) / 2;
+  ctx.textAlign = "left";
+  ctx.font = `600 44px "${FONT}"`;
+  ctx.fillText(lead, start, y + 60);
+  ctx.fillStyle = TEAL;
+  ctx.font = `700 44px "${FONT}"`;
+  ctx.fillText(brand, start + leadWidth, y + 60);
+  ctx.restore();
+}
+
 // The Short's end card: LIKE and SUBSCRIBE pills rise in, then each is
 // "pressed" and fills in the house teal. Driven by time alone, so any frame
 // renders the same on its own.
@@ -804,7 +831,11 @@ function createShow(spec) {
         ctx.fillText("WELLSPRING MEDIA SPORTS", width / 2, height * 0.34 + 96);
         ctx.restore();
         // Shorts only: the episode closes on its sign alone.
-        if (mode === "short" && announced) drawEndCardButtons(ctx, width, height * 0.34 + 190, t - spec.outro.announcement.start);
+        if (mode === "short" && announced) {
+          const elapsed = t - spec.outro.announcement.start;
+          drawEndCardButtons(ctx, width, height * 0.34 + 190, elapsed);
+          drawSignoffLine(ctx, width, height * 0.34 + 360, elapsed);
+        }
       }
       if (story && !intro && !outro) {
         const bumper = (story.phrases || []).find((phrase) => phrase.bumper && t >= phrase.start && t < phrase.end);
@@ -860,7 +891,8 @@ function createShow(spec) {
         if (!bumper) drawStrap(ctx, strapFor(story, t), width, height, mode);
       }
       if (!intro) drawBug(ctx, mode === "short" ? 56 : 64, mode === "short" ? 72 : 36, mode === "short" ? 0.92 : 0.84);
-      const cue = (spec.captions || []).find((item) => t >= item.start && t < item.end);
+      // A Short's end card sets its sign-off in the card itself.
+      const cue = mode === "short" && outro ? null : (spec.captions || []).find((item) => t >= item.start && t < item.end);
       drawCaptions(ctx, cue, cue?.pop, t, width, height, mode);
       const margin = mode === "short" ? 72 : 78;
       const barY = mode === "short" ? height - 430 : height - 48;
