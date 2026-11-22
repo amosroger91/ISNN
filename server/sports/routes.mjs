@@ -209,6 +209,9 @@ export function mountSports(app, desk, reminders = desk.reminders || new Reminde
     const { date, ...review } = clipReview.parse(req.body);
     res.json(await desk.reviewClip(topicId.parse(req.params.id), clipId.parse(req.params.clipId), review, date));
   });
+  router.post("/topics/:id/approve", async (req, res) => {
+    res.json(await desk.approveDraft(topicId.parse(req.params.id), requestDate.parse(req.body || {}).date));
+  });
   router.post("/topics/:id/trend", async (req, res) => {
     const { date, aliases: list } = trendInput.parse(req.body || {});
     res.json(await desk.checkTrend(topicId.parse(req.params.id), { aliases: list }, date));

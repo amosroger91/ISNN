@@ -733,6 +733,8 @@ export class SportsDesk {
     snapshot.scriptCache = cache;
     // A story with no reporting is left out with its reason; the rest still air.
     snapshot.skipped = {};
+    // The last draft the fact check rejected, for Isaac to mark true.
+    snapshot.rejected = {};
     const pieces = new Map();
     for (const [index, topic] of unscripted.entries()) {
       const key = fingerprint({ version: 4, model: process.env.SPORTS_LLM_MODEL, topic });
@@ -741,6 +743,7 @@ export class SportsDesk {
       const leftOut = cache[key]?.leftOut;
       if (leftOut) {
         snapshot.skipped[topic.id] = leftOut;
+        if (cache[key].draft) snapshot.rejected[topic.id] = cache[key].draft;
         continue;
       }
       this.work.progress = { percent: 2 + Math.round(index / unscripted.length * 2), message: `${cache[key] ? "Using verified script" : "Writing and checking story"} ${index + 1} of ${unscripted.length}: ${topic.title}` };
@@ -760,7 +763,9 @@ export class SportsDesk {
             }
             error.message = `Left out: its drafts failed the fact check ${STORY_ROUNDS} times. ${error.message}`;
             this.work.lastError = null;
-            cache[key] = { leftOut: error.message };
+            const draft = error.draft?.segments?.[0];
+            cache[key] = { leftOut: error.message, ...(draft?.spoken && { draft }) };
+            if (draft?.spoken) snapshot.rejected[topic.id] = draft;
             await this.serialized(async () => {
               const current = await this.load(snapshot.date);
               if (current.revision !== snapshot.revision) return;
@@ -943,6 +948,8 @@ export class SportsDesk {
       for (const topic of current.topics) {
         if (snapshot.skipped?.[topic.id]) topic.skipReason = snapshot.skipped[topic.id];
         else delete topic.skipReason;
+        if (snapshot.rejected?.[topic.id]) topic.rejectedDraft = snapshot.rejected[topic.id];
+        else delete topic.rejectedDraft;
       }
       for (const { id, sources } of topicSources) {
         const topic = current.topics.find((topic) => topic.id === id);
@@ -1054,7 +1061,7 @@ export class SportsDesk {
           topic.script = { headline: topic.title.slice(0, 140), ...topic.script, ...(headline !== undefined && { headline }), ...(narration !== undefined && { narration }) };
         }
         Object.assign(topic, rest);
-        if (Object.keys(changes).some((name) => name !== "selected")) delete topic.skipReason;
+        if (Object.keys(changes).some((name) => name !== "selected")) { delete topic.skipReason; delete topic.rejectedDraft; }
       } else {
         if (edition.topics.length >= maxTopics) throw deskError(409, `An edition can hold ${maxTopics} topics.`);
         topic = newTopic(rest);
@@ -1080,6 +1087,28 @@ export class SportsDesk {
     });
     if (result.drafting) this.takeDraft = this.draftTakeLater(result.drafting);
     return result.view;
+  }
+
+  // Isaac marks a story the fact check left out as true: the draft it rejected
+  // becomes the story's script, which airs as written, and the cut rebuilds.
+  approveDraft(topicId, expectedDate) {
+    return this.serialized(async () => {
+      const edition = await this.readCurrent(expectedDate);
+      this.ensureEditable(edition);
+      const topic = edition.topics.find(({ id }) => id === topicId);
+      if (!topic) throw deskError(404, "Topic not found.");
+      const draft = topic.rejectedDraft;
+      if (!draft?.spoken) throw deskError(409, "This story has no rejected draft to mark true.");
+      if (!topic.selected && edition.topics.filter(({ selected }) => selected).length >= MAX_EPISODE_STORIES) throw deskError(409, "Twenty stories are already included. Exclude one before including another.");
+      const before = topicsDigest(edition.topics);
+      topic.sources = [...new Map([...(topic.sources || []), ...(draft.sources || [])].map((source) => [source.url, source])).values()];
+      topic.script = { headline: draft.headline.slice(0, 140), narration: draft.spoken.slice(0, 1800) };
+      topic.editorApproved = { at: this.now().toISOString(), reason: topic.skipReason || "" };
+      topic.selected = true;
+      delete topic.skipReason;
+      delete topic.rejectedDraft;
+      return this.saveEdits(edition, before);
+    });
   }
 
   // Drafts a take script and files it on the story, unless the notes changed
@@ -1190,7 +1219,7 @@ export class SportsDesk {
             topic.takeDraftingAt = this.now().toISOString();
             drafting.push({ date: edition.date, id: topic.id, take: topic.take });
           }
-          if (Object.keys(changes).some((field) => field !== "selected") || url || headline || narration) delete topic.skipReason;
+          if (Object.keys(changes).some((field) => field !== "selected") || url || headline || narration) { delete topic.skipReason; delete topic.rejectedDraft; }
           receipts.push({ topic, previous, fields: [...Object.keys(fields), ...(url ? ["source"] : []), ...(headline !== undefined ? ["headline"] : []), ...(narration !== undefined ? ["narration"] : [])] });
         }
         // New stories still save when all twenty slots are occupied; report that

@@ -405,6 +405,41 @@ test("a story whose drafts keep failing the fact check is left out and the rest 
   assert.ok(Object.values(saved.scriptCache).some((entry) => /Left out/u.test(entry.leftOut || "")));
 });
 
+test("Isaac can mark a story the fact check left out as true, and it airs as drafted", async (t) => {
+  const { desk } = await fixture(t, { generationRetryDelay: 0, write: async ({ topics }) => {
+    const title = topics[0].title;
+    if (title === "Stubborn story") {
+      throw Object.assign(new Error("Sports copy needs editorial review. The name “Heisman Trophy” is absent from this story's evidence."), {
+        draft: { segments: [{ headline: "Smith leads the Heisman race", spoken: "Jeremiah Smith is the Heisman favorite.", sources: topics[0].sources }] },
+      });
+    }
+    return { title, description: "The reported story.", segments: [{ headline: title, narration: report.excerpt, sources: topics[0].sources }] };
+  } });
+  await desk.changeTopic(null, { title: "Lead story", url: report.url, excerpt: report.excerpt }, date);
+  await desk.changeTopic(null, { title: "Stubborn story", url: `${report.url}?b`, excerpt: report.excerpt }, date);
+  await desk.run("build", date);
+  await desk.work.done;
+  const built = (await desk.view()).edition;
+  const stubborn = built.topics.find(({ title }) => title === "Stubborn story");
+  assert.match(stubborn.skipReason, /editorial review/u);
+  assert.equal(stubborn.rejectedDraft.spoken, "Jeremiah Smith is the Heisman favorite.");
+  assert.equal((await desk.load(date)).render.episode.segments.length, 1);
+  await assert.rejects(desk.approveDraft(built.topics.find(({ title }) => title === "Lead story").id, date), /no rejected draft/u);
+
+  const approved = (await desk.approveDraft(stubborn.id, date)).edition;
+  const story = approved.topics.find(({ id }) => id === stubborn.id);
+  assert.equal(story.skipReason, undefined);
+  assert.equal(story.rejectedDraft, undefined);
+  assert.deepEqual(story.script, { headline: "Smith leads the Heisman race", narration: "Jeremiah Smith is the Heisman favorite." });
+  assert.ok(story.editorApproved.at);
+  assert.equal(approved.revision, built.revision + 1, "the cut rebuilds");
+  await desk.run("build", date);
+  await desk.work.done;
+  const ready = (await desk.view()).edition;
+  assert.equal(ready.status, "ready", ready.error);
+  assert.ok((await desk.load(date)).render.episode.segments.some(({ narration }) => /Heisman favorite/u.test(narration)), "the approved draft airs");
+});
+
 test("a story redraft shows as progress, not as an error", async (t) => {
   const seen = [];
   let calls = 0;

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { DAILY_STORY_TARGET, MAX_EPISODE_STORIES, PREFERRED_SHORTS_COUNT } from "../../shared/sports-limits.mjs";
 import {
-  Activity, ArrowDownToLine, ArrowUpRight, BellRing, CalendarDays, ChevronDown, CircleAlert,
+  Activity, ArrowDownToLine, ArrowUpRight, BellRing, CalendarDays, Check, ChevronDown, CircleAlert,
   Clapperboard, Clock3, FileText, Film, Gavel, LoaderCircle, MessageSquare, Moon, Pencil,
   Plus, Radio, RefreshCw, ScanSearch, Send, ShieldCheck, SquarePlay, Target, ThumbsUp, TrendingUp, X,
 } from "lucide-react";
@@ -457,7 +457,7 @@ function Claims({ topic, claims, locked, pending, onCorrect, onResolve }) {
 // A draft older than 20 minutes was lost (a restart); show the notes as needing a script.
 const takeDrafting = (topic) => Boolean(topic.takeDraftingAt) && Date.now() - Date.parse(topic.takeDraftingAt) < 20 * 60_000;
 
-function TopicCard({ topic, claims, scope, modelConfigured, editing, pending, locked, isCore, onEdit, onClose, onSave, onChat, onTrend, onCore, onCorrect, onResolve, onClip }) {
+function TopicCard({ topic, claims, scope, modelConfigured, editing, pending, locked, isCore, onEdit, onClose, onSave, onChat, onTrend, onCore, onCorrect, onResolve, onClip, onApprove }) {
   return (
     <article className={`od-topic${topic.selected ? " is-included" : ""}${isCore ? " is-core" : ""}`}>
       <div className="od-topic-main">
@@ -471,7 +471,19 @@ function TopicCard({ topic, claims, scope, modelConfigured, editing, pending, lo
         </header>
         <SportTags topic={topic} />
         {topic.eventId && <p className="od-topic-meta">{topic.eventId}{topic.coverage ? ` · ${topic.coverage}` : ""}</p>}
-        {topic.skipReason && <p className="od-topic-skip">{topic.skipReason}</p>}
+        {topic.skipReason && (
+          <div className="od-topic-skip">
+            <p>{topic.skipReason}</p>
+            {/editorial review/iu.test(topic.skipReason) && topic.rejectedDraft?.spoken && (
+              <>
+                <blockquote className="od-topic-draft"><strong>{topic.rejectedDraft.headline}</strong> {topic.rejectedDraft.spoken}</blockquote>
+                <button type="button" className="od-button" disabled={pending || locked}
+                  title="Air this draft as written. The fact check is skipped for this story."
+                  onClick={onApprove}><Check size={15} /> Mark as true</button>
+              </>
+            )}
+          </div>
+        )}
         {topic.summary && <p className="od-topic-summary">{topic.summary}</p>}
         {topic.script && <p className="od-topic-script">{topic.script.narration}</p>}
         {!editing && topic.takeScript && <div className="od-take"><span>On-air take script</span><p>{topic.takeScript}</p></div>}
@@ -1270,7 +1282,8 @@ export default function SportsApp() {
                   onCore={() => mutate("/trend/core", "POST", { topicId: edition.trendDesk?.coreTopicId === topic.id ? null : topic.id }, "core")}
                   onCorrect={(claimId, fields) => mutate(`/claims/${encodeURIComponent(claimId)}/correct`, "POST", fields, "correct")}
                   onResolve={(claimId, fields) => mutate(`/claims/${encodeURIComponent(claimId)}/resolve`, "POST", fields, "resolve")}
-                  onClip={(clipId, fields) => mutate(`/topics/${encodeURIComponent(topic.id)}/clips/${encodeURIComponent(clipId)}`, "POST", fields, "clip")} />
+                  onClip={(clipId, fields) => mutate(`/topics/${encodeURIComponent(topic.id)}/clips/${encodeURIComponent(clipId)}`, "POST", fields, "clip")}
+                  onApprove={() => mutate(`/topics/${encodeURIComponent(topic.id)}/approve`, "POST", {}, "topic")} />
               ))}
             </div>
           </section>

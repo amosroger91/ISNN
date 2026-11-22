@@ -588,7 +588,14 @@ test("new factual topics can gain coverage from configured feeds without visitin
         segments: [{ number: 1, headline: "Sparks win", narration: "The Sparks won 81–77.", sourceIds: [1] }],
       });
     },
-  }), /editorial review/u);
+  }), (error) => {
+    assert.match(error.message, /editorial review/u);
+    // The rejected draft rides on the error so Isaac can mark it true.
+    assert.equal(error.draft.segments[0].headline, "Sparks win");
+    assert.equal(error.draft.segments[0].spoken, "The Sparks won 81–77.");
+    assert.ok(error.draft.segments[0].sources.length);
+    return true;
+  });
 });
 
 test("a timed-out broadcast check stops without repeating an exhausted model call", async (t) => {

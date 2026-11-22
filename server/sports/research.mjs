@@ -785,12 +785,14 @@ export async function writeEpisode(edition, options = {}) {
     try {
       return await writeEpisodeDraft(edition, { ...options, editorialFeedback });
     } catch (error) {
-      if (attempt === 2 || !/editorial review|absent from its cited sources/u.test(error.message)) throw error;
+      if (attempt === 2 || !FACT_CHECK.test(error.message)) throw error;
       console.warn(`[sports copy] correcting the script: ${error.message}`);
       editorialFeedback = error.message;
     }
   }
 }
+
+const FACT_CHECK = /editorial review|absent from its cited sources/u;
 
 async function writeEpisodeDraft(edition, options) {
   const topics = edition.topics.filter((topic) => topic.selected);
@@ -815,30 +817,38 @@ async function writeEpisodeDraft(edition, options) {
       const { id: _id, ...persisted } = source;
       return persisted;
     });
-    let headline = script?.headline || topics[story.number - 1].title.slice(0, 140) || "Isaac’s take";
-    let spoken = script?.narration || "";
-    if (script) {
+    const headline = script?.headline || topics[story.number - 1].title.slice(0, 140) || "Isaac’s take";
+    const spoken = script?.narration || "";
+    const narration = [spoken, take].filter(Boolean).join("\n\n");
+    return { headline, narration, spoken, sources, ...(!script && { opinion: true }) };
+  });
+  try {
+    for (const { headline, spoken, sources, opinion } of segments) {
+      if (opinion) continue;
       verifyNumbers(`${headline} ${spoken}`, sources);
       verifySupportedNames(spoken, sources);
       verifySeasonTiming(`${headline} ${spoken} ${draft.description}`, sources);
     }
-    const narration = [spoken, take].filter(Boolean).join("\n\n");
-    return { headline, narration, spoken, sources, ...(!script && { opinion: true }) };
-  });
-  const pool = segments.flatMap(({ sources }) => sources);
-  verifyNumbers(`${draft.title} ${draft.description}`, pool);
-  // Only the model-written reporting is audited. Isaac's own take script airs
-  // exactly as he wrote or approved it, with or without a source.
-  const audited = segments.map((segment, i) => ({ segment, i })).filter(({ segment }) => !segment.opinion);
-  if (audited.length) {
-    await verifyCopy({
-      title: draft.title,
-      description: draft.description,
-      stories: audited.map(({ segment: { spoken, opinion: _opinion, ...segment }, i }) => ({
-        ...segment, narration: spoken,
-        ...(matched.has(i + 1) && { requestedFocus: topics[i].title }),
-      })),
-    }, "verifying the broadcast script", options);
+    const pool = segments.flatMap(({ sources }) => sources);
+    verifyNumbers(`${draft.title} ${draft.description}`, pool);
+    // Only the model-written reporting is audited. Isaac's own take script airs
+    // exactly as he wrote or approved it, with or without a source.
+    const audited = segments.map((segment, i) => ({ segment, i })).filter(({ segment }) => !segment.opinion);
+    if (audited.length) {
+      await verifyCopy({
+        title: draft.title,
+        description: draft.description,
+        stories: audited.map(({ segment: { spoken, opinion: _opinion, ...segment }, i }) => ({
+          ...segment, narration: spoken,
+          ...(matched.has(i + 1) && { requestedFocus: topics[i].title }),
+        })),
+      }, "verifying the broadcast script", options);
+    }
+  } catch (error) {
+    // The draft the check rejected travels with the error, so Isaac can read
+    // it and mark it true himself when the check is wrong.
+    if (FACT_CHECK.test(error.message)) error.draft = { segments: segments.map(({ headline, spoken, sources }) => ({ headline, spoken, sources })) };
+    throw error;
   }
   for (const segment of segments) delete segment.spoken;
   const topicSources = [...matched].map(([number, sources]) => ({ id: topics[number - 1].id, sources }));

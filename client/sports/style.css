@@ -440,6 +440,9 @@ body:has(.od) { margin: 0; background: #101212; }
 .od-count.is-full { color: #ffb86b; }
 .od-composer .od-count { align-self: center; padding: 0 6px; }
 .od-topic-skip { margin-top: 7px; padding: 6px 9px; border-left: 3px solid #ffb86b; background: rgba(255, 184, 107, 0.08); color: #ffd6a8; font-size: 13px; }
+.od-topic-skip p { margin: 0; }
+.od-topic-draft { margin: 7px 0; padding: 6px 9px; border-left: 2px solid rgba(255, 214, 168, 0.4); color: var(--od-text); font-size: 13px; line-height: 1.45; }
+.od-topic-skip .od-button { margin-top: 2px; }
 
 /* Calendar tab and reminder notifications */
 .od-nav-calendar { display: inline-flex; align-items: center; gap: 5px; }
