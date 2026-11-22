@@ -168,3 +168,16 @@ test("a season range counts as the year it ended", () => {
   assert.ok(youtubeCandidate(story, { id: "abc123de_45", duration: 600, title: "LSU vs Texas Highlights | 2025-26 College Football", channel: "College Football" }));
   assert.ok(youtubeCandidate(story, { id: "abc123de_45", duration: 600, title: "LSU vs Texas Highlights | 2024-25 College Football", channel: "College Football" }));
 });
+
+// 2026-11-22: NBA stories about Minnesota and Milwaukee took college games
+// ("UCLA vs Minnesota", "#21 USC vs Milwaukee"). Pro and college never mix.
+test("a pro story never takes a college clip, and a college story never takes a pro one", () => {
+  const nba = { league: "NBA", headline: "Damian Lillard scores 33 points as Milwaukee beats Portland", narration: "Lillard and the Bucks.", footage: { sport: "basketball", topicTitle: "Damian Lillard stars in his Milwaukee return", teams: ["Milwaukee Bucks"] } };
+  const college = { league: "NCAAB", headline: "Houston beats Kansas to win the Players Era title", narration: "Houston and Kansas.", footage: { sport: "basketball", topicTitle: "Houston beats Kansas", teams: ["Houston Cougars", "Kansas Jayhawks"] } };
+  const clip = (title) => ({ id: "abcdefghijk", title, duration: 600 });
+  assert.equal(youtubeCandidate(nba, clip("#21 USC vs Milwaukee Highlights | NCAA Men's Basketball 2026")), null);
+  assert.equal(youtubeCandidate(nba, clip("UCLA vs Milwaukee Highlights | Men's Basketball | College Basketball")), null);
+  assert.ok(youtubeCandidate(nba, clip("Milwaukee Bucks vs Portland Trail Blazers Full Game Highlights | NBA")));
+  assert.equal(youtubeCandidate(college, clip("ROCKETS at NETS | NBA FULL GAME HIGHLIGHTS | November 2026 Houston")), null);
+  assert.ok(youtubeCandidate(college, clip("Houston Cougars vs. Kansas Jayhawks | Full Game Highlights | NCAA Men's Basketball")));
+});

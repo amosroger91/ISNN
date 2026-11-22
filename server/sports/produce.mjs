@@ -1011,11 +1011,40 @@ function renderShortOnThread(job, signal, onProgress) {
   });
 }
 
+// outputs[0] is the episode, outputs[i] the Short shorts[i - 1]. Each Short
+// that failed its checks is removed from both lists and from disk, with the
+// reason added to leftOut.
+export async function dropFailedShorts(outputs, shorts, leftOut, directory) {
+  for (let index = outputs.length - 1; index >= 1; index -= 1) {
+    if (outputs[index].passed) continue;
+    const short = shorts[index - 1];
+    const failed = Object.entries(outputs[index].checks || {}).filter(([, ok]) => ok === false).map(([name]) => name);
+    const reason = outputs[index].checks?.motion === false ? `the picture was still for ${outputs[index].motion.longestStillSeconds}s` : `it failed the ${failed.join(", ") || "output"} check`;
+    leftOut.unshift(`Short ${short.segment} (${short.headline}) was left out: ${reason}.`);
+    await rm(path.join(directory, short.file), { force: true });
+    await rm(path.join(directory, short.captions), { force: true });
+    shorts.splice(index - 1, 1);
+    outputs.splice(index, 1);
+  }
+}
+
+// One Short that cannot render comes back as { failed } instead of failing the
+// whole build: the episode and the other Shorts still ship (11-22 lost its 8 a.m.
+// episode to a single Short). Cancelling the build still stops everything.
+async function shortOrFailure(render, signal) {
+  try {
+    return await render();
+  } catch (error) {
+    if (signal?.aborted) throw error;
+    return { failed: error.message || String(error) };
+  }
+}
+
 export async function renderShorts(jobs, { signal, onProgress }) {
   if (SHORT_THREADS === 1) {
     const results = [];
     for (const [index, job] of jobs.entries()) {
-      results.push(await renderBroadcast({ ...job.motion, spec: job.spec, signal, report: (fraction) => onProgress(index, fraction) }));
+      results.push(await shortOrFailure(() => renderBroadcast({ ...job.motion, spec: job.spec, signal, report: (fraction) => onProgress(index, fraction) }), signal));
       onProgress(index, 1);
     }
     return results;
@@ -1026,7 +1055,7 @@ export async function renderShorts(jobs, { signal, onProgress }) {
     while (next < jobs.length) {
       signal?.throwIfAborted();
       const index = next++;
-      results[index] = await renderShortOnThread(jobs[index], signal, (fraction) => onProgress(index, fraction));
+      results[index] = await shortOrFailure(() => renderShortOnThread(jobs[index], signal, (fraction) => onProgress(index, fraction)), signal);
       onProgress(index, 1);
     }
   };
@@ -1311,6 +1340,8 @@ export async function renderEpisode(episode, directory, report = () => {}, signa
     };
 
     let shorts;
+    // Shorts that did not make it (render or QC), shown on the desk as warnings.
+    const leftOut = [];
     if (!motion) {
       report(60, "Encoding the 1080p episode…");
       const playheadX = `78+1620*min(t/${narration.duration},1)`;
@@ -1410,11 +1441,19 @@ export async function renderEpisode(episode, directory, report = () => {}, signa
       };
       tell();
       const rendered = await renderShorts(jobs, { signal, onProgress: (index, fraction) => { progress[index] = fraction; tell(); } });
-      motionRenders.push(...rendered);
-      shorts = jobs.map(({ span, name, duration }) => ({
-        segment: span.index + 1, id: span.id, headline: span.headline, file: `shorts/${name}.mp4`, captions: `shorts/${name}.srt`,
-        start: span.shortStart, end: span.end, duration,
-      }));
+      shorts = [];
+      for (const [index, { span, name, duration }] of jobs.entries()) {
+        if (rendered[index]?.failed) {
+          leftOut.push(`Short ${span.index + 1} (${span.headline}) was left out: it did not render (${rendered[index].failed}).`);
+          await rm(path.join(temporary, "shorts", `${name}.mp4`), { force: true });
+          continue;
+        }
+        motionRenders.push(rendered[index]);
+        shorts.push({
+          segment: span.index + 1, id: span.id, headline: span.headline, file: `shorts/${name}.mp4`, captions: `shorts/${name}.srt`,
+          start: span.shortStart, end: span.end, duration,
+        });
+      }
     }
 
     report(94, "Checking picture, sound, sync and loudness…");
@@ -1440,12 +1479,16 @@ export async function renderEpisode(episode, directory, report = () => {}, signa
         if (!measured.passed) warnings.push(`${output.file}: still for ${measured.longestStillSeconds}s (minimum frame difference ${measured.minDiff}).`);
       }
     }
-    if (!outputs.every((output) => output.passed)) {
-      const still = outputs.find((output) => output.checks.motion === false);
-      throw new Error(still
-        ? `The sports episode did not pass output validation. ${still.file} was still for ${still.motion.longestStillSeconds}s.`
+    // Only the episode failing its checks fails the build. A Short that fails
+    // is left out (and its file removed); the desk shows why.
+    if (!outputs[0].passed) {
+      throw new Error(outputs[0].checks.motion === false
+        ? `The sports episode did not pass output validation. ${outputs[0].file} was still for ${outputs[0].motion.longestStillSeconds}s.`
         : "The sports episode did not pass output validation.");
     }
+    await dropFailedShorts(outputs, shorts, leftOut, temporary);
+    warnings.push(...leftOut);
+    if (leftOut.length) console.warn(`[sports render] ${leftOut.join(" ")}`);
     const duration = outputs[0].duration;
     for (const part of narration.pacing || []) {
       if (part.rushed) warnings.push(`Narration phrase ${part.index + 1} remained fast after resynthesis (${part.wordsPerMinute} words/minute).`);

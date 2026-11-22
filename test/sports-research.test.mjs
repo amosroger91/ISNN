@@ -769,3 +769,32 @@ test("betting columns are dropped from the feeds, while trades for draft picks s
   });
   assert.deepEqual(evidence, ["https://news.example/nba/trade"]);
 });
+
+// 2026-11-22: the edition was uploaded the night before, so the 8 a.m. show
+// needed a fresh rundown. Researching again after an upload never repeats an
+// aired story: its articles are not offered and the model is told.
+test("re-researching after an upload offers none of the aired stories' articles", async (t) => {
+  settings(t);
+  const titles = ["Lakers arena lease","Celtics charter flight","Knicks jersey patch","Warriors practice facility","Nuggets radio deal","Bucks ticket prices","Pistons mascot audition","Heat rookie camp","Suns medical staff","Kings dance team","Hawks parking garage","Bulls scoreboard upgrade","Cavaliers broadcast booth","Mavericks season opener","Rockets youth clinic","Pacers draft lottery","Clippers ownership stake","Grizzlies summer league","Timberwolves film room","Pelicans city council","Thunder hall of fame","Magic anthem singer","Sixers court design","Blazers travel schedule","Spurs team doctor","Raptors logo refresh","Jazz food vendors","Wizards weight room","Hornets ring ceremony","Nets fan festival"];
+  process.env.SPORTS_FEEDS = JSON.stringify([{ publisher: "League report", url: "https://feeds.example/NBA", league: "NBA", sport: "basketball" }]);
+  const aired = titles.slice(0, 20).map((title, i) => ({ title, league: "NBA", sources: [{ url: `https://news.example/NBA/${i}`, title }] }));
+  let offered = null;
+  let told = null;
+  const topics = await researchEdition(date, { now, existing: [], aired, fetchImpl: async (url, request) => {
+    if (request.method !== "POST") {
+      return new Response(`<rss version="2.0"><channel>${titles.map((title, i) => `<item><title>${title}</title><pubDate>Mon, 16 Nov 2026 02:00:00 GMT</pubDate><link>https://news.example/NBA/${i}</link><description>The league confirmed: ${title}.</description></item>`).join("")}</channel></rss>`);
+    }
+    const body = JSON.parse(request.body);
+    const input = JSON.parse(body.messages[1].content);
+    if (!input.evidence) return modelResponse(issueCheck);
+    offered = input.evidence.map(({ url }) => url);
+    told = { prompt: body.messages[0].content, aired: input.aired };
+    return modelResponse({ topics: input.evidence.slice(0, 3).map((article) => ({ title: article.title, summary: article.excerpt, sourceIds: [article.id], league: "NBA" })) });
+  } });
+  assert.equal(offered.length, 10, "only the ten unaired articles are offered");
+  assert.ok(offered.every((url) => Number(url.split("/").pop()) >= 20));
+  assert.equal(told.aired.length, 20);
+  assert.match(told.prompt, /already went out on this show today/u);
+  assert.ok(topics.length > 0, "new stories come back");
+  assert.ok(topics.every(({ sources }) => sources.every(({ url }) => Number(url.split("/").pop()) >= 20)), "no aired story comes back");
+});

@@ -1199,6 +1199,7 @@ export default function SportsApp() {
         <EditionHeader edition={edition} settings={settings} />
         {loadError && <Notice error>{loadError}</Notice>}
         {actionError && actionError.action !== "chat" && <Notice error>{actionError.message}</Notice>}
+        {(edition?.render?.qc?.warnings || []).filter((warning) => / was left out: /u.test(warning)).map((warning) => <Notice key={warning} error>{warning} The episode and the other Shorts are unaffected.</Notice>)}
         {edition?.generationRetry && isActive && <Notice>Generation is retrying automatically (retry {edition.generationRetry.attempt}). Completed stories are saved.</Notice>}
         {comments && (comments.status === "failed" || (comments.status === "done" && (comments.remaining > 0 || comments.likesUnsupported || comments.failed > 0))) && (
           <Notice error={comments.status === "failed" || comments.failed > 0}>{commentSummary(comments).message}{comments.likesUnsupported && <> <a href="https://studio.youtube.com/" target="_blank" rel="noreferrer">Open YouTube Studio</a></>}</Notice>

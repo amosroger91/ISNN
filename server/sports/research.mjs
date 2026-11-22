@@ -318,7 +318,8 @@ async function fullerReporting(source, { fetchImpl = fetch, signal }) {
 }
 
 // The configured publishers provide RSS 2.0 items. Feed URLs are operator configuration.
-function parseFeed(xml, feed, now) {
+// skip: article URLs already aired, dropped before the per-feed cap.
+function parseFeed(xml, feed, now, skip) {
   if (!/<rss\b/iu.test(xml) || /<!DOCTYPE\b/iu.test(xml)) throw new Error("invalid RSS 2.0 feed");
   const items = [];
   for (const [, item] of xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item\s*>/giu)) {
@@ -339,10 +340,10 @@ function parseFeed(xml, feed, now) {
       ...(feed.league && { league: feed.league }), ...(feed.sport && { sport: feed.sport }),
     });
   }
-  return items.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, DAILY_STORY_TARGET);
+  return items.filter((item) => !skip?.has(item.url)).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, DAILY_STORY_TARGET);
 }
 
-async function readFeed(feed, now, { signal, fetchImpl = fetch }) {
+async function readFeed(feed, now, { signal, fetchImpl = fetch, skipUrls }) {
   let response;
   try {
     response = await fetchImpl(feed.url, {
@@ -370,7 +371,7 @@ async function readFeed(feed, now, { signal, fetchImpl = fetch }) {
     } finally {
       await reader.cancel().catch(() => {});
     }
-    return parseFeed(xml + decoder.decode(), feed, now);
+    return parseFeed(xml + decoder.decode(), feed, now, skipUrls);
   } catch (error) {
     signal?.throwIfAborted();
     throw new Error(`${feed.publisher}: ${error.message}`, { cause: error });
@@ -461,23 +462,29 @@ async function availableArticles(options, feedsToRead = feedConfig()) {
     const failures = feeds.filter((result) => result.status === "rejected").map((result) => result.reason.message);
     throw new Error(`No recent, usable articles were available in the configured feeds.${failures.length ? ` ${failures.join(". ")}.` : ""}`);
   }
-  return [...articles.values()].slice(0, 40);
+  return [...articles.values()].filter((article) => !options.skipUrls?.has(article.url)).slice(0, 40);
 }
 
 export async function researchEdition(date, options = {}) {
   modelEndpoint(modelConfig().url);
   const existing = options.existing || [];
+  // Stories this edition already aired (a re-researched edition after an
+  // upload): their articles are not offered again and no repeat is picked.
+  const aired = options.aired || [];
+  const airedUrls = new Set(aired.flatMap((topic) => (topic.sources || []).map(({ url }) => url)));
   const target = Math.max(0, DAILY_STORY_TARGET - existing.length);
   if (!target) return [];
-  const articles = await availableArticles(options);
+  const articles = await availableArticles({ ...options, skipUrls: airedUrls });
+  if (!articles.length) throw new Error("Every recent article was already used in this edition's aired stories.");
   const result = await askModel(
     `You set the rundown for a morning sports show. Reply with JSON only {"topics":[{"title":string,"summary":string,"sourceIds":[number],"teams":[string],"league":string}]}.
 ${groundRules}
 ${scopeRule()}
-Build a daily shortlist of ${DAILY_STORY_TARGET} genuinely distinct, fresh story candidates TOTAL, counting the single UFC story within that total, not as an extra. Isaac will deselect five and normally keep fifteen Shorts. Pick ${target} new stories to fill the remaining slots after existing stories; return fewer only if there is insufficient distinct sourced reporting. Cover every league in scope in one block per league: at least two stories per available non-UFC league, then distribute remaining slots across those leagues. Never pad the list with duplicates or invented reporting.${coverageScope().leagues.some((family) => SINGLE_STORY_FAMILIES.has(family)) ? ` For ${[...SINGLE_STORY_FAMILIES].filter((family) => coverageScope().leagues.includes(family)).join(" and ")}, pick only the single best story of the day: a fight result, a title fight booking or a major injury or signing, never a preview listicle or betting odds.` : ""} Lead with the biggest development. Set league to one of ${coverageScope().options.filter(({ sport }) => sport !== "other").map(({ league }) => league).join(", ")}. Skip clickbait and filler. Give a concise headline and one factual sentence. Every number and named result in the title and summary must appear in the cited excerpts. Cite only the numeric IDs of relevant articles. Combine corroborating coverage of one story into a single item. Put the club names that appear in those excerpts in teams, or an empty array when the story names no club. Leave analysis and opinion for the editor.${options.scheduled?.length ? " The editor scheduled the subjects in scheduled for today; they already lead the rundown, so never pick a story that covers the same subject." : ""}`,
+Build a daily shortlist of ${DAILY_STORY_TARGET} genuinely distinct, fresh story candidates TOTAL, counting the single UFC story within that total, not as an extra. Isaac will deselect five and normally keep fifteen Shorts. Pick ${target} new stories to fill the remaining slots after existing stories; return fewer only if there is insufficient distinct sourced reporting. Cover every league in scope in one block per league: at least two stories per available non-UFC league, then distribute remaining slots across those leagues. Never pad the list with duplicates or invented reporting.${coverageScope().leagues.some((family) => SINGLE_STORY_FAMILIES.has(family)) ? ` For ${[...SINGLE_STORY_FAMILIES].filter((family) => coverageScope().leagues.includes(family)).join(" and ")}, pick only the single best story of the day: a fight result, a title fight booking or a major injury or signing, never a preview listicle or betting odds.` : ""} Lead with the biggest development. Set league to one of ${coverageScope().options.filter(({ sport }) => sport !== "other").map(({ league }) => league).join(", ")}. Skip clickbait and filler. Give a concise headline and one factual sentence. Every number and named result in the title and summary must appear in the cited excerpts. Cite only the numeric IDs of relevant articles. Combine corroborating coverage of one story into a single item. Put the club names that appear in those excerpts in teams, or an empty array when the story names no club. Leave analysis and opinion for the editor.${options.scheduled?.length ? " The editor scheduled the subjects in scheduled for today; they already lead the rundown, so never pick a story that covers the same subject." : ""}${aired.length ? " The stories in aired already went out on this show today: never pick any of them again or another story on the same subject." : ""}`,
     { date, target, existing: existing.map(({ title, league }) => ({ title, league })),
       evidence: articles.map((article, i) => ({ id: i + 1, ...article, excerpt: article.excerpt.slice(0, 350) })),
-      ...(options.scheduled?.length && { scheduled: options.scheduled }) },
+      ...(options.scheduled?.length && { scheduled: options.scheduled }),
+      ...(aired.length && { aired: aired.map(({ title, league }) => ({ title, league })) }) },
     shortlist, "selecting the overnight stories", options,
   );
   const references = new Set();
@@ -499,7 +506,7 @@ Build a daily shortlist of ${DAILY_STORY_TARGET} genuinely distinct, fresh story
       ...(sport && { sport }), ...(league && { league }), ...(teams.length && { teams }),
     };
   });
-  topics.splice(0, topics.length, ...completeDailyShortlist(topics, articles, { existing, target }));
+  topics.splice(0, topics.length, ...completeDailyShortlist(topics, articles, { existing, target, aired }));
   topics.splice(0, topics.length, ...groupByLeague(topics));
   try {
     await verifyCopy({ stories: topics.map(({ title, summary, sources }) => ({ title, summary, sources })) }, "verifying the overnight rundown", options);
@@ -533,7 +540,7 @@ function sameStory(article, topic) {
     return shared >= 2 && shared / Math.min(words.size, other.size) >= 0.5;
   });
 }
-function completeDailyShortlist(topics, articles, { existing = [], target = DAILY_STORY_TARGET } = {}) {
+function completeDailyShortlist(topics, articles, { existing = [], target = DAILY_STORY_TARGET, aired = [] } = {}) {
   const families = coverageScope().leagues;
   const pool = [
     ...topics,
@@ -551,7 +558,7 @@ function completeDailyShortlist(topics, articles, { existing = [], target = DAIL
     // Untagged custom feeds can still contribute the model's sourced picks.
     if (family && !families.includes(family)) return false;
     if (SINGLE_STORY_FAMILIES.has(family) && count(family) >= 1) return false;
-    return ![...existing, ...selected].some((kept) =>
+    return ![...existing, ...selected, ...aired].some((kept) =>
       topic.sources.some((source) => (kept.sources || []).some(({ url }) => url === source.url))
       || sameStory({ title: topic.title }, kept));
   };

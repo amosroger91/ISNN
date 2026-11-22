@@ -494,6 +494,8 @@ export class SportsDesk {
     edition.releases = [...(edition.releases || []), {
       revision: edition.render?.revision ?? edition.revision, at: this.now().toISOString(),
       publication: edition.publication, youtube: edition.youtube || {}, render: edition.render,
+      // What aired, so researching this edition again never repeats it.
+      topics: edition.topics.filter(({ selected }) => selected),
     }];
     edition.publication = { status: "pending" };
     edition.youtube = {};
@@ -616,7 +618,8 @@ export class SportsDesk {
     const scheduled = await this.applyScheduledTopics(edition);
     await this.save(edition);
     this.launch(edition, "research", async () => {
-      const topics = await this.research(edition.date, { signal: this.work.controller.signal, existing: structuredClone(edition.topics), ...(scheduled.length && { scheduled }) });
+      const aired = (edition.releases || []).flatMap((release) => release.topics || []);
+      const topics = await this.research(edition.date, { signal: this.work.controller.signal, existing: structuredClone(edition.topics), ...(scheduled.length && { scheduled }), ...(aired.length && { aired: structuredClone(aired) }) });
       const snapshot = await this.serialized(async () => {
         const current = await this.load(edition.date);
         const merged = mergeResearch(current.topics, topics);

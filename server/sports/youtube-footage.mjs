@@ -65,6 +65,18 @@ export function youtubeQueries(segment) {
   return [...new Set(queries.map((query) => query.replace(/\s+/gu, " ").trim()))].slice(0, 3);
 }
 
+const collegeTitle = /\b(?:ncaa[a-z]?|college|men s basketball|women s basketball|cbb|cfb|march madness|final four|big ten|big 12|big east|pac 12|sec|acc|mountain west|bowl game)\b/u;
+const proTitle = /\b(?:nba|wnba|nfl|mlb|nba cup|emirates nba cup)\b/u;
+const proLeagues = /^(?:nba|wnba|nfl|mlb|nhl|mls)$/u;
+const collegeLeagues = /^(?:ncaa[a-z]?|ncaab|ncaaf|ncaaw|college)/u;
+
+export function storyLevel(segment) {
+  const league = wording(segment.league || segment.footage?.league || "").replace(/\s+/gu, "");
+  if (proLeagues.test(league)) return "pro";
+  if (collegeLeagues.test(league)) return "college";
+  return null;
+}
+
 export function youtubeCandidate(segment, entry) {
   const id = entry?.id;
   if (!/^[\w-]{11}$/u.test(id || "") || entry.is_live || ["is_live", "is_upcoming", "post_live"].includes(entry.live_status)) return null;
@@ -95,6 +107,12 @@ export function youtubeCandidate(segment, entry) {
     const headline = wording(`${segment.footage?.topicTitle || ""} ${segment.headline || ""}`);
     const womensStory = womens.test(`${headline} ${wording(segment.league)}`) || /\b(?:wnba|ncaaw|women s basketball|women s college)\b/u.test(wording(segment.narration));
     if (womens.test(title) && !womensStory) return null;
+    // Pro and college share city names: an NBA story about Minnesota or
+    // Milwaukee took "UCLA vs Minnesota" and "#21 USC vs Milwaukee" college
+    // games on 2026-11-22. A pro story never takes a college clip, nor the reverse.
+    const level = storyLevel(segment);
+    if (level === "pro" && collegeTitle.test(title)) return null;
+    if (level === "college" && proTitle.test(title)) return null;
     // The clip has to show a team the story is about, not one the copy only
     // mentions on the way (UCLA vs. Michigan is not Ohio State vs. Michigan).
     // A player the title names counts too: a trade story can run his highlights.
