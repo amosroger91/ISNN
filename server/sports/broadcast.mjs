@@ -10,6 +10,87 @@ import { closeLottie, drawLottie, ensureLottie } from "./lottie.mjs";
 import { renderMotion } from "./motion.mjs";
 
 const FONT = "Atkinson Hyperlegible";
+
+const easeOutBack = (x) => { const c = 1.70158; return 1 + (c + 1) * (x - 1) ** 3 + c * (x - 1) ** 2; };
+const pressAt = (elapsed, at) => {
+  const p = (elapsed - at) / 0.32;
+  return p <= 0 || p >= 1 ? 1 : 1 - 0.09 * Math.sin(Math.PI * p);
+};
+
+function pill(ctx, x, y, w, h, filled) {
+  const r = h / 2;
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+  if (filled) {
+    ctx.fillStyle = TEAL;
+    ctx.fill();
+  } else {
+    ctx.fillStyle = "rgba(7, 13, 16, 0.72)";
+    ctx.fill();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = TEAL;
+    ctx.stroke();
+  }
+}
+
+function checkMark(ctx, x, y, size, color) {
+  ctx.beginPath();
+  ctx.moveTo(x, y + size * 0.52);
+  ctx.lineTo(x + size * 0.38, y + size * 0.88);
+  ctx.lineTo(x + size, y + size * 0.12);
+  ctx.lineWidth = size * 0.17;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = color;
+  ctx.stroke();
+}
+
+// The Short's end card: LIKE and SUBSCRIBE pills rise in, then each is
+// "pressed" and fills in the house teal. Driven by time alone, so any frame
+// renders the same on its own.
+export function drawEndCardButtons(ctx, width, top, elapsed) {
+  const buttons = [
+    { label: "LIKE", done: "LIKED", width: 300, enter: 0.35, press: 1.6 },
+    { label: "SUBSCRIBE", done: "SUBSCRIBED", width: 520, enter: 0.6, press: 2.4 },
+  ];
+  const height = 108;
+  const gap = 30;
+  const total = buttons.reduce((sum, button) => sum + button.width, 0) + gap * (buttons.length - 1);
+  let x = (width - total) / 2;
+  for (const button of buttons) {
+    const enter = Math.min(1, Math.max(0, (elapsed - button.enter) / 0.55));
+    if (enter > 0) {
+      const pressed = elapsed >= button.press + 0.16;
+      const scale = (0.6 + 0.4 * easeOutBack(enter)) * pressAt(elapsed, button.press);
+      const cx = x + button.width / 2;
+      const cy = top + height / 2 + (1 - enter) * 60;
+      ctx.save();
+      ctx.globalAlpha = enter;
+      ctx.translate(cx, cy);
+      ctx.scale(scale, scale);
+      ctx.shadowColor = "rgba(0, 225, 233, 0.35)";
+      ctx.shadowBlur = pressed ? 34 : 0;
+      pill(ctx, -button.width / 2, -height / 2, button.width, height, pressed);
+      ctx.shadowBlur = 0;
+      const text = pressed ? button.done : button.label;
+      ctx.font = `700 ${pressed && text.length > 8 ? 38 : 40}px "${FONT}"`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = pressed ? INK : WHITE;
+      const mark = pressed ? 30 : 0;
+      const textWidth = ctx.measureText(text).width;
+      ctx.fillText(text, mark ? mark / 2 + 7 : 0, 2);
+      if (mark) checkMark(ctx, -textWidth / 2 - mark / 2 - 7, -mark / 2, mark, INK);
+      ctx.restore();
+    }
+    x += button.width + gap;
+  }
+}
 const INK = "#070d10";
 const WHITE = "#f5fbfc";
 const TEAL = "#00e1e9";
@@ -722,6 +803,8 @@ function createShow(spec) {
         ctx.font = `700 28px "${FONT}"`;
         ctx.fillText("WELLSPRING MEDIA SPORTS", width / 2, height * 0.34 + 96);
         ctx.restore();
+        // Shorts only: the episode closes on its sign alone.
+        if (mode === "short" && announced) drawEndCardButtons(ctx, width, height * 0.34 + 190, t - spec.outro.announcement.start);
       }
       if (story && !intro && !outro) {
         const bumper = (story.phrases || []).find((phrase) => phrase.bumper && t >= phrase.start && t < phrase.end);

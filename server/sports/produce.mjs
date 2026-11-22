@@ -756,6 +756,54 @@ const STEREO = "pan=stereo|c0=c0|c1=c0";
 const MUSIC_ASSET = path.join(root, "assets", "background-music.mp3");
 const FANFARE = "assets/breaking-news-fanfare.mp3";
 const FANFARE_ASSET = path.join(root, FANFARE);
+
+// The Short's custom thumbnail as its opening frames. YouTube's Shorts feed
+// shows a frame of the video rather than the uploaded thumbnail, so the card
+// is in the video itself. The length and the sound are unchanged.
+export const COVER_FRAMES = 3;
+export async function coverShortOpening(file, cover, signal) {
+  const staged = `${file}.cover.mp4`;
+  try {
+    await run(ffmpegPath, [
+      "-hide_banner", "-loglevel", "error", "-y", "-i", file, "-loop", "1", "-i", cover, "-filter_complex",
+      `[1:v]scale=${SHORT.width}:${SHORT.height}:force_original_aspect_ratio=increase,crop=${SHORT.width}:${SHORT.height},setsar=1,format=yuv420p[card];` +
+      `[0:v][card]overlay=0:0:shortest=1:enable='lt(n,${COVER_FRAMES})'[v]`,
+      "-map", "[v]", "-map", "0:a", "-c:a", "copy",
+      "-c:v", "libx264", "-threads", "0", "-preset", "veryfast", "-crf", "17", "-pix_fmt", "yuv420p",
+      "-color_primaries", "bt709", "-color_trc", "bt709", "-colorspace", "bt709", "-fps_mode", "passthrough",
+      "-movflags", "+faststart", staged,
+    ], { signal, timeout: 10 * 60_000 });
+    await rename(staged, file);
+  } finally {
+    await rm(staged, { force: true });
+  }
+}
+
+// Shorts only: the sign-off after each story, in the announcer's voice over
+// the outro music. The episode never plays it.
+export const SHORT_SIGNOFF = "For more daily sports updates, subscribe to Wellspring.";
+
+// A Short's sound: its story, then the sign-off. Each side fades over a few
+// frames so the join never clicks.
+export async function joinShortAudio(audioFile, output, story, signoffFile, signal) {
+  const fade = 0.08;
+  const storyLength = story.end - story.start;
+  // The sign-off sits at the story's own loudness, so it never drops away
+  // or jumps out after the Short is normalized as a whole.
+  const [storyLevel, signoffLevel] = await Promise.all([
+    loudnessOf(audioFile, { trim: story, signal }),
+    loudnessOf(signoffFile, { signal }),
+  ]);
+  const match = Number.isFinite(storyLevel?.integrated) && Number.isFinite(signoffLevel?.integrated)
+    ? Math.max(-12, Math.min(12, storyLevel.integrated - signoffLevel.integrated)) : 0;
+  await run(ffmpegPath, [
+    "-hide_banner", "-loglevel", "error", "-y", "-i", audioFile, "-i", signoffFile, "-filter_complex",
+    `[0:a]aformat=sample_rates=48000:channel_layouts=stereo,atrim=start=${story.start.toFixed(6)}:end=${story.end.toFixed(6)},asetpts=PTS-STARTPTS,afade=t=out:st=${Math.max(0, storyLength - fade).toFixed(6)}:d=${fade}[a1];` +
+    `[1:a]aformat=sample_rates=48000:channel_layouts=stereo,asetpts=PTS-STARTPTS,volume=${match.toFixed(2)}dB,afade=t=in:d=${fade}[a2];` +
+    `[a1][a2]concat=n=2:v=0:a=1[a]`,
+    "-map", "[a]", "-c:a", "pcm_s16le", output,
+  ], { signal });
+}
 const OUTRO_MUSIC = "assets/outro.mp3";
 const OUTRO_ASSET = path.join(root, OUTRO_MUSIC);
 const OPENING_LEAD = 3.5;
@@ -1181,6 +1229,25 @@ function footageFilters(input, cuts, firstIndex, offset = 0) {
   return { filters, label, inputs: cuts.flatMap(({ file }) => ["-i", file]) };
 }
 
+// Records the Shorts' sign-off and mixes it over the outro music like the
+// episode's own close. A failure only costs the Shorts their end card.
+export async function recordShortSignoff({ narrate, voice, temporary, outroMusic, signal }) {
+  try {
+    const spoken = path.join(temporary, "short-signoff-voice.wav");
+    const said = await narrate([{ kind: 0, text: SHORT_SIGNOFF, pause: 0.34, voice: "lafontaine" }], voice, spoken, () => {}, signal,
+      { speed: 1.02, prepareText: speakableText, closingTail: outroMusic ? 1.6 : 0.6 });
+    const file = path.join(temporary, "short-signoff.wav");
+    const first = said.segments[0];
+    await mixBackgroundMusic(spoken, file, said.duration, signal, null,
+      outroMusic ? { start: Math.max(0.05, first.start - 0.16), voiceEnd: said.segments.at(-1).end } : null);
+    return { file, duration: said.duration, segments: said.segments };
+  } catch (error) {
+    if (signal?.aborted) throw error;
+    console.warn(`[sports render] The Shorts' sign-off was not recorded, so they end without it: ${error.message}`);
+    return null;
+  }
+}
+
 export async function renderEpisode(episode, directory, report = () => {}, signal, narrate = narrateParts, fetchFootage = fetch) {
   const parts = narrationParts(episode);
   const chapterKinds = new Set(parts.filter(({ kind }) => kind >= 0 && kind < episode.segments.length).map(({ kind }) => kind));
@@ -1405,31 +1472,43 @@ export async function renderEpisode(episode, directory, report = () => {}, signa
       shorts = [];
       // Shorts are independent, so several draw at once on worker threads.
       const jobs = [];
+      const closing = await recordShortSignoff({ narrate, voice, temporary, outroMusic, signal });
       for (const [index, span] of spans.entries()) {
         if (episode.segments[span.index].short === false) continue;
         const name = `segment-${numbered(span.index)}`;
-        const duration = span.end - span.shortStart;
-        const shortCues = cues(narration.segments.filter((part) => part.kind === span.index && !part.bumper), { offset: span.shortStart, chars: 30 });
+        const storyLength = span.end - span.shortStart;
+        // Every Short ends on the episode's own closing card: "Like, comment,
+        // and subscribe" in the announcer's voice over the outro music.
+        const tail = closing ? closing.duration : 0;
+        const duration = storyLength + tail;
+        const shortCues = [
+          ...cues(narration.segments.filter((part) => part.kind === span.index && !part.bumper), { offset: span.shortStart, chars: 30 }),
+          ...(closing ? cues(closing.segments, { offset: -storyLength, chars: 30 }) : []),
+        ];
         await writeFile(path.join(temporary, `shorts/${name}.srt`), srtFile(shortCues));
-        const measured = await loudnessOf(audioFile, { trim: { start: span.shortStart, end: span.end }, signal });
+        const shortAudio = closing ? path.join(temporary, "shorts", `${name}.wav`) : audioFile;
+        if (closing) await joinShortAudio(audioFile, shortAudio, { start: span.shortStart, end: span.end }, closing.file, signal);
+        const audioTrim = closing ? null : { start: span.shortStart, end: span.end };
+        const measured = await loudnessOf(shortAudio, { ...(audioTrim && { trim: audioTrim }), signal });
         const source = stories[index];
         const story = {
-          ...source, start: 0, end: duration, photos: [...source.photos],
+          ...source, start: 0, end: storyLength, photos: [...source.photos],
           phrases: source.phrases.filter((phrase) => !phrase.bumper).map((phrase) => ({
             ...phrase, start: phrase.start - span.shortStart, end: phrase.end - span.shortStart,
           })),
         };
         const cut = footageCuts[index]?.short;
         jobs.push({
-          span, name, duration,
+          span, name, duration, tail,
           motion: {
             width: SHORT.width, height: SHORT.height, fps: FPS, duration,
-            audio: { file: audioFile, trim: { start: span.shortStart, end: span.end }, filter: normalizer(measured) },
+            audio: { file: shortAudio, ...(audioTrim && { trim: audioTrim }), filter: normalizer(measured) },
             output: path.join(temporary, "shorts", `${name}.mp4`),
           },
           spec: {
             mode: "short", width: SHORT.width, height: SHORT.height, duration, date: episode.date,
             stories: [story], photos: story.photos, captions: shortCues,
+            ...(closing && { outro: { start: storyLength, end: duration, announcement: { start: storyLength, end: duration } } }),
             clips: cut ? [{ file: cut.file, start: Math.max(0, cut.start - span.shortStart), end: Math.max(0, cut.end - span.shortStart), title: cut.title, label: cut.label }] : [],
           },
         });
@@ -1441,8 +1520,9 @@ export async function renderEpisode(episode, directory, report = () => {}, signa
       };
       tell();
       const rendered = await renderShorts(jobs, { signal, onProgress: (index, fraction) => { progress[index] = fraction; tell(); } });
+      await Promise.all(jobs.map(({ name }) => rm(path.join(temporary, "shorts", `${name}.wav`), { force: true })));
       shorts = [];
-      for (const [index, { span, name, duration }] of jobs.entries()) {
+      for (const [index, { span, name, duration, tail }] of jobs.entries()) {
         if (rendered[index]?.failed) {
           leftOut.push(`Short ${span.index + 1} (${span.headline}) was left out: it did not render (${rendered[index].failed}).`);
           await rm(path.join(temporary, "shorts", `${name}.mp4`), { force: true });
@@ -1451,7 +1531,7 @@ export async function renderEpisode(episode, directory, report = () => {}, signa
         motionRenders.push(rendered[index]);
         shorts.push({
           segment: span.index + 1, id: span.id, headline: span.headline, file: `shorts/${name}.mp4`, captions: `shorts/${name}.srt`,
-          start: span.shortStart, end: span.end, duration,
+          start: span.shortStart, end: span.end, duration, ...(tail && { signoff: tail }),
         });
       }
     }

@@ -184,11 +184,16 @@ test("the announcer's bumper opens a league block in the episode but not in that
   const rendered = await renderEpisode(bumped, directory, undefined, undefined, narrate);
   assert.deepEqual(rendered.chapters.map(({ start }) => start), [0, 6.1], "the chapter starts with the bumper");
   assert.ok(Math.abs(rendered.shorts[1].start - 8.98) < 0.01, "the Short starts just before Isaac");
-  assert.ok(Math.abs(rendered.shorts[1].duration - 3.02) < 0.01);
+  // The story, then the Shorts-only sign-off.
+  assert.ok(rendered.shorts[1].signoff > 0, "the Short ends on the sign-off");
+  assert.ok(Math.abs(rendered.shorts[1].duration - rendered.shorts[1].signoff - 3.02) < 0.01);
   const srt = await readFile(path.join(directory, "shorts/segment-02.srt"), "utf8");
   assert.doesNotMatch(srt, /MLB news/u);
   assert.match(srt, /pitching staff/u);
-  assert.match(await readFile(path.join(directory, "captions.srt"), "utf8"), /And now for the MLB news\./u);
+  assert.match(srt, /subscribe to Wellspring/u);
+  const captions = await readFile(path.join(directory, "captions.srt"), "utf8");
+  assert.match(captions, /And now for the MLB news\./u);
+  assert.doesNotMatch(captions, /subscribe to Wellspring/u, "the episode never plays the Shorts' sign-off");
 });
 
 test("team graphics follow each narrated matchup and clear while archive footage plays", () => {

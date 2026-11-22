@@ -935,6 +935,10 @@ export class SportsDesk {
         throw error;
       }
     }
+    if (thumbnails && metadata.shorts?.length) {
+      this.work.progress = { percent: 99, message: "Putting each Short's thumbnail on its opening frames…" };
+      await this.coverShorts(directory, metadata.shorts, this.work.controller.signal);
+    }
     await this.serialized(async () => {
       const current = await this.load(snapshot.date);
       if (snapshot.revision !== current.revision) {
@@ -1087,6 +1091,23 @@ export class SportsDesk {
     });
     if (result.drafting) this.takeDraft = this.draftTakeLater(result.drafting);
     return result.view;
+  }
+
+  // YouTube's Shorts feed shows a frame of the video, not the uploaded
+  // thumbnail, so each Short opens on its thumbnail card. A Short this fails
+  // on keeps its plain opening; the build goes on.
+  async coverShorts(directory, shorts, signal) {
+    const { coverShortOpening } = await import("./produce.mjs");
+    for (const short of shorts) {
+      const cover = path.join(directory, "thumbnails", path.basename(short.file).replace(/\.mp4$/u, ".jpg"));
+      try {
+        await access(cover);
+        await coverShortOpening(path.join(directory, short.file), cover, signal);
+      } catch (error) {
+        if (signal?.aborted) throw error;
+        console.warn(`[sports build] ${short.file} keeps its plain opening: ${error.message}`);
+      }
+    }
   }
 
   // Isaac marks a story the fact check left out as true: the draft it rejected
