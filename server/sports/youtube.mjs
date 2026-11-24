@@ -56,7 +56,15 @@ async function getAccessToken(fetchImpl, signal) {
     redirect: "error",
     signal: withTimeout(signal, 30_000),
   });
-  if (!response.ok) throw await httpError(response, "YouTube authentication failed");
+  if (!response.ok) {
+    const error = await httpError(response, "YouTube authentication failed");
+    if (/invalid_grant/.test(error.message)) {
+      const base = process.env.PUBLIC_URL?.trim().replace(/\/+$/, "") || "";
+      error.message += ` Google expired or revoked the channel sign-in. Reconnect YouTube at ${base}/api/sports/youtube/reconnect`;
+      error.reconnect = true;
+    }
+    throw error;
+  }
   const { access_token: token } = await response.json();
   if (!token) throw new Error("Google did not return a YouTube access token.");
   return token;
@@ -209,7 +217,10 @@ async function initiateUpload(request, episode, total, privacyStatus) {
         ...(episode.tags?.length && { tags: episode.tags.map((tag) => metadataText(tag).replace(/[",]/g, "").slice(0, 60)).filter(Boolean) }),
       },
       // Sports news for a general audience: never declared made for kids.
-      status: { privacyStatus, selfDeclaredMadeForKids: false },
+      // A scheduled video uploads private and YouTube makes it public at publishAt.
+      status: episode.publishAt && privacyStatus === "public"
+        ? { privacyStatus: "private", publishAt: episode.publishAt, selfDeclaredMadeForKids: false }
+        : { privacyStatus, selfDeclaredMadeForKids: false },
     }),
   }, 30_000);
   if (!response.ok) throw await httpError(response, "Could not start the YouTube upload");
@@ -246,7 +257,10 @@ async function resumeUpload({ request, session, total, handle, onSession, signal
       if (!/^[\w-]{11}$/.test(video?.id || "")) {
         throw unknownUpload("YouTube accepted the upload and did not return a usable video ID. Check YouTube Studio.");
       }
-      return { id: video.id, url: `https://youtu.be/${video.id}`, privacyStatus: video.status?.privacyStatus ?? null };
+      return {
+        id: video.id, url: `https://youtu.be/${video.id}`, privacyStatus: video.status?.privacyStatus ?? null,
+        publishAt: video.status?.publishAt ?? null,
+      };
     }
     if ([404, 410].includes(response?.status)) {
       throw unknownUpload("The YouTube upload session expired. Check YouTube Studio for the episode before uploading it again.");

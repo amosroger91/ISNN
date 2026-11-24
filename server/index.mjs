@@ -4,13 +4,14 @@ import path from "node:path";
 import { createApp } from "./app.mjs";
 import { SportsDesk } from "./sports/desk.mjs";
 import { EmergencyDesk } from "./sports/emergency.mjs";
+import { youtubeAccessToken } from "./sports/youtube.mjs";
 import { dataDir, root, port, host } from "./config.mjs";
 import { startQuickTunnel } from "./tunnel.mjs";
 
 // The live desk gets the Emergency fix agent: the page's chat and the 8:15 a.m.
 // trigger when the episode is not on YouTube share one EmergencyDesk.
 const emergency = new EmergencyDesk({ directory: path.join(dataDir, "emergency"), root });
-const { app, sports } = await createApp({ sports: new SportsDesk({ emergency }) });
+const { app, sports } = await createApp({ sports: new SportsDesk({ emergency, authCheck: () => youtubeAccessToken() }) });
 let vite;
 if (process.argv.includes("--dev")) {
   const { createServer } = await import("vite");

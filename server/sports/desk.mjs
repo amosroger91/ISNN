@@ -47,6 +47,13 @@ const uploadRetry = 4 * 60_000;
 const shortsUntilHour = 10;
 const quotaSpent = /quotaExceeded|uploadLimitExceeded|dailyLimitExceeded|rateLimitExceeded/u;
 const airHour = 8;
+// The episode goes public at 8 a.m.; the Shorts are spread from 10 a.m. to
+// 9 p.m. (desk time) so the channel posts all day instead of all at once.
+const shortsFirstHour = 10;
+const shortsLastHour = 21;
+// YouTube needs a scheduled time comfortably in the future; a Short whose
+// slot has passed (a late or manual upload) goes public at once.
+const scheduleLead = 15 * 60_000;
 // If the episode is not on YouTube this long after air time, the desk starts
 // the Emergency fix agent once for that day (see uploadEmergency).
 const uploadEmergencyAfter = 15 * 60_000;
@@ -330,6 +337,7 @@ export class SportsDesk {
     rebuildDelay = 2500,
     generationRetryDelay = 10_000,
     emergency = null,
+    authCheck = null,
   } = {}) {
     this.directory = directory;
     this.scope = scope;
@@ -358,6 +366,11 @@ export class SportsDesk {
     // The Emergency fix agent (emergency.mjs). Production only: tests and
     // sandboxes leave it null, so nothing is ever launched from them.
     this.emergency = emergency;
+    // Production only: checks the YouTube sign-in through the day so an expired
+    // refresh token shows on the desk the evening before, not at 8 a.m.
+    this.authCheck = authCheck;
+    this.youtubeAuth = null;
+    this.youtubeAuthChecking = null;
     this.tail = Promise.resolve();
     this.commentWork = null;
   }
@@ -462,6 +475,7 @@ export class SportsDesk {
     const view = publicView(edition, this.settings, this.work?.date === edition.date ? this.work.progress : undefined);
     view.comments = presentComments(await this.loadComments(), Boolean(this.commentWork));
     view.edition.uploadAvailability = await this.uploadAvailability(edition);
+    view.edition.youtubeAuth = this.youtubeAuth;
     return view;
   }
 
@@ -1747,9 +1761,26 @@ export class SportsDesk {
     });
   }
 
+  // The Short's place in the day: the first at shortsFirstHour, the last at
+  // shortsLastHour, the rest evenly between. Null when the slot has passed.
+  shortPublishTime(edition, segment) {
+    if (!this.settings.publishEnabled || edition.sample) return null;
+    const order = (edition.render?.shorts || []).map((short) => short.segment);
+    const index = order.indexOf(segment);
+    if (index < 0) return null;
+    const first = Date.parse(zonedTime(edition.date, shortsFirstHour, this.settings.timezone));
+    const last = Date.parse(zonedTime(edition.date, shortsLastHour, this.settings.timezone));
+    const step = order.length > 1 ? (last - first) / (order.length - 1) : 0;
+    // Whole minutes, as YouTube Studio shows them.
+    const at = Math.round((first + step * index) / 60_000) * 60_000;
+    return at - this.now().getTime() >= scheduleLead ? new Date(at).toISOString() : null;
+  }
+
   async startYoutubeUpload(edition, chosen) {
     const slot = this.youtubeSlot(edition, chosen);
     const prepared = await this.youtubePackage(edition, chosen);
+    const publishAt = typeof chosen === "number" ? this.shortPublishTime(edition, chosen) : null;
+    if (publishAt) prepared.episode = { ...prepared.episode, publishAt };
     const sessionUrl = slot.sessionUrl;
     this.assignYoutubeSlot(edition, chosen, {
       ...slot, status: "uploading", error: null, title: prepared.episode.title,
@@ -1770,6 +1801,7 @@ export class SportsDesk {
         const current = await this.load(edition.date);
         this.assignYoutubeSlot(current, chosen, {
           status: "published", id: result.id, url: result.url, privacyStatus: result.privacyStatus,
+          ...(result.publishAt && { publishAt: result.publishAt }),
           title: prepared.episode.title, at: this.now().toISOString(), error: null,
         });
         await this.save(current);
@@ -1940,7 +1972,34 @@ export class SportsDesk {
     return true;
   }
 
+  // Every 2 hours while the sign-in works; every 10 minutes once it has
+  // expired, so the warning clears soon after the owner reconnects.
+  checkYoutubeAuth({ force = false } = {}) {
+    if (!this.authCheck || !this.settings.youtubeConfigured || this.youtubeAuthChecking) return this.youtubeAuthChecking;
+    const last = this.youtubeAuth ? Date.parse(this.youtubeAuth.checkedAt) : 0;
+    const every = this.youtubeAuth?.status === "expired" ? 10 * 60_000 : 2 * 60 * 60_000;
+    if (!force && this.now().getTime() - last < every) return null;
+    this.youtubeAuthChecking = (async () => {
+      const checkedAt = this.now().toISOString();
+      try {
+        await this.authCheck();
+        if (this.youtubeAuth?.status === "expired") console.log("[sports youtube] the channel sign-in works again.");
+        this.youtubeAuth = { status: "ok", checkedAt, error: null };
+      } catch (error) {
+        // Only a revoked or expired token needs the owner; network trouble is retried.
+        if (!error.reconnect) {
+          this.youtubeAuth = { ...(this.youtubeAuth || { status: "unknown" }), checkedAt };
+          return;
+        }
+        if (this.youtubeAuth?.status !== "expired") console.warn(`[sports youtube] ${error.message}`);
+        this.youtubeAuth = { status: "expired", checkedAt, error: error.message };
+      }
+    })().finally(() => { this.youtubeAuthChecking = null; });
+    return this.youtubeAuthChecking;
+  }
+
   tick() {
+    this.checkYoutubeAuth();
     return this.serialized(async () => {
       const { date, hour } = this.clock();
       // At the rollover, a build or research still running for an earlier

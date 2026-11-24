@@ -74,3 +74,26 @@ test("a 403 forbidden is unavailable, and quota is classified first", async (t) 
     assert.deepEqual(classifyThumbnailError(error), { status: "failed", halt: "quota" });
   }
 });
+
+test("a scheduled upload goes up private with its publish time", async (t) => {
+  useTestCredentials(t);
+  const { uploadEpisode } = await import("../server/sports/youtube.mjs");
+  const directory = await mkdtemp(path.join(tmpdir(), "isnn-sched-"));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const file = path.join(directory, "short.mp4");
+  await writeFile(file, "video");
+  let metadata;
+  const fetchImpl = async (url, options) => {
+    if (String(url).includes("oauth2.googleapis.com")) return { ok: true, json: async () => ({ access_token: "token-1" }) };
+    if (options.method === "POST") {
+      metadata = JSON.parse(options.body);
+      return { ok: true, headers: new Headers({ location: "https://www.googleapis.com/upload/youtube/v3/videos?upload_id=abc" }) };
+    }
+    return { ok: true, status: 200, json: async () => ({ id: "abc123de_45", status: { privacyStatus: "private", publishAt: "2026-11-16T16:00:00Z" } }) };
+  };
+  const result = await uploadEpisode({
+    file, episode: { title: "Story #Shorts", publishAt: "2026-11-16T16:00:00.000Z" }, onSession: async () => {}, fetchImpl,
+  });
+  assert.deepEqual(metadata.status, { privacyStatus: "private", publishAt: "2026-11-16T16:00:00.000Z", selfDeclaredMadeForKids: false });
+  assert.equal(result.publishAt, "2026-11-16T16:00:00Z");
+});

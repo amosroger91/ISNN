@@ -830,11 +830,13 @@ function createShow(spec) {
         ctx.font = `700 28px "${FONT}"`;
         ctx.fillText("WELLSPRING MEDIA SPORTS", width / 2, height * 0.34 + 96);
         ctx.restore();
-        // Shorts only: the episode closes on its sign alone.
-        if (mode === "short" && announced) {
+        // LIKE and SUBSCRIBE get pressed once at the end of every video. The
+        // episode's own spoken close is its caption, so only Shorts set the
+        // sign-off line into the card.
+        if (announced) {
           const elapsed = t - spec.outro.announcement.start;
           drawEndCardButtons(ctx, width, height * 0.34 + 190, elapsed);
-          drawSignoffLine(ctx, width, height * 0.34 + 360, elapsed);
+          if (mode === "short") drawSignoffLine(ctx, width, height * 0.34 + 360, elapsed);
         }
       }
       if (story && !intro && !outro) {

@@ -1,5 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { Router } from "express";
+import { PLAYGROUND_REDIRECT, YoutubeReconnect, reconnectPage, redirectUri } from "./youtube-auth.mjs";
 import { z } from "zod";
 import { MAX_EPISODE_STORIES } from "../../shared/sports-limits.mjs";
 import { deskError } from "./desk.mjs";
@@ -144,6 +145,34 @@ export function mountSports(app, desk, reminders = desk.reminders || new Reminde
     const { date, target } = requestDate.extend({ target: youtubeTarget }).parse(req.body || {});
     res.status(202).json(await desk.uploadNow(target, date));
   });
+  // Reconnect YouTube from a phone after Google expires the refresh token.
+  const reconnect = desk.youtubeReconnect || new YoutubeReconnect({ envFile: path.join(root, ".env"), stateFile: path.join(dataDir, "youtube-reconnect.json") });
+  const reconnectDone = async (req, res, input, state) => {
+    const playground = redirectUri() === PLAYGROUND_REDIRECT;
+    try {
+      await reconnect.complete(input, state);
+    } catch (error) {
+      return res.status(400).type("html").send(reconnectPage({ error: error.message, playground }));
+    }
+    await desk.checkYoutubeAuth?.({ force: true });
+    let message = "YouTube is reconnected.";
+    try {
+      await desk.uploadAll();
+      message += " Today's videos that are not on YouTube yet are uploading.";
+    } catch (error) {
+      message += ` The episode upload did not start: ${error.message}`;
+    }
+    console.log(`[sports youtube] reconnected the channel. ${message}`);
+    res.type("html").send(reconnectPage({ message, playground }));
+  };
+  router.get("/youtube/reconnect", (_req, res) => res.type("html").send(reconnectPage({ playground: redirectUri() === PLAYGROUND_REDIRECT })));
+  router.get("/youtube/reconnect/start", async (_req, res) => res.redirect(302, await reconnect.start()));
+  // A GET form: the desk's no-referrer policy makes phones send "Origin: null" on form POSTs,
+  // which the cross-origin guard refuses. The one-time code and saved state guard this step.
+  router.get("/youtube/reconnect/complete", (req, res) =>
+    reconnectDone(req, res, z.string().max(4000).parse(req.query.address ?? "")));
+  router.get("/youtube/oauth/callback", (req, res) =>
+    reconnectDone(req, res, z.string().max(600).parse(req.query.code ?? ""), z.string().max(100).parse(req.query.state ?? "")));
   router.post("/youtube/all", async (req, res) => {
     const { date } = requestDate.parse(req.body || {});
     res.status(202).json(await desk.uploadAll(date));

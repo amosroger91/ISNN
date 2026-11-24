@@ -31,7 +31,12 @@ function episodeUploadState(edition) {
 function YoutubeButton({ slot, pending, disabled, blocked, onClick }) {
   const url = externalUrl(slot?.url);
   if (slot?.status === "published" && url) {
-    return <a className="od-button" href={url} target="_blank" rel="noreferrer">On YouTube <ArrowUpRight size={14} /></a>;
+    // A scheduled Short is on YouTube (private) until its publish time.
+    const scheduled = slot.publishAt && Date.parse(slot.publishAt) > Date.now();
+    const label = scheduled
+      ? `Goes live ${new Date(slot.publishAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
+      : "On YouTube";
+    return <a className="od-button" href={url} target="_blank" rel="noreferrer">{label} <ArrowUpRight size={14} /></a>;
   }
   if (slot?.status === "uploading") {
     return <button type="button" className="od-button" disabled><LoaderCircle className="od-spin" size={14} /> Uploading</button>;
@@ -792,6 +797,12 @@ function Episode({ edition, settings, pending, locked, onBuild, onUpload, onUplo
           {building ? "Building cut" : render ? "Generate new video" : "Generate video"}
         </button>
       </header>
+      {edition?.youtubeAuth?.status === "expired" && (
+        <Notice error>
+          Google expired the YouTube sign-in, so nothing can upload until you reconnect.{" "}
+          <a href="/api/sports/youtube/reconnect">Reconnect YouTube</a>
+        </Notice>
+      )}
       {thumbnailUnavailable && <Notice>{PHONE_VERIFY}</Notice>}
       {edition?.error && <Notice error>{edition.error}</Notice>}
       {render?.url && availability?.reason && (

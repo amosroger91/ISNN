@@ -1085,3 +1085,67 @@ test("a failure to start the agent is recorded on the edition and not retried ev
   await desk.tick();
   assert.match((await desk.load(date)).uploadEmergency.error, /not recognized/u);
 });
+
+test("an expired YouTube sign-in shows on the desk before the morning upload and clears after reconnecting", async (t) => {
+  let token = "expired";
+  const { desk, clock } = await fixture(t, {
+    authCheck: async () => {
+      if (token === "expired") throw Object.assign(new Error("YouTube authentication failed (HTTP 400, invalid_grant). Reconnect YouTube at /api/sports/youtube/reconnect"), { reconnect: true });
+      if (token === "offline") throw new Error("fetch failed");
+    },
+  });
+  await desk.checkYoutubeAuth();
+  let view = await desk.view();
+  assert.equal(view.edition.youtubeAuth.status, "expired");
+  assert.match(view.edition.youtubeAuth.error, /reconnect/i);
+  // A network blip neither raises nor clears the warning.
+  token = "offline";
+  clock(Date.parse(midnight) + 11 * 60_000);
+  await desk.checkYoutubeAuth();
+  assert.equal((await desk.view()).edition.youtubeAuth.status, "expired");
+  token = "ok";
+  await desk.checkYoutubeAuth();
+  assert.equal((await desk.view()).edition.youtubeAuth.status, "expired", "not rechecked within 10 minutes");
+  await desk.checkYoutubeAuth({ force: true });
+  view = await desk.view();
+  assert.equal(view.edition.youtubeAuth.status, "ok");
+});
+
+test("Shorts are scheduled through the day while the episode goes public at 8 a.m.", async (t) => {
+  const sent = [];
+  const { desk, clock } = await fixture(t, {
+    upload: async ({ episode: video }) => {
+      sent.push({ title: video.title, publishAt: video.publishAt || null });
+      return { id: `id${sent.length}`, url: `https://youtu.be/id${sent.length}`, privacyStatus: video.publishAt ? "private" : "public", publishAt: video.publishAt || null };
+    },
+    render: async (_episode, output) => {
+      await mkdir(path.join(output, "shorts"), { recursive: true });
+      await writeFile(path.join(output, "episode.mp4"), "episode");
+      for (const n of ["01", "02", "03"]) await writeFile(path.join(output, "shorts", `segment-${n}.mp4`), "short");
+      return {
+        duration: 40,
+        chapters: [{ start: 0, headline: "Lead story" }],
+        shorts: [1, 2, 3].map((segment) => ({ segment, headline: `Story ${segment}`, file: `shorts/segment-0${segment}.mp4`, duration: 12 })),
+      };
+    },
+  });
+  const settle = async () => { while (desk.work) await desk.work.done; };
+  await desk.tick();
+  await settle();
+  clock(airTime);
+  for (let i = 0; i < 4; i++) {
+    await desk.tick();
+    await settle();
+  }
+  // Chicago time: the episode now (8 a.m.), Shorts at 10 a.m., 3:30 p.m. and 9 p.m.
+  assert.equal(sent[0].publishAt, null);
+  assert.deepEqual(sent.slice(1).map(({ publishAt }) => publishAt), [
+    "2026-11-16T16:00:00.000Z", "2026-11-16T21:30:00.000Z", "2026-11-17T03:00:00.000Z",
+  ]);
+  const { edition } = await desk.view();
+  assert.equal(edition.youtube.shorts["3"].publishAt, "2026-11-17T03:00:00.000Z");
+  // A slot that has already passed publishes at once.
+  clock("2026-11-16T16:00:00Z");
+  assert.equal(desk.shortPublishTime(edition, 1), null);
+  assert.equal(desk.shortPublishTime(edition, 2), "2026-11-16T21:30:00.000Z");
+});
