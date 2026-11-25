@@ -350,11 +350,19 @@ export async function engageChannelComments({
     signal?.throwIfAborted();
     const id = entry.comment.id;
     try {
-      const text = publicReply(await replyFor({
+      const drafted = await replyFor({
         author: String(entry.comment.snippet?.authorDisplayName || "viewer").slice(0, 80),
         text: commentText(entry.comment).slice(0, 1000),
         videoTitle: String(titles.get(entry.videoId) || "").slice(0, 140),
-      }));
+      });
+      // null: the model chose not to answer (a hateful comment). Mark it handled.
+      if (drafted === null) {
+        pendingReplies.delete(id);
+        answered = remember(answered, id);
+        await report();
+        continue;
+      }
+      const text = publicReply(drafted);
       if (!text) throw new Error("The sports model returned an empty comment reply.");
       const url = new URL(`${API}/comments`);
       url.searchParams.set("part", "snippet");

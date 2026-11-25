@@ -157,6 +157,25 @@ test("a missing like method still posts the model reply", async (t) => {
   assert.equal(calls.filter((href) => href.includes("/comments/rate?")).length, 0);
 });
 
+test("a comment the model declines is marked handled without posting", async (t) => {
+  installYouTube(t);
+  let posts = 0;
+  const fetchImpl = async (url, options = {}) => {
+    const href = String(url);
+    if (href.startsWith("https://oauth2.googleapis.com/token")) return json({ access_token: "test-token" });
+    if (href.includes("/channels?")) return json({ items: [{ id: channelId }] });
+    if (href.includes("/commentThreads?")) return json({ items: [thread("t2", "videoTwo2222", comment("plain"))] });
+    if (href.includes("/comments?") && options.method === "POST") { posts += 1; return json({ id: "posted1" }); }
+    return json({ items: [] });
+  };
+  const result = await engageChannelComments({ fetchImpl, replyFor: async () => null });
+  assert.equal(posts, 0);
+  assert.equal(result.replied, 0);
+  assert.equal(result.failed, 0);
+  assert.equal(result.remaining, 0);
+  assert.deepEqual(result.repliedIds, ["plain"]);
+});
+
 test("comment reads explain a token that can only upload", async (t) => {
   installYouTube(t);
   const fetchImpl = async (url) => {
@@ -190,6 +209,25 @@ test("draftCommentReply uses the sports model", async (t) => {
     { fetchImpl: async () => json({ choices: [{ message: { content: JSON.stringify({ reply: "Glad the Sparks recap landed." }) } }] }) },
   );
   assert.equal(reply, "Glad the Sparks recap landed.");
+
+  // A stock "I don't have that in front of me" reply is rewritten once.
+  const drafts = ["I don't have the foul count in front of me.", "those whistles were wild 😂"];
+  let asked = 0;
+  const human = await draftCommentReply(
+    { author: "Sam", text: "How many fouls?", videoTitle: "The Rundown" },
+    { fetchImpl: async () => json({ choices: [{ message: { content: JSON.stringify({ skip: false, reply: drafts[asked++] }) } }] }) },
+  );
+  assert.equal(human, "those whistles were wild 😂");
+  assert.equal(asked, 2);
+
+  // A slur gets no reply, without asking the model.
+  let called = false;
+  const skipped = await draftCommentReply(
+    { author: "troll", text: "this game is goy slop", videoTitle: "GTA 6" },
+    { fetchImpl: async () => { called = true; return json({}); } },
+  );
+  assert.equal(skipped, null);
+  assert.equal(called, false);
 });
 
 test("the comment button runs across the channel and refuses a second pass while busy", async (t) => {
